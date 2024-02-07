@@ -1,0 +1,8480 @@
+'use strict';
+
+/*
+ *   Authors: Guido Ruiz, Daniel Rivero
+ *
+ *   Description: You can add all the dependencies you need here. The process of adding a new
+ *   angular dependency is to add the .js on the correct folder and importing it through the index.jade, then writing
+ *   the module name on it (found usually on the site of the dependency) as a new item in the array.
+ */
+
+Parse.initialize("83fy28yfh238");
+//note if running on local host user the following string for the Parse.serverURL:  http://localhost:3013/parse (note: 3013 is the port number that you are using to run eEVA)
+//Parse.serverURL = 'https://virtualhealthcounseling.com/parse';
+Parse.serverURL = 'http://localhost:3013/parse';
+
+angular.module('app', ['xeditable', 'ngAnimate', 'ui.bootstrap', 'angularTreeview', 'ngclipboard', 'ui.router', 'ngCookies', 'ngMaterial', 'angular-bind-html-compile', 'chart.js', 'oc.lazyLoad', 'LocalStorageModule', 'ui.sortable', 'ngSanitize']);
+'use strict';
+
+/*
+ *   Authors: Guido Ruiz, Daniel Rivero
+ *
+ *   Description: Below are all the routes of eEva, shared across all controllers. A route is a way of telling angular
+ *   what controller / page to load when a particular URL is found on the web page. For example, localhost:3000/#/ is
+ *   read by this route, and returned is the home.view.html with the controller homeController. In all the other files
+ *   we've simply created the description of these controllers and web templates, but this route file is what actually
+ *   puts them together, instantiates them, and gives to the user. The best way to think about this is the user visiting
+ *   the home page and seeing a TV, and angular changes the chanel depending on what URL the user types (analogy of
+ *   pressing buttons on a TV remote). The TV does not change, unlike older web pages, the TV (skeleton) of the site
+ *   stays the same, but the content within it is swapped 'injected' with something else. This is why the web page never
+ *   truly 'reloads' unlike older web pages.
+ *
+ *   NOTE that some routes have an extra 'htmlModules' and 'mainframeConfig'. These are used by the counseling
+ *   controller because we have many different demos. We didn't want to create a separate page for each demo, instead,
+ *   we let the counseling controller use these two files to know what character to load, what intervention to load,
+ *   and what HTML blocks to load (camera? user button? unity or haptek? etc). You can create a custom key value pair
+ *   if you need to for another controller based on the route similar to how we did it with the counseling controller.
+ *
+ *   You can add new routes by creating a new '.when' parameter. There is a catch '.otherwise' that handles any route
+ *   in the URL not involving the ones dictated here. The routes should be self explanatory.
+ */
+angular.module('app').config(states);
+
+states.$inject = ['$stateProvider', '$urlRouterProvider', 'localStorageServiceProvider'];
+
+function states($stateProvider, $urlRouterProvider, localStorageServiceProvider) {
+    //--------------------------------------------------------------------------------------------------------------
+    /* PRODUCTION ROUTES */
+    //--------------------------------------------------------------------------------------------------------------
+    /*  $stateProvider.state('home', {
+            url: '/',
+            templateUrl: 'views/home.view.html',
+            controller: 'homeController'
+        });
+        */
+    $stateProvider.state('home', {
+        url: '/',
+        templateUrl: 'views/welcome.view.html',
+        controller: 'welcomeController'
+    });
+    /*
+    
+        $stateProvider.state('home', {
+            url: '/admin',
+            templateUrl: 'views/home.view.html',
+            controller: 'homeController'
+        });
+    */
+
+    $stateProvider.state('password', {
+        url: '/account/:token',
+        templateUrl: 'views/password.view.html',
+        controller: 'passwordController'
+    });
+
+    $stateProvider.state('machine', {
+        url: '/machine/{edit}',
+        params: { edit: null },
+        templateUrl: "views/machine.view.html",
+        controller: "machineController"
+    });
+
+    $stateProvider.state('editor', {
+        templateUrl: "views/editor.view.html",
+        controller: "editorController"
+    });
+
+    $stateProvider.state('welcome', {
+        url: '/counseling',
+        templateUrl: 'views/welcome.view.html',
+        controller: 'welcomeController'
+    });
+
+    $stateProvider.state('counseling', {
+        templateUrl: 'views/counseling.view.html',
+        controller: 'counselingController'
+    });
+
+    //todo:  get rid of the one following state, this is for testing the feedback module
+    $stateProvider.state('testUsrFeedback', {
+        templateUrl: 'views/testFeedback/feedbackTEST.view.html',
+        url: '/feedbackTEST'
+    });
+    //end of todo
+
+
+    $stateProvider.state('feedback', {
+        templateUrl: 'views/testFeedback/feedbackTEST.view.html',
+        controller: 'scoreController'
+    });
+
+    $stateProvider.state('feedback.intervention', {
+        url: '/feedbackTEST',
+        templateUrl: 'views/testFeedback/selectIntervention.feedback.html'
+    });
+
+    $stateProvider.state('feedback.form', {
+        templateUrl: 'views/testFeedback/selectForm.feedback.html'
+    });
+
+    $stateProvider.state('survey', {
+        templateUrl: 'views/survey/newSurvey.html',
+        controller: 'newSurveyController'
+    });
+
+    $stateProvider.state('survey.intervention', {
+        url: '/survey',
+        templateUrl: 'views/survey/selectIntervention.html'
+    });
+
+    $stateProvider.state('survey.form', {
+        templateUrl: 'views/survey/selectForm.html'
+    });
+
+    $stateProvider.state('survey.element', {
+        templateUrl: 'views/survey/selectElement.html'
+    });
+
+    $stateProvider.state('survey.editElement', {
+        templateUrl: 'views/survey/editElement.html'
+    });
+
+    $stateProvider.state('surveyFormTest', {
+        url: '/surveyFormTest',
+        templateUrl: 'views/surveyFormTest.view.html'
+    });
+
+    $stateProvider.state('notYetMapped', {
+        url: '/notYetMapped',
+        templateUrl: 'views/not.yet.mapped.view.html',
+        controller: 'notYetMappedController'
+    });
+
+    $stateProvider.state('webgl', {
+        url: '/robocanes',
+        data: {
+            mainframeConfig: 'mainframe/configs/eEvaConfig.xml',
+            htmlModules: ['userButton', 'userMenu', 'virtualys', 'contentView', 'cameraMenu', 'cameraButton', 'pauseButton', 'resumeButton', 'backButton', 'progressBar', 'micButton', 'micSlash', 'myProgress']
+            //           htmlModules: ['userButton', 'userMenu', 'elementPanel', 'virtualys', 'contentView', 'cameraMenu', 'cameraButton', 'pauseButton', 'resumeButton', 'backButton', 'progressBar' ,'micButton', 'micSlash', 'navBar', 'myProgress']
+        },
+        templateUrl: 'views/webgl.view.html',
+        controller: 'webglController'
+    });
+
+    //--------------------------------------------------------------------------------------------------------------
+    /* TESTING, DEBUGGING ROUTES */
+    //--------------------------------------------------------------------------------------------------------------
+
+    $stateProvider.state('office01', {
+        url: "/demo/office/01",
+        data: {
+            mainframeConfig: 'mainframe/configs/dcuConfig.xml',
+            htmlModules: ['userButton', 'userMenu', 'elementPanel', 'virtualys', 'contentView', 'cameraMenu', 'cameraButton', 'navbar', 'myProgress'],
+            character: { // overrides user selected character
+                id: "OFFICE_DEMO_01",
+                img: "",
+                type: "virtualys",
+                name: "Office Demo 01",
+                path: "unity/tests/FIU_WomanBlondHair_WithOffice_2017_02_16/"
+            }
+        },
+        templateUrl: 'views/webgl.view.html',
+        controller: 'webglController'
+    });
+
+    $urlRouterProvider.otherwise("/");
+
+    localStorageServiceProvider.setPrefix('eEva');
+}
+'use strict';
+
+angular.module('app').controller('counselingController', counselingController);
+
+counselingController.$inject = ['$scope', '$window', '$uibModal', '$state', 'characterService'];
+
+function counselingController($scope, $window, $uibModal, $state, characterService) {
+    $scope.counselors = characterService.counselors;
+    $scope.selectedCounselor = $scope.counselors[0];
+    $scope.previewImgSrc = $scope.selectedCounselor.img;
+
+    $scope.setCounselor = function (index) {
+        characterService.setUsersCounselor(index);
+        $scope.selectedCounselor = characterService.getUsersCounselor();
+        // characterService.changeName($scope.selectedCounselor.name);
+
+        $scope.nextHref = $scope.selectedCounselor.url;
+        $scope.previewImgSrc = $scope.selectedCounselor.img;
+    };
+}
+'use strict';
+
+angular.module('app').controller('homeController', homeController);
+
+homeController.$inject = ['$scope', 'AuthService', 'UserService', 'AdminService'];
+
+function homeController($scope, AuthService, UserService, AdminService) {
+
+    //following handles the Success and Error messages
+    $scope.Success = function (message) {
+        $scope.alert = {
+            alertClass: "alert-success",
+            alertType: "Success!",
+            alertText: message
+        };
+    };
+    $scope.Error = function (message) {
+        $scope.alert = {
+            alertClass: "alert-danger",
+            alertType: "Error!",
+            alertText: message
+        };
+    };
+
+    $scope.currentUser = AuthService.currentUser();
+
+    $scope.mode = 'login';
+
+    $scope.credentials = {
+        username: '',
+        password: ''
+    };
+
+    $scope.changeMode = function (mode) {
+        return $scope.mode = mode;
+    };
+
+    $scope.login = function () {
+        return AuthService.login($scope.credentials).then(function (success) {
+            return $scope.currentUser = AuthService.currentUser();
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.Error(error.message);
+        });
+    };
+
+    $scope.registration = function () {
+        return AuthService.registration($scope.credentials).then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.mode = 'login';
+        }, function (error) {
+            return $scope.currentUser = AuthService.currentUser();
+        });
+    };
+
+    $scope.logout = function () {
+        return AuthService.logout().then(function (success) {
+            return $scope.currentUser = AuthService.currentUser();
+        }, function (error) {
+            return $scope.currentUser = AuthService.currentUser();
+        });
+    };
+
+    $scope.forgot = function () {};
+
+    $scope.getAvailableUsers = function () {
+        //set mode to addAdminUser
+        $scope.mode = 'addAdminUser';
+        //populate list of all active users
+        //todo: do not add the users that are already administrators
+        UserService.getActiveUsers().then(function (objects) {
+            return $scope.activeUsers = objects;
+        }, function (error) {});
+    };
+
+    $scope.selectUserForAdmin = function (userName) {
+        //set the username of the user to add as administrator
+        $scope.newAdmin = userName;
+    };
+
+    $scope.addUserToAdminGroup = function () {
+
+        //user to be added to administrator role
+        var userID = $scope.newAdmin;
+        //run cloud code to add user to as administrator via AdminService
+        AdminService.addUserToAdminGroup(userID).then(function (success) {
+            return $scope.Success('User added successfully to Administrator group.');
+        }, function (error) {
+            return $scope.Error('Error: user was not added to Administrator group.');
+        });
+    };
+
+    // function validateEmail(email) {
+    //     var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    //     return re.test(email);
+    // }
+    //
+    // $scope.forgot = function() {
+    //     if(validateEmail($scope.requestEmail)) {
+    //         $http.post('/auth/password/request', { email: $scope.requestEmail })
+    //             .then((res) => { console.log(res); })
+    //             .catch((err) => { console.log(err); });
+    //     }
+    // }
+}
+'use strict';
+
+/*
+ *   Authors: Guido Ruiz, Daniel Rivero
+ *
+ *   Description: Here lies all the controllers for the state machine page, in charge of creating different route maps
+ *   for the virtual character (known also as interventions). The state machine page has a <node, edge> interface that
+ *   makes it easy to create route maps for the virtual character, as well as allows creations of primitive element
+ *   types that work with Mihai's mainframe. The mainframe is not discussed in this file.
+ *
+ *   There are (3) controllers at the time of this writing. The machine controller is in charge of the <node, edge>
+ *   graph, with functions that add nodes, add edges, and modify the view given data (also communicates with JSPlumb).
+ *   The start controller is in charge of loading a new state machine or creating a new one. The tree view controller
+ *   is in charge of a tiny view on the bottom right side of the state machine page that shows a tree view structure of
+ *   the elements stored in the database to easily get their IDs.
+ *
+ *   Good luck!
+ */
+
+angular.module('app').controller('machineController', machineController);
+
+machineController.$inject = ['$scope', '$state', '$timeout', '$stateParams', 'StateMachineService', 'AddedService'];
+
+function machineController($scope, $state, $timeout, $stateParams, StateMachineService, AddedService) {
+    var Added = Parse.Object.extend('Added');
+
+    $scope.manager = StateMachineService;
+
+    $scope.alert = null; // stores any alerts to show to the user
+    $scope.nameBox = "";
+    $scope.expressionBox = "";
+    $scope.addLoaded = false;
+    $scope.dynamicPopover = {
+        templateUrl: 'views/templates/confirmbox.view.html',
+        nameToDelete: '',
+        title: 'Warning',
+        placement: 'bottom'
+    };
+
+    $scope.Success = function (message) {
+        $scope.alert = {
+            alertClass: "alert-success",
+            alertType: "Success!",
+            alertText: message
+        };
+    };
+    $scope.Error = function (message) {
+        $scope.alert = {
+            alertClass: "alert-danger",
+            alertType: "Error!",
+            alertText: message
+        };
+    };
+
+    $scope.new = function () {
+        var object = AddedService.prototype();
+
+        AddedService.createAdded(object).then(function (success) {
+            return $scope.manager.added.push(success);
+        }, function (error) {
+            return $scope.Error("Could not copy the state machine selected.");
+        });
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // this function is called when you want to load a state graph for editing
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.load = function (added) {
+        $state.go('machine', { edit: added.object.id });
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // save logic for when user clicks save on a state graph
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.save = function () {
+        // delete states and transitions if primitive
+        if ($scope.manager.sm.primitive) {
+            $scope.manager.sm.init.states = [];
+            $scope.manager.sm.init.transitions = [];
+        } else $scope.manager.sm.execute = "";
+
+        // upload your new state machine map to the server as a new <node>
+        $scope.manager.sm.save().then(function (success) {
+            $scope.Success("State machine was successfully saved into the system.");
+
+            AddedService.getAllAdded().then(function (success) {
+                return $scope.manager.added = success;
+            }, function (error) {
+                return $scope.Error("There was an error contacting the server. Please try again.");
+            });
+        }, function (error) {
+            return $scope.Error("There was an error contacting the server. Please try again.");
+        });
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // delete a state graph from the server completely
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.delete = function () {
+        if ($scope.manager.sm) {
+            $scope.manager.sm.delete().then(function (success) {
+                return $state.reload();
+            }, function (error) {
+                return $scope.Error('Could not delete the state machine from the server.');
+            });
+        }
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // copy a state graph and make a new one (a copy)
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.copy = function (added) {
+        added.name += "_Copy";
+
+        AddedService.createAdded(added).then(function (success) {
+            return $state.go('machine', { edit: success.object.id });
+        }, function (error) {
+            return $scope.Error("Could not copy the state machine selected.");
+        });
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // in charge of updating an <edge> label in the JSPlumb scene as you edit the name of the <edge> on the side panel
+    // -----------------------------------------------------------------------------------------------------------------
+
+    var initializing = true;
+    $scope.$watch('expressionBox', function (newValue, oldValue) {
+        if (initializing) $timeout(function () {
+            return initializing = false;
+        });else $scope.manager.transitionIdToObject[$scope.manager.selected.id].connection.getOverlay("label").setLabel(newValue);
+    });
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // fixes the size of the <edge> when the <node> changes in size due to it being renamed
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.updateConnection = function (node_Id) {
+        return $scope.manager.instance.repaintEverything();
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // deletes a <node> from the state graph
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.removeNode = function (node) {
+        return $scope.manager.removeNode(node);
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // add a <node> to the state graph from the side panel inventory
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.addNode = function (class_id) {
+        // add node to angular first
+        $scope.manager.addNodeAngular(class_id);
+
+        // add node to plumb second (the visual GUI state graph)
+        $scope.$$postDigest(function () {
+            // add state to jsPlumb
+            var el = $scope.manager.instance.getSelector("#nodeId_" + $scope.manager.nodeId)[0];
+            $scope.manager.addNodePlumb(el);
+        });
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // remove an <edge> from the state graph
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.removeTransition = function (transition) {
+        // remove transition from angular first
+        $scope.manager.removeTransition(transition.id);
+        if (transition == $scope.manager.selected) $scope.manager.selected = null;
+
+        // remove transition from plumb second (the visual GUI state graph)
+        $scope.manager.instance.detach($scope.manager.transitionIdToObject[transition.id]);
+        delete $scope.manager.transitionIdToObject[transition.id];
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // this function starts up jsPlumb, the graphical GUI library that shows the state graph
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.jsPlumbInit = function () {
+        console.log("Started jsPlumb");
+
+        // settings
+        $scope.manager.instance = jsPlumb.getInstance({
+            Endpoint: ["Dot", {
+                radius: 2
+            }],
+            Connector: "StateMachine",
+            HoverPaintStyle: {
+                strokeStyle: "#1e8151",
+                lineWidth: 2
+            },
+            ConnectionOverlays: [["Arrow", {
+                location: 1,
+                id: "arrow",
+                length: 14,
+                foldback: 0.8
+            }], ["Label", {
+                label: "",
+                id: "label",
+                cssClass: "aLabel"
+            }]],
+            Container: "canvas"
+        });
+
+        // allow for anchor connections (means the <edge> 'hook' onto the <nodes>)
+        $scope.manager.instance.registerConnectionType("basic", {
+            anchor: "Continuous",
+            connector: "StateMachine"
+        });
+
+        // event function called when an <edge> is formed within the state graph
+        $scope.manager.instance.bind("connection", function (c) {
+            var source = c.source.id;
+            var target = c.target.id;
+
+            c.connection._jsPlumb.id = "transId_" + $scope.manager.transId;
+
+            var label = $scope.manager.lastExpression != "" ? $scope.manager.lastExpression : " ";
+            c.connection.getOverlay("label").setLabel(label);
+            $scope.manager.lastExpression = "";
+
+            $scope.manager.transitionIdToObject["transId_" + $scope.manager.transId] = c;
+            $scope.manager.addTransition(source, target);
+            $scope.manager.incrementTID();
+
+            $scope.$apply();
+        });
+
+        // event function called when an <edge> is clicked within the state graph
+        $scope.manager.instance.bind("click", function (c) {
+            var selected = c._jsPlumb.id;
+
+            var trans = $scope.manager.sm.init.transitions.find(function (t) {
+                return t.id == selected;
+            });
+
+            if (trans) $scope.$apply(function () {
+                return $scope.manager.selected = trans;
+            });
+        });
+
+        // the actual init function of jsPlumb
+        $scope.manager.instance.batch(function () {
+            // add state to jsPlumb
+            var els = jsPlumb.getSelector(".statemachine-demo .w");
+            var highestId = "0";
+
+            els.forEach(function (el, i) {
+                $scope.manager.addNodePlumb(el);
+
+                var currId = parseInt($scope.manager.sm.init.states[i].id.split("_")[1]);
+                highestId = Math.max(currId, highestId);
+            });
+
+            $scope.manager.nodeId = highestId;
+            $scope.manager.incrementNID();
+
+            // prevents infinite loop, as 'connect' jsPlumb calls the bind declared above
+            var copy = angular.copy($scope.manager.sm.init.transitions);
+            $scope.manager.sm.init.transitions = [];
+
+            copy.forEach(function (c, i) {
+                $scope.manager.lastExpression = c.guard.expression;
+
+                $scope.manager.instance.connect({
+                    source: c.from,
+                    target: c.to,
+                    type: "basic"
+                });
+
+                $scope.manager.sm.init.transitions[i].guard = c.guard;
+            });
+        });
+    };
+
+    // jsPlumb wait timer
+    $scope.initWait = function () {
+        if (!$scope.addLoaded) $timeout($scope.initWait, 100);else $scope.jsPlumbInit();
+    };
+
+    // starts jsPlumb when angular is ready first, uses wait timer above to do this
+    jsPlumb.ready($scope.initWait);
+
+    function init() {
+        $scope.manager.reset();
+        $scope.manager.editing = $stateParams.edit;
+
+        AddedService.getAllAdded().then(function (objects) {
+            $scope.manager.added = objects;
+
+            // look for current 'editing' state machine if we're editing
+            var existing = $scope.manager.added.find(function (a) {
+                return a.object.id == $scope.manager.editing;
+            });
+
+            console.log("Finished loading added states");
+
+            if (!existing) return;
+
+            // id to param size
+            var idToParamSize = {};
+
+            $scope.manager.added.forEach(function (a) {
+                idToParamSize[a.object.id] = a.init.params.length;
+            });
+
+            $scope.manager.sm = existing;
+
+            // update any parameters changed by a previous edit
+            $scope.manager.sm.init.states.forEach(function (s) {
+                var oldLen = s.params.length;
+                var newLen = idToParamSize[s.class];
+
+                if (newLen > oldLen) for (var i = 0; i < newLen - oldLen; i++) {
+                    s.params.push("");
+                } else if (newLen < oldLen) for (var _i = 0; _i < oldLen - newLen; _i++) {
+                    s.params.pop();
+                } // fix any negative positions
+                s.plumbleft = Math.max(0, parseInt(s.plumbleft.replace("px", ""))) + "px";
+                s.plumbtop = Math.max(0, parseInt(s.plumbtop.replace("px", ""))) + "px";
+            });
+
+            $scope.addLoaded = true;
+            $scope.manager.showLoad = false;
+        }, function (error) {
+            return $scope.Error('There was an error contacting the server. Please try again.');
+        });
+    }
+
+    // initial load of empty state machine
+    init();
+}
+'use strict';
+
+angular.module('app').controller('newSurveyController', newSurveyController);
+
+newSurveyController.$inject = ['$scope', '$state', 'InterventionService', 'FormService', 'ElementService'];
+
+function newSurveyController($scope, $state, InterventionService, FormService, ElementService) {
+    $scope.interventions = [];
+    $scope.forms = [];
+    $scope.elements = [];
+
+    $scope.totElements = 0;
+
+    //following handles the Success and Error messages
+    $scope.Success = function (message) {
+        $scope.alert = {
+            alertClass: "alert-success",
+            alertType: "Success!",
+            alertText: message
+        };
+    };
+    $scope.Error = function (message) {
+        $scope.alert = {
+            alertClass: "alert-danger",
+            alertType: "Error!",
+            alertText: message
+        };
+    };
+
+    // -- helper functions that refresh arrays above
+    function refreshElements() {
+        if (!$scope.formSelected) return;
+
+        // code goes here...
+        ElementService.getElementsByForm($scope.formSelected.object).then(function (objects) {
+            $scope.elements = objects;
+
+            //automatically reorder if deletion of an element has occurred and reordering of elements
+            //have not taken place
+            for (var i = 0; i < $scope.elements.length; i++) {
+                if (i != $scope.elements[i].order) {
+                    $scope.elements[i].order = i;
+                    $scope.elements[i].save();
+                }
+            }
+
+            //update the number of total elements belonging to current form (used for reording elements in
+            //the editor view
+            $scope.totElements = $scope.elements.length - 1;
+        }, function (error) {});
+    }
+    function refreshForms() {
+        if (!$scope.interventionSelected) return;
+
+        FormService.getFormsByIntervention($scope.interventionSelected.object).then(function (objects) {
+            return $scope.forms = objects;
+        }, function (error) {});
+    }
+    function refreshInterventions() {
+        InterventionService.getAllInterventions().then(function (objects) {
+            return $scope.interventions = objects;
+        }, function (error) {});
+    }
+
+    // this function is responsible for updating the order of all elements if the user has decided to change
+    // the order of one of the elements
+    function reorderElements(elem, prevOrder, newOrder) {
+        if (prevOrder < newOrder) {
+            console.log("previous is less than new");
+            for (var i = prevOrder + 1; i <= newOrder; i++) {
+                elem[i].order -= 1;
+                elem[i].save();
+            }
+        } else if (prevOrder > newOrder) {
+            console.log("previous is greater than new");
+            for (var _i = newOrder; _i < prevOrder; _i++) {
+                elem[_i].order += 1;
+                elem[_i].save();
+            }
+        }
+        return elem;
+    }
+
+    // -- select an intervention, form, or element
+
+    $scope.interventionSelected = null;
+    $scope.formSelected = null;
+    $scope.elementSelected = null;
+    $scope.elementPrevOrder = null;
+    //$scope.workingElement = new Object();
+    $scope.workingElement = {
+        phrase: [],
+        content: []
+    };
+
+    $scope.editorMode = {};
+
+    $scope.selectIntervention = function (intervention) {
+        $scope.interventionSelected = intervention;
+        refreshForms();
+        $state.go('survey.form');
+    };
+    $scope.selectForm = function (form) {
+        $scope.formSelected = form;
+        refreshElements();
+        $state.go('survey.element');
+    };
+    $scope.selectElement = function (element) {
+        // code goes here...
+        console.log("EditorMode!");
+        $scope.workingElement = {
+            phrase: [],
+            content: []
+        };
+
+        $scope.elementSelected = element;
+
+        console.log(element);
+
+        $scope.elementSelected.phrase.forEach(function (p, index) {
+            // console.log(index);
+            $scope.workingElement.phrase.push({
+                text: p
+            });
+        });
+        $scope.elementSelected.content.forEach(function (c, index) {
+            $scope.workingElement.content.push({
+                text: c
+            });
+        });
+
+        $scope.elementPrevOrder = element.order;
+
+        var elType = $scope.elementSelected.type;
+        console.log(elType);
+        //the following switch case statement determines the fields that are needed to be displayed
+        //in the element editor view based on the type of element that is currently selected
+        switch (elType) {
+            case "QuestionAnswer":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = true;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = true;
+                break;
+            case "QuestionAnswer-Checkbox":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = true;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = true;
+                break;
+            case "textArea":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = false;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = true;
+                break;
+            case "feedback":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = false;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = false;
+                break;
+            case "feedbackList":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = true;
+                $scope.editorMode.content = false;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = false;
+                break;
+            case "Content":
+                $scope.editorMode.phrase = false;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = false;
+                $scope.editorMode.html = true;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = false;
+                break;
+            case "TabularInput":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = false;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = true;
+                $scope.editorMode.moreOptions = true;
+                break;
+            case "MenuElement":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = true;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = false;
+                break;
+            case "RangeSliderElement":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = true;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = true;
+                break;
+            case "LoginRegisterElement":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = false;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = false;
+                break;
+            case "MenuWithCompletion":
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = false;
+                $scope.editorMode.content = true;
+                $scope.editorMode.html = false;
+                $scope.editorMode.table = false;
+                $scope.editorMode.moreOptions = false;
+                break;
+            default:
+                $scope.editorMode.phrase = true;
+                $scope.editorMode.morePhrases = true;
+                $scope.editorMode.content = true;
+                $scope.editorMode.html = true;
+                $scope.editorMode.table = true;
+                $scope.editorMode.moreOptions = true;
+        }
+        $state.go('survey.editElement');
+    };
+
+    // -- create objects in the server
+    $scope.newIntervention = {};
+    $scope.newForm = {};
+    $scope.newElement = {};
+    $scope.numRows = -1;
+    $scope.numCols = -1;
+    $scope.xHeaders = false;
+    $scope.yHeaders = false;
+
+    $scope.createIntervention = function () {
+        if ($scope.newIntervention.name) {
+            InterventionService.createIntervention($scope.newIntervention).then(function (objects) {
+                return refreshInterventions();
+            }, function (error) {});
+            $scope.Success("New intervention has been created successfully, and is now at the bottom of the intervention list.");
+        } else {
+            $scope.Error("To create a new intervention you must first provide the name of the intervention to be created.");
+        }
+    };
+    $scope.createForm = function () {
+        if ($scope.newForm.name) {
+            FormService.createForm($scope.newForm, $scope.interventionSelected.object).then(function (objects) {
+                return refreshForms();
+            }, function (error) {});
+            $scope.Success("New form has been created successfully, and is now at the bottom of the form list.");
+        } else {
+            $scope.Error("To create a new form you must first provide the name of the form to be created.");
+        }
+    };
+    $scope.createElement = function (elementType) {
+        // code goes here...
+        $scope.newElement.type = elementType;
+        $scope.newElement.order = $scope.elements.length;
+
+        ElementService.createElement($scope.newElement, $scope.formSelected.object).then(function (objects) {
+            return refreshElements();
+        }, function (error) {});
+
+        var msg = 'The ' + elementType + ' element has been added to the ' + $scope.formSelected.name + ' form successfully, and can be viewed at the bottom of the list of available elements.';
+        $scope.Success(msg);
+    };
+
+    /* --- following code is specific to creating a table that will allow user to input data ---  */
+    $scope.createTabularInputElement = function (rows, cols, xHead, yHead) {
+
+        //set the type of element and the order in which the element displays
+        $scope.newElement.type = "TabularInput";
+        $scope.newElement.order = $scope.elements.length;
+
+        /*following is a temp array that is used to build the structure of the table. The
+        //table structure is an an array of objects and is explained below
+        //  [
+        //    {
+        //        row: is an integer that represents index of the row
+        //        content: is an array of objects that holds the content of the table
+        //    },
+        //    {
+        //      ...
+        //    },
+        //    ....
+        //  ]
+        //The content object defined below:
+        //  [
+        //      { value: a string that is to be the label of the row or col, if not a label this is blank for user input
+        //        isHeader:  a boolean that is true if the value represents a header false if left for user input
+        //      },
+        //    {
+        //      ...
+        //    },
+        //    ....
+        //  ]
+        //
+        */
+        var structure = new Array();
+        var header = false;
+        //build table based on the number of rows and cols the user has indicated in the prompt in the survey editor
+        //start by traversing the rows
+        for (var i = 0; i < rows; i++) {
+            //build the content array for table structure
+            var content = new Array();
+            //traverse the columns within that row
+            for (var j = 0; j < cols; j++) {
+                //Check if the current position is a header or not, indicated by the user via survey editor
+                if (xHead && i == 0 || yHead && j == 0) {
+                    header = true;
+                }
+                content[j] = {
+                    value: "empty",
+                    isHeader: header
+                };
+                header = false;
+            }
+            //push this row to the structure
+            structure.push({
+                row: i,
+                content: content
+            });
+        }
+        //set the content attribute of the element to the newly build table structure
+        $scope.newElement.content = structure;
+
+        //use the element service to add this new element to the dataBase
+        ElementService.createElement($scope.newElement, $scope.formSelected.object).then(function (objects) {
+            return refreshElements();
+        }, function (error) {});
+
+        var msg = 'The ${$scope.newElement.type} element has been added to the ${$scope.formSelected.name} form successfully, and can be viewed at the bottom of the list of available elements.';
+        $scope.Success(msg);
+    };
+
+    //update objects that were edited to reflect in the database
+    $scope.renameIntervention = function (interven) {
+        interven.save().then(function (success) {
+            $scope.Success("The intervention has been renamed successfully");
+        }, function (error) {
+            return $scope.Error("There was an error contacting the server. Please try again.");
+        });
+    };
+    $scope.renameForm = function (form) {
+        form.save().then(function (success) {
+            $scope.Success("The form has been renamed successfully");
+        }, function (error) {
+            return $scope.Error("There was an error contacting the server. Please try again.");
+        });
+    };
+
+    $scope.updateElement = function () {
+
+        if ($scope.editorMode.moreOptions) {
+            $scope.elementSelected.isRecorded = 'true' == $scope.elementSelected.isRecorded;
+            $scope.elementSelected.displayBackBtn = 'true' == $scope.elementSelected.displayBackBtn;
+            $scope.elementSelected.displayProgress = 'true' == $scope.elementSelected.displayProgress;
+        }
+
+        var arr = [];
+
+        $scope.workingElement.phrase.forEach(function (p, index) {
+            arr.push(p.text);
+        });
+
+        $scope.elementSelected.phrase = arr;
+
+        arr = [];
+
+        if (!($scope.elementSelected.type === "TabularInput")) {
+            $scope.workingElement.content.forEach(function (c, index) {
+                arr.push(c.text);
+            });
+
+            $scope.elementSelected.content = arr;
+        }
+
+        console.log("Saving element: ");
+        console.log($scope.elementSelected);
+
+        if ($scope.elementSelected != $scope.elementPrevOrder) {
+            $scope.elements = reorderElements($scope.elements, $scope.elementPrevOrder, $scope.elementSelected.order);
+        }
+
+        $scope.elementSelected.save().then(function (success) {
+            $scope.Success("The element has been saved successfully");
+            refreshElements();
+        }, function (error) {
+            return $scope.Error("There was an error contacting the server. Please try again.");
+        });
+    };
+
+    //Code for the element editor in the survey editor
+
+    //the following allows multiple inputs for phrase and content sections of element editor
+    //the function addInput() appends a new input element as the child of the div provided
+    //via function arguments
+    $scope.addInput = function (attr) {
+        var defInput = "";
+
+        if (attr === "content") {
+            $scope.elementSelected.content.push(defInput);
+            $scope.workingElement.content.push({
+                text: ""
+            });
+        }
+        if (attr === "phrase") {
+            $scope.elementSelected.phrase.push(defInput);
+            $scope.workingElement.phrase.push({
+                text: ""
+            });
+        }
+    };
+
+    $scope.deleteInput = function (attr, index) {
+
+        /*if (attr === "content") {
+         $scope.elementSelected.content.splice(index, 1);
+         for(let i = 0; i < $scope.elementSelected.content.length; i++){
+         $scope.elementSelected.content[i].order = i;
+         }
+         }*/
+
+        if (index > -1) {
+            if (attr === "content") {
+                $scope.elementSelected.content.splice(index, 1);
+                $scope.workingElement.content.splice(index, 1);
+            }
+            if (attr === "phrase") {
+                $scope.elementSelected.phrase.splice(index, 1);
+                $scope.workingElement.phrase.splice(index, 1);
+            }
+        }
+
+        $scope.updateElement();
+    };
+
+    $scope.deleteElement = function (element) {
+        $scope.elementSelected = element;
+
+        ElementService.deleteElement($scope.elementSelected, $scope.formSelected.object).then(function (success) {
+            $scope.Success("The element has been deleted successfully");
+            refreshElements();
+        }, function (error) {
+            return $scope.Error("There was an error contacting the server. Please try again.");
+        });
+    };
+
+    //used to navigate back to state determined by the state attribute
+    $scope.goBack = function (state) {
+        refreshElements();
+        refreshForms();
+        refreshElements();
+        $state.go(state);
+    };
+
+    //the following function is used to determine if the field is of the current element will be displayed via
+    //the element preview, this is determined by the type of element and the current field
+    $scope.displayElementField = function (elementType, field) {
+        if (field === "phrase") {
+            if (elementType === 'QuestionAnswer' || elementType === 'MenuWithCompletion' || elementType === 'RangeSliderElement' || elementType === 'MenuElement' || elementType === 'feedback' || elementType === 'feedbackList' || elementType === 'QuestionAnswer-Checkbox' || elementType === 'QuestionAnswer' || elementType === 'textArea' || elementType === 'LoginRegisterElement') {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (field === "content") {
+            if (elementType === 'QuestionAnswer' || elementType === 'MenuWithCompletion' || elementType === 'QuestionAnswer-Checkbox' || elementType === 'MenuElement' || elementType === 'RangeSliderElement') {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (field === "html") {
+            if (elementType === 'Content') {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return true;
+        }
+    };
+
+    $scope.elReorder = false;
+
+    //the following function updates the order of the elements when there has been a change in the order. it sets
+    //elReorder to true indicating that the order of the elements have changed and needs to be saved
+    $scope.stop = function (e, ui) {
+        for (var i = 0; i < $scope.elements.length; i++) {
+            $scope.elements[i].order = i;
+        }
+        if (!$scope.elReorder) {
+            $scope.elReorder = true;
+        }
+    };
+
+    $scope.updateElementsOrder = function () {
+
+        $scope.elements.forEach(function (element, index) {
+            element.save().then(function (success) {
+                if (index === $scope.elements.length - 1) {
+                    $scope.Success("The elements have been successfully reordered.");
+                    $scope.elReorder = false;
+                }
+            }, function (error) {
+                $scope.Error("There was an error contacting the server. Please try again.");
+                $scope.elReorder = false;
+            });
+        });
+    };
+
+    refreshInterventions();
+}
+'use strict';
+
+angular.module('app').controller('scoreController', scoreController);
+
+scoreController.$inject = ['$scope', 'ScoreService', 'AuthService', 'InterventionService', 'FormService', '$state', 'ElementService'];
+
+function scoreController($scope, ScoreService, AuthService, InterventionService, FormService, $state, ElementService) {
+
+    $scope.currentUser = AuthService.currentUser();
+
+    $scope.interventionSelected = null;
+    $scope.scoredFormSelected = null;
+
+    $scope.calculateScoreByFormObj = function (form) {
+
+        if (!$scope.currentUser) return;
+
+        $scope.scoredFormSelected = form;
+
+        var formID = $scope.scoredFormSelected.object.id;
+
+        ScoreService.calculateFormScore(formID).then(function (score) {
+            console.log(score);
+            $scope.score = score;
+        }, function (error) {
+            console.log(error.message);
+        });
+    };
+
+    $scope.scoredInterventions = [];
+    $scope.scoredForms = [];
+    $scope.elementsOfScoredForm = [];
+
+    // -- helper functions that refresh arrays above
+    function getScoredForms() {
+        if (!$scope.interventionSelected) return;
+
+        FormService.getFormsByIntervention($scope.interventionSelected.object).then(function (objects) {
+            return $scope.scoredForms = objects;
+        }, function (error) {});
+    }
+    function getScoredInterventions() {
+        InterventionService.getAllInterventions().then(function (objects) {
+            return $scope.scoredInterventions = objects;
+        }, function (error) {});
+    }
+    function getScoredElements() {
+        if (!$scope.scoredFormSelected) return;
+
+        // code goes here...
+        ElementService.getElementsByForm($scope.scoredFormSelected.object).then(function (objects) {
+            $scope.elementsOfScoredForm = objects;
+        }, function (error) {});
+    }
+
+    $scope.selectScoredIntervention = function (intervention) {
+        $scope.interventionSelected = intervention;
+        getScoredForms();
+        $state.go('feedback.form');
+    };
+
+    function init() {
+        getScoredInterventions();
+    }
+
+    init();
+}
+"use strict";
+
+var character;
+var mainframe;
+
+var AUDIT = [{
+    "id": "480OIkUfRe",
+    "survey": "audit",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "NTEyjG7JaV",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "3b8HApHIsW",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "9PV3mDHsYj",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "o3Vvd9PuV4",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "7hrQrRkroo",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "fcrMyhewqP",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "XnBeaqJpLP",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "EoNDjbREoC",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "TRbkGxXZij",
+    "survey": "audit",
+    "isFirst": false,
+    "isLast": true
+}];
+var GTNSGT = [{
+    "id": "PBuf3sVCCj",
+    "survey": "GTNSGT",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "UY59yLDhwG",
+    "survey": "GTNSGT",
+    "isFirst": false,
+    "isLast": true
+}];
+var HOWMUCHHOWOFTEN = [{
+    "id": "pleBxUHgyt",
+    "survey": "familyHistory",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "mR3X2pZszK",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "rvYjxAukwA",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "YHmKYTz5Y5",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "0OcF0WWPsl",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "uwT5nhssr2",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "qPjT3Q1sXr",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "lfaPYb8211",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "VOKthC7rpT",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "b3OOreWXJ5",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Ud8heugqCQ",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "r6ZkJCdBEz",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "wPFh7S9lhn",
+    "survey": "myDrinking",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "f8B0ihkAKr",
+    "survey": "myDrinking",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "VLutfNbPnB",
+    "survey": "myDrinking",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "nrFKqQekln",
+    "survey": "otherDrugs",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "BmqCFA3LpF",
+    "survey": "otherDrugs",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "XTxMZ7TJ4h",
+    "survey": "otherDrugs",
+    "isFirst": false,
+    "isLast": true
+}];
+var FAMILYHISTORY = [{
+    "id": "pleBxUHgyt",
+    "survey": "familyHistory",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "mR3X2pZszK",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "rvYjxAukwA",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "YHmKYTz5Y5",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "0OcF0WWPsl",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "uwT5nhssr2",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "qPjT3Q1sXr",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "lfaPYb8211",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "VOKthC7rpT",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "b3OOreWXJ5",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Ud8heugqCQ",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "r6ZkJCdBEz",
+    "survey": "familyHistory",
+    "isFirst": false,
+    "isLast": true
+}];
+/*const MYDRINKING = [
+    {
+        "id": "wPFh7S9lhn",
+        "survey": "myDrinking",
+        "isFirst": true,
+        "isLast": false
+    },
+    {
+        "id": "f8B0ihkAKr",
+        "survey": "myDrinking",
+        "isFirst": false,
+        "isLast": false
+    },
+    {
+        "id": "VLutfNbPnB",
+        "survey": "myDrinking",
+        "isFirst": false,
+        "isLast": true
+    }
+];*/
+var MYDRINKING = [{
+    "id": "2ryq9FqhYi",
+    "survey": "myDrinking",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "F94yWz8Ail",
+    "survey": "myDrinking",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "VLutfNbPnB",
+    "survey": "myDrinking",
+    "isFirst": false,
+    "isLast": true
+}];
+var OTHERDRUGS = [{
+    "id": "nrFKqQekln",
+    "survey": "otherDrugs",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "BmqCFA3LpF",
+    "survey": "otherDrugs",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "XTxMZ7TJ4h",
+    "survey": "otherDrugs",
+    "isFirst": false,
+    "isLast": true
+}];
+var A_R_P = [{
+    "id": "is6vw6wRnG",
+    "survey": "ARP",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "tBryo4ALxF",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "GuFCbEhXOV",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "dSQV6eGkSu",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "PzQplrhIWi",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "CSKw4wbij4",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "GggkBmfJ7o",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "XLn7eaEH96",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "AJycKpEegc",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "1wjSdhf2eM",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "9WHQFfzF4J",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Rf7rQvJfOt",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "udBLvwkRax",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "KQlF0k42wm",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "t5Vll6TJyu",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "jLu5TZtwYU",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "8Qz0T7pwMZ",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "UqgD7PlgW3",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "83FfJ9Zq3M",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "oMop003d7A",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "YHvVH5MqP1",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "jUnJEgy9dm",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "igQMYRzHJa",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "XD5NKWQKhc",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "S9UOlj8XAS",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "QqcaH4ZiJM",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "OmbUxx1Jha",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Et0gmveEIz",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "rqnLEOB52H",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "2oKhO7mWbO",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "v9frAvBSJq",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "a4QamiGCA3",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "bGlMCixyKA",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "wMWqoTE1gA",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "k2ip8q0K2L",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "xdA8C0leeD",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Wv4wzrJp0T",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "WPjoWWTdGW",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "7uAQj46Kc9",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Rvg0whSSHr",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "ySxADohMIJ",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "gCf1E8xcBt",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "VlJABvnKDr",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "6HjTndVKpf",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Gzv94vSMlK",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "WDYFKBp4Ra",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "o0gfHVKiZo",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "8kksZw0b1i",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "tPbHqZDc4F",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "xX6fmHzV8a",
+    "survey": "ARP",
+    "isFirst": false,
+    "isLast": true
+}];
+var DEPRESSION = [{
+    "id": "wEl6CRXHap",
+    "survey": "depression",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "7C7lYsNVrG",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "yQhfDjY1Hv",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "ESzTFSxNqP",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "VNpgWGgR4M",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "skEnfaheGA",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "u0M8THtHeu",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "DO85GeUxhE",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "3z52fzxiYn",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "ZEBeQFKqD6",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "HsJFBrsREs",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "AvCFAxuxUF",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "vRMntIjuE2",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "bYjn7kpxgy",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "NB7AzeSBRH",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "rSlFWovcfk",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "cKiSS5MKkf",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Muxcv4Ua10",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "6cBmIYiTKC",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "tWHgD3sg4A",
+    "survey": "depression",
+    "isFirst": false,
+    "isLast": true
+}];
+var MAST = [{
+    "id": "P8ZORJCP2t",
+    "survey": "MAST",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "anKnOz2zw9",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "NebDyUe5qg",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "EbJlYYgmON",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "wnj3m1I4fr",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "da57qkCJJx",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "lTBnnPVswQ",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "XPNbG5yWKK",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "FSxb56512e",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "tZqTfnFqFk",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "G4RdTw8AlV",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "lkq0iDzd7Z",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Ww5xSMi2CC",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "wsCQRHjYkg",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "LW2xfnSTxl",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "3GuR72PJfe",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "P3h1vN21qh",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "2M78gEZsmt",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "sFMai1HlQC",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "DffMpv7KJi",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "yQyMx17bXy",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "GivFm6vAUY",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "AAtW0GCLKn",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "e1yYpKX6jG",
+    "survey": "MAST",
+    "isFirst": false,
+    "isLast": true
+}];
+var DEPENDENCE = [{
+    "id": "IJcTOH7fGb",
+    "survey": "dependence",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "JrWYjpNoTq",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "entTOZcC7x",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "jSbe0y9yo8",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "UwhNedrfDF",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "brRbraVeTe",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "tpEo1xFKXk",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "pKnT4rw0q0",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "f5poCM6Gwq",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "WfgNctUyc9",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "uLqHs3Cdon",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "VtxPtGv9Vv",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "RnNNlOBTQd",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "ZBV1DmYjhP",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "EvAGJWHkWQ",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "DRMwnfMBq2",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "Z6SYhFUMv7",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "10oWTuZIat",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "APluU5Dc6l",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "IISlXLUAzC",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": false
+}, {
+    "id": "wNj7vCeMXz",
+    "survey": "dependence",
+    "isFirst": false,
+    "isLast": true
+}];
+var TOTAL_NUM_QUESTIONS = {
+    audit: 10,
+    GTNSGT: 2,
+    howMuchHowOften: 0,
+    familyHistory: 10,
+    myDrinking: 3,
+    otherDrugs: 3,
+    ARP: 50,
+    depression: 20,
+    MAST: 24,
+    dependence: 21
+};
+var NEW_USER_PROGRESS = {
+    user: {},
+    GTNSGT: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    audit: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    howMuchHowOften: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    familyHistory: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    myDrinking: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    otherDrugs: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    ARP: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    depression: [{
+        "formId": "",
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    MAST: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    dependence: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }],
+    likeDontLike: [{
+        "timestamp": "",
+        "responsesPtr": [],
+        "percentageComplete": "0",
+        "currentElement": ""
+    }]
+};
+var LIKE_DONT_LIKE = [{
+    "id": "jRiKWdVuIw",
+    "survey": "GTNSGT",
+    "isFirst": true,
+    "isLast": false
+}, {
+    "id": "OXRtsBdAK3",
+    "survey": "GTNSGT",
+    "isFirst": false,
+    "isLast": true
+}];
+var MENU_ELEMENTS = ["4lHNsBzB0x", "RLJpGOTkue"];
+var MENU_ELEMENTS_CHECK = ["aO6qCMcRvH", "BxbtJXn8f6"];
+
+var ABBREV_ELEMENT_OBJECTS = {
+    audit: AUDIT,
+    GTNSGT: LIKE_DONT_LIKE,
+    howMuchHowOften: HOWMUCHHOWOFTEN,
+    familyHistory: FAMILYHISTORY,
+    myDrinking: MYDRINKING,
+    otherDrugs: OTHERDRUGS,
+    ARP: A_R_P,
+    depression: DEPRESSION,
+    MAST: MAST,
+    dependence: DEPENDENCE
+};
+
+angular.module('app').controller('webglController', webglController);
+
+webglController.$inject = ['$scope', '$window', '$state', '$rootScope', '$timeout', '$http', '$ocLazyLoad', '$uibModal', 'AuthService', 'widgetService', 'characterService', 'localStorageService', 'ProgressService', 'UserService'];
+
+function webglController($scope, $window, $state, $rootScope, $timeout, $http, $ocLazyLoad, $uibModal, AuthService, widgetService, characterService, localStorageService, ProgressService, UserService) {
+    $scope.progressSrv = ProgressService;
+    $scope.usrSrvc = UserService;
+    $scope.currentElement_abbreviated = {};
+    $scope.widget = widgetService;
+    $scope.currentUser = Parse.User.current();
+    $scope.isLoggedIn = AuthService.isLoggedIn;
+    $scope.showLogin = false;
+    $scope.tmpRes = [];
+    $scope.auditIds = ["480OIkUfRe", "NTEyjG7JaV", "3b8HApHIsW", "9PV3mDHsYj", "o3Vvd9PuV4", "7hrQrRkroo", "fcrMyhewqP", "XnBeaqJpLP", "EoNDjbREoC", "TRbkGxXZij"];
+    $scope.lastElementInFormIds = [{
+        "name": "audit",
+        "elementID": "TRbkGxXZij"
+    }, {
+        "name": "GTNSGT",
+        "elementID": "UY59yLDhwG"
+    }, {
+        "name": "howMuchHowOften",
+        "elementID": "XTxMZ7TJ4h"
+    }, {
+        "name": "ARP",
+        "elementID": "xX6fmHzV8a"
+    }, {
+        "name": "depression",
+        "elementID": "tWHgD3sg4A"
+    }, {
+        "name": "MAST",
+        "elementID": "e1yYpKX6jG"
+    }, {
+        "name": "dependence",
+        "elementID": "wNj7vCeMXz"
+    }];
+    $scope.$root.usrCmd = {
+        "goBack": false
+    };
+    $scope.newUserProgress = NEW_USER_PROGRESS;
+    $scope.currentUserProgress = {};
+    $scope.currentQuestionNumber = 0;
+    $scope.currentPercentComplete = 0;
+    $scope.mode = {
+        "loggingIn": false,
+        "register": false,
+        "loggingOut": false,
+        "isLoggedIn": false,
+        "forgotPW": false,
+        // "forgotUN": false,
+        "loginActivated": false,
+        "optionsActivated": false,
+        "updatePW": false,
+        "isTempUser": false
+    };
+    $scope.tempUser = {};
+    $scope.tempUserProgress = {};
+    $scope.rangeLabel = 'Not Ready';
+    $scope.readinessLabels = ["I have no interest at all in changing my drinking and I'm not interested in considering any changes in the " + "future even if my situation changes", "I'm not interested in changing my drinking right now but am willing to consider experimenting with different " + "patterns in the future.", "I'm considering how I might want to change my drinking.", "I'm consdiering cutting back on my drinking or not drinking at all."];
+    $scope.credentials = {
+        firstname: "",
+        //lastname: "",
+        username: "",
+        password: "",
+        email: "",
+        education: "",
+        gender: "",
+        dateOfBirth: "",
+        age: "",
+        weight: "",
+        height: {
+            total: 0,
+            feet: "",
+            inches: ""
+        },
+        ethnicity: "",
+        race: [],
+        maritalstatus: "",
+        confirmpassword: "",
+        confirmemail: "",
+        fp_email: "",
+        fp_DOB: ""
+    };
+
+    //following handles the Success and Error messages
+    $scope.Success = function (message) {
+        $scope.alert = {
+            alertClass: "alert-success",
+            alertType: "Success!",
+            alertText: message
+        };
+    };
+    $scope.Error = function (message) {
+        $scope.alert = {
+            alertClass: "alert-danger",
+            alertType: "Error!",
+            alertText: message
+        };
+    };
+    var forcePreviousQuestion = true;
+    var Response = Parse.Object.extend('Response');
+    var Element = Parse.Object.extend('Element');
+    var User = Parse.Object.extend('User');
+
+    function loadUnity(char) {
+        character = char;
+        return $ocLazyLoad.load({
+            serie: true,
+            files: [
+            // load initial setup
+            'unity/facs/engine3d.js', 'unity/facs/facslib.js', 'unity/facs/engineWebGL_u3d.js', char.path + 'UnityLoader.js', 'unity/UnitySettings.js']
+        });
+    }
+
+    $scope.unityLoaded = function () {
+        $ocLazyLoad.load({
+            serie: true,
+            files: ['/mainframe/js/common/three.min.js', '/mainframe/js/common/prototype.js', '/mainframe/js/mainframe.settings.js', '/mainframe/js/mainframe.classes.js']
+        }).then(function () {
+            mainframe = new Mainframe($state.current.data.mainframeConfig); // initialize mainframe
+            mainframe.run(); // starts Mihai's mainframe
+        });
+    };
+
+    //function used to determine if the QA should be treated as a Menu
+    $scope.isMenu = function (elemID) {
+        //console.log("in is menu function with for element: " + elemID);
+        if (MENU_ELEMENTS.includes(elemID)) {
+            //console.log("isMenu returning true");
+            return true;
+        } else {
+            //console.log("isMenu returning false");
+            return false;
+        }
+    };
+    $scope.isMenuCheck = function (elemID) {
+        //console.log("in is menu function with for element: " + elemID);
+        if (MENU_ELEMENTS_CHECK.includes(elemID)) {
+            //console.log("isMenuCheck returning true");
+            return true;
+        } else {
+            //console.log("isMenuCheck returning false");
+            return false;
+        }
+    };
+    $scope.isQA = function (elemID, type) {
+        //console.log("in is menu function with for element: " + elemID);
+        if (!MENU_ELEMENTS_CHECK.includes(elemID) && !MENU_ELEMENTS.includes(elemID) && type == "QuestionAnswer") {
+            //console.log("isQA returning true");
+            return true;
+        } else {
+            //console.log("isQA returning false");
+            return false;
+        }
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // init function. called when the counseling controller is loaded
+    // -----------------------------------------------------------------------------------------------------------------
+    var init = function init() {
+
+        $scope.currentUser = AuthService.currentUser();
+        $scope.currentQuestionNumber = 0;
+
+        $scope.widget.fetchAll(); // now we can load all injects
+        loadUnity($state.current.data.character || characterService.getUsersCounselor());
+        $scope.$root.selectedCounselorVoiceIndex = characterService.getUsersCounselor().voiceIndex;
+        $scope.$root.selectedCounselor = characterService.getUsersCounselor();
+
+        if ($scope.currentUser) {
+            $scope.userGivenName = $scope.currentUser.object.attributes.firstName;
+            $scope.mode.isTempUser = $scope.currentUser.object.attributes.tempUser;
+            /*console.log("temp user");
+             console.log($scope.currentUser);*/
+            getUserProgress($scope.currentUser.object, false, false);
+        }
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    //  delegates clicking on an HTML inject to it's particular function
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.htmlClick = function (html) {
+        html.click();
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    //  Determines ng-class of div wrapping counseling view for sliding menu. andy
+    // -----------------------------------------------------------------------------------------------------------------
+    $scope.checked = false;
+    $scope.isMenuOpen = true;
+
+    $scope.myCounselor = function () {
+        $scope.checked = !$scope.checked;
+        if ($scope.isMenuOpen) {
+            dynamic();
+            $scope.isMenuOpen = false;
+        }
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // handles the modification of the progress bar in the view (for the audio progress)
+    // -----------------------------------------------------------------------------------------------------------------
+
+    //For the progress circle.
+    //Everytime a new questionnaire is loaded, change current Questionnaire value
+    $scope.progressValue = 0;
+    $scope.currentQuestionnaire = "Audit";
+
+    $scope.auditAnswer = -1;
+    $scope.myProgress = function () {
+        var progress = $scope.widget.myProgress;
+        var userProgress = {};
+        var indicies = [];
+
+        var index = 0;
+        progress.hidden = !progress.hidden;
+
+        if (!progress.hidden) {
+            //if current UserProgress is not null use it for percentages, else use newUserProgress to fill progress object
+            /* console.log($scope.currentUserProgress.attributes);*/
+
+            if ($scope.currentUserProgress == null) {
+                // console.log("**************newUserProgress************");
+                // console.log( $scope.currentUserProgress);
+                userProgress = $scope.newUserProgress;
+            } else {
+                // console.log("**********currentUserProgress*********");
+                userProgress = $scope.currentUserProgress.attributes;
+            }
+
+            //get index of each of last complete survey
+            indicies.push(userProgress.audit.length - 1);
+            indicies.push(userProgress.howMuchHowOften.length - 1);
+            indicies.push(userProgress.GTNSGT.length - 1);
+            indicies.push(userProgress.ARP.length - 1);
+            indicies.push(userProgress.depression.length - 1);
+            indicies.push(userProgress.MAST.length - 1);
+            indicies.push(userProgress.dependence.length - 1);
+
+            index = Math.min.apply(Math, indicies);
+            /*console.log("min length is: " + index);
+            console.log(indicies);*/
+
+            if (index > 0) {
+                index -= 1;
+            }
+
+            $scope.progressBarValue = [{
+                "progressBar": userProgress.audit[index].percentageComplete + "%",
+                "questionnaire": "Audit"
+            }, {
+                "progressBar": userProgress.howMuchHowOften[index].percentageComplete + "%",
+                "questionnaire": "How Much and How Often"
+            }, {
+                "progressBar": userProgress.GTNSGT[index].percentageComplete + "%",
+                "questionnaire": "The Good Things and Not So Good Things"
+            }, {
+                "progressBar": userProgress.ARP[index].percentageComplete + "%",
+                "questionnaire": "Alcohol Related Problems"
+            }, {
+                "progressBar": userProgress.depression[index].percentageComplete + "%",
+                "questionnaire": "Depression Survey"
+            }, {
+                "progressBar": userProgress.MAST[index].percentageComplete + "%",
+                "questionnaire": "MAST"
+            }, {
+                "progressBar": userProgress.dependence[index].percentageComplete + "%",
+                "questionnaire": "Dependence"
+            }];
+        }
+
+        /* if (progress.hidden == false) {
+         console.log("For AuditScore : ");
+         console.log("Questions: " + 10);
+         console.log("Answered: " + $scope.auditAnswer);
+           if ($scope.auditAnswer >= 0) {
+         auditProgress = ($scope.auditAnswer / 10) * 100;
+         auditProgress = auditProgress + "%";
+         $scope.progressBarValue[0].progressBar = auditProgress;
+           }
+           $http.get('/api/dcu/getDrincScore/577fd4747337e7856c9afe65')
+         .then(
+         function (res) {
+         console.log("For DrincScore : ");
+         console.log(res.numOfQuestions);
+         console.log(res.answered);
+         drincProgress = (res.answered / res.numOfQuestions) * 100;
+         drincProgress = drincProgress + "%";
+         $scope.progressBarValue[2].progressBar = drincProgress;
+         console.log(drincProgress);
+         return res;
+         },
+         function (err) {
+         return err;
+         }
+         );
+           $http.get('/api/dcu/getSADQScore/577feebd7337e7856c9afead/577fef827337e7856c9afeb3/577ff1aa7337e7856c9afec4')
+         .then(
+         function (res) {
+         console.log("For SADQScore : ");
+         console.log(res.numOfQuestions);
+         console.log(res.answered);
+         SADQCProgress = (res.answered / res.numOfQuestions) * 100;
+         SADQCProgress = SADQCProgress + "%";
+         $scope.progressBarValue[3].progressBar = SADQCProgress;
+         console.log(SADQCProgress);
+         return res;
+         },
+         function (err) {
+         return err;
+         }
+         );
+           $http.get('/api/dcu/getSOCRATESScore/577ff2227337e7856c9afec9')
+         .then(
+         function (res) {
+         console.log("For Socrates : ");
+         console.log(res.numOfQuestions);
+         console.log(res.answered);
+         socratesProgress = (res.answered / res.numOfQuestions) * 100;
+           if (socratesProgress != "0") socratesProgress = parseInt(socratesProgress) + "%";
+         else socratesProgress = socratesProgress + "%";
+           $scope.progressBarValue[4].progressBar = socratesProgress;
+         console.log(socratesProgress);
+         return res;
+         },
+         function (err) {
+         return err;
+         }
+         );
+         }*/
+    };
+
+    $scope.fullscreen = true;
+    // changes eEva to minimized or maximized depending on the bool provided
+    $scope.toggleFullscreen = function (bool) {
+        $scope.fullscreen = bool;
+        $scope.widget['virtualys'].classes['ue-full'] = bool;
+        $scope.widget['virtualys'].classes['ue-half'] = !bool;
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // used by the mainframe to know when the user has clicked on an answer
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.$root.directInputTimestamp = 0;
+
+    $scope.next = function () {
+        $scope.$root.directInputTimestamp = Date.now();
+
+        var nod = Math.floor(Math.random() * (3 - 1)) + 1;
+        //console.log(nod);
+
+        switch (nod) {
+            case 1:
+                //SendMessage('FACcontroler', 'SetAnimation', 'nod1');
+
+                break;
+            case 2:
+                //SendMessage('FACcontroler', 'SetAnimation', 'nod2');
+
+                break;
+            case 3:
+                //SendMessage('FACcontroler', 'SetAnimation', 'nod3');
+
+                break;
+        }
+    };
+
+    $scope.goBackButton = function () {
+        $scope.$root.usrCmd.goBack = true;
+        $scope.$root.userResponse = -99;
+        $scope.next();
+    };
+
+    //helper function for getting the abbreviated element object. This is not the same object as in the newSurvey controller,
+    //this object only contains the element id (string), the name of the survey in which in belongs (string), and lastly a (bool)
+    //to indicate if that element is the last element of the survey
+    function getAbbrevElementObj(elemId) {
+        //console.log(elemId);
+
+        //check if element belongs to audit ABBREV_ELEMENT_OBJECTS.audit
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.audit.length; i++) {
+            //console.log("audit " + i);
+            if (elemId == ABBREV_ELEMENT_OBJECTS.audit[i].id) {
+                return ABBREV_ELEMENT_OBJECTS.audit[i];
+            }
+        }
+
+        //check if element belongs to GTNSGT
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.GTNSGT.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.GTNSGT[i].id) {
+                //console.log("gtnsgt " + i);
+                return ABBREV_ELEMENT_OBJECTS.GTNSGT[i];
+            }
+        }
+
+        /*//check if element belongs to howMuchHowOften
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.howMuchHowOften.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.howMuchHowOften[i].id) {
+                console.log("howMuchHowOften " + i);
+                return ABBREV_ELEMENT_OBJECTS.howMuchHowOften[i];
+            }
+        }*/
+
+        //check if element belongs to familyHistory
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.familyHistory.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.familyHistory[i].id) {
+                //console.log("familyHistory " + i);
+                return ABBREV_ELEMENT_OBJECTS.familyHistory[i];
+            }
+        }
+
+        //check if element belongs to myDrinking
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.myDrinking.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.myDrinking[i].id) {
+                //console.log("myDrinking " + i);
+                return ABBREV_ELEMENT_OBJECTS.myDrinking[i];
+            }
+        }
+
+        //check if element belongs to otherDrugs
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.otherDrugs.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.otherDrugs[i].id) {
+                //console.log("otherDrugs " + i);
+                return ABBREV_ELEMENT_OBJECTS.otherDrugs[i];
+            }
+        }
+
+        //check if element belongs to ARP
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.ARP.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.ARP[i].id) {
+                //console.log("ARP " + i);
+                return ABBREV_ELEMENT_OBJECTS.ARP[i];
+            }
+        }
+
+        //check if element belongs to depression
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.depression.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.depression[i].id) {
+                //console.log("ARP " + i);
+                return ABBREV_ELEMENT_OBJECTS.depression[i];
+            }
+        }
+
+        //check if element belongs to MAST
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.MAST.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.MAST[i].id) {
+                //console.log("MAST " + i);
+                return ABBREV_ELEMENT_OBJECTS.MAST[i];
+            }
+        }
+
+        //check if element belongs to dependence
+        for (var i = 0; i < ABBREV_ELEMENT_OBJECTS.dependence.length; i++) {
+            if (elemId == ABBREV_ELEMENT_OBJECTS.dependence[i].id) {
+                //console.log("dependence " + i);
+                return ABBREV_ELEMENT_OBJECTS.dependence[i];
+            }
+        }
+
+        return false;
+    };
+
+    //following helper function is used to update the howMuchHowOften survey since it is dependent on 3 sections to be complete
+
+    function updateHowMuchHowOften(progressIndx) {
+        //check if need to mark howMuchHowOften complete by checking if both myDrinking and otherDrugs is complete
+        //by seeing if that have timestamps within this same index
+        /* console.log("in updateHowMuchHowOften");
+         console.log(progressIndx);
+         console.log($scope.currentUserProgress.attributes);*/
+        var lenFH = $scope.currentUserProgress.attributes.familyHistory.length;
+        var lenOD = $scope.currentUserProgress.attributes.otherDrugs.length;
+        var lenMY = $scope.currentUserProgress.attributes.myDrinking.length;
+
+        if (progressIndx < lenFH && progressIndx < lenOD && progressIndx < lenMY) {
+            if ($scope.currentUserProgress.attributes.howMuchHowOften[progressIndx].percentageComplete == "66") {
+                //mark the howMuchHowOften survey complete
+                //console.log("marking howMuchHowOften complete!!!");
+                markHowMuchSurveyComplete();
+            } else {
+                if ($scope.currentUserProgress.attributes.howMuchHowOften[progressIndx].percentageComplete == "33") {
+                    //console.log("updating howMuchHowOften 66!!!");
+                    $scope.currentUserProgress.attributes.howMuchHowOften[progressIndx].percentageComplete = "66";
+                } else {
+                    //console.log("updating howMuchHowOften 33!!!");
+                    $scope.currentUserProgress.attributes.howMuchHowOften[progressIndx].percentageComplete = "33";
+                }
+            }
+        }
+
+        /*if(($scope.currentUserProgress.attributes.familyHistory[progressIndx].timeStamp) || ($scope.currentUserProgress.attributes.otherDrugs[progressIndx].timeStamp)){
+            //set howMuchHowOften to 66%
+            $scope.currentUserProgress.attributes.howMuchHowOften[progressIndx].percentageComplete = "66";
+        }else{
+            //set howMuchHowOften to 33%
+            $scope.currentUserProgress.attributes.howMuchHowOften[progressIndx].percentageComplete = "33";
+        }*/
+    }
+
+    function markHowMuchSurveyComplete() {
+        var defaultValue = {
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        };
+        var timeCompleted = Date.now();
+
+        //get the last entry index in the howMuchHowOften array
+        var index = $scope.currentUserProgress.attributes.howMuchHowOften.length - 1;
+
+        //update the howMuchHowOften by updating the percentageComplete and the timestamp and pushing last response
+        $scope.currentUserProgress.attributes.howMuchHowOften[index].percentageComplete = "100";
+        $scope.currentUserProgress.attributes.howMuchHowOften[index].timestamp = timeCompleted;
+
+        //add new howMuchHowOften entry
+        $scope.currentUserProgress.attributes.howMuchHowOften[index + 1] = defaultValue;
+
+        //save users progress
+        $scope.currentUserProgress.save().then(function (progress) {
+            return console.log("User's progress updated successfully.  The howMuchHowOften was marked complete on:  " + timeCompleted);
+        }, function (error) {
+            return console.log("There was an error updating the user's progress.  Error: " + error);
+        });
+    }
+
+    //the following function is responsible for marking a survey complete whenever a user has finished the last question
+    //of that survey
+    function markSurveyComplete(surveyName, responseObject) {
+        var defaultValue = {
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        };
+        var timeCompleted = Date.now();
+
+        //if currentUserHasProgress, if not then need to update the audit in the newUserProgress object
+        if ($scope.currentUserProgress) {
+            if (surveyName == "audit") {
+
+                //get the last entry index in the audit array
+                var index = $scope.currentUserProgress.attributes.audit.length - 1;
+
+                //check if the audits current percent complete if is zero if so then the audit cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.audit[index].percentageComplete != "0") {
+                    //update the audit by updating the percentageComplete and the timestamp and pushing last response object
+                    $scope.currentUserProgress.attributes.audit[index].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.audit[index].timestamp = timeCompleted;
+                    //console.log($scope.currentUserProgress.attributes.audit );
+                    $scope.currentUserProgress.attributes.audit[index].responsesPtr.push(responseObject);
+
+                    //add new audit entry
+                    $scope.currentUserProgress.attributes.audit[index + 1] = defaultValue;
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The Audit was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "GTNSGT") {
+                //get the last entry index in the GTNSGT array
+                var _index = $scope.currentUserProgress.attributes.GTNSGT.length - 1;
+
+                //check if the GTNSGT current percent complete if is zero if so then the GTNSGT cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.GTNSGT[_index].percentageComplete != "0") {
+                    //update the GTNSGT by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.GTNSGT[_index].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.GTNSGT[_index].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.GTNSGT[_index].responsesPtr.push(responseObject);
+
+                    //add new GTNSGT entry
+                    $scope.currentUserProgress.attributes.GTNSGT[_index + 1] = defaultValue;
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The GTNSGT was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "howMuchHowOften") {
+                //get the last entry index in the howMuchHowOften array
+                var _index2 = $scope.currentUserProgress.attributes.howMuchHowOften.length - 1;
+
+                //check if the howMuchHowOften current percent complete if is zero if so then the howMuchHowOften cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.howMuchHowOften[_index2].percentageComplete != "0") {
+                    //update the howMuchHowOften by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.howMuchHowOften[_index2].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.howMuchHowOften[_index2].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.howMuchHowOften[_index2].responsesPtr.push(responseObject);
+
+                    //add new howMuchHowOften entry
+                    $scope.currentUserProgress.attributes.howMuchHowOften[_index2 + 1] = defaultValue;
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The howMuchHowOften was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "familyHistory") {
+                //get the last entry index in the familyHistory array
+                var _index3 = $scope.currentUserProgress.attributes.familyHistory.length - 1;
+
+                //check if the familyHistory current percent complete if is zero if so then the familyHistory cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.familyHistory[_index3].percentageComplete != "0") {
+
+                    //update the familyHistory by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.familyHistory[_index3].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.familyHistory[_index3].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.familyHistory[_index3].responsesPtr.push(responseObject);
+
+                    //add new familyHistory entry
+                    $scope.currentUserProgress.attributes.familyHistory[_index3 + 1] = defaultValue;
+
+                    //update howMuchHowOften
+                    //console.log("index sent to howMuchHowOften " + index);
+                    updateHowMuchHowOften(_index3);
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The familyHistory was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "myDrinking") {
+                //get the last entry index in the myDrinking array
+                var _index4 = $scope.currentUserProgress.attributes.myDrinking.length - 1;
+
+                //check if the myDrinking current percent complete if is zero if so then the myDrinking cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.myDrinking[_index4].percentageComplete != "0") {
+
+                    //update the myDrinking by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.myDrinking[_index4].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.myDrinking[_index4].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.myDrinking[_index4].responsesPtr.push(responseObject);
+
+                    //add new myDrinking entry
+                    $scope.currentUserProgress.attributes.myDrinking[_index4 + 1] = defaultValue;;
+
+                    //update howMuchHowOften
+                    updateHowMuchHowOften(_index4);
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The myDrinking was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "otherDrugs") {
+                //get the last entry index in the otherDrugs array
+                var _index5 = $scope.currentUserProgress.attributes.otherDrugs.length - 1;
+
+                //check if the otherDrugs current percent complete if is zero if so then the otherDrugs cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.otherDrugs[_index5].percentageComplete != "0") {
+
+                    //update the otherDrugs by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.otherDrugs[_index5].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.otherDrugs[_index5].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.otherDrugs[_index5].responsesPtr.push(responseObject);
+
+                    //add new otherDrugs entry
+                    $scope.currentUserProgress.attributes.otherDrugs[_index5 + 1] = defaultValue;
+
+                    //update howMuchHowOften
+                    updateHowMuchHowOften(_index5);
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The otherDrugs was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "ARP") {
+                //get the last entry index in the ARP array
+                var _index6 = $scope.currentUserProgress.attributes.ARP.length - 1;
+
+                //check if the ARP current percent complete if is zero if so then the ARP cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.ARP[_index6].percentageComplete != "0") {
+
+                    //update the ARP by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.ARP[_index6].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.ARP[_index6].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.ARP[_index6].responsesPtr.push(responseObject);
+
+                    //add new ARP entry
+                    $scope.currentUserProgress.attributes.ARP[_index6 + 1] = defaultValue;
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The ARP was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "depression") {
+                //get the last entry index in the depression array
+                var _index7 = $scope.currentUserProgress.attributes.depression.length - 1;
+
+                //check if the depression current percent complete if is zero if so then the depression cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.depression[_index7].percentageComplete != "0") {
+
+                    //update the depression by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.depression[_index7].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.depression[_index7].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.depression[_index7].responsesPtr.push(responseObject);
+
+                    //add new depression entry
+                    $scope.currentUserProgress.attributes.depression[_index7 + 1] = defaultValue;
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The depression was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "MAST") {
+                //get the last entry index in the MAST array
+                var _index8 = $scope.currentUserProgress.attributes.MAST.length - 1;
+
+                //check if the MAST current percent complete if is zero if so then the MAST cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.MAST[_index8].percentageComplete != "0") {
+                    //update the MAST by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.MAST[_index8].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.MAST[_index8].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.MAST[_index8].responsesPtr.push(responseObject);
+
+                    //add new MAST entry
+                    $scope.currentUserProgress.attributes.MAST[_index8 + 1] = defaultValue;
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The MAST was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else if (surveyName == "dependence") {
+                //get the last entry index in the dependence array
+                var _index9 = $scope.currentUserProgress.attributes.dependence.length - 1;
+
+                //check if the dependence current percent complete if is zero if so then the dependence cannot be complete, it can be completed
+                if ($scope.currentUserProgress.attributes.dependence[_index9].percentageComplete != "0") {
+                    //update the dependence by updating the percentageComplete and the timestamp and pushing last response
+                    $scope.currentUserProgress.attributes.dependence[_index9].percentageComplete = "100";
+                    $scope.currentUserProgress.attributes.dependence[_index9].timestamp = timeCompleted;
+                    $scope.currentUserProgress.attributes.dependence[_index9].responsesPtr.push(responseObject);
+
+                    //add new dependence entry
+                    $scope.currentUserProgress.attributes.dependence.push(defaultValue);
+
+                    //save users progress
+                    $scope.currentUserProgress.save().then(function (progress) {
+                        return console.log("User's progress updated successfully.  The dependence was marked complete on:  " + timeCompleted);
+                    }, function (error) {
+                        return console.log("There was an error updating the user's progress.  Error: " + error);
+                    });
+                }
+            } else {
+                //console.log("Could not mark "+ surveyName + " complete!  Please try again!");
+            }
+        } else {
+            //the users progress needs to be saved to the newUsersProgress object
+            if (surveyName == "audit") {
+
+                //get the last entry index in the audit array
+                var _index10 = $scope.newUserProgress.audit.length - 1;
+
+                //update the audit by updating the percentageComplete and the timestamp and pushing last response
+                $scope.newUserProgress.audit.percentageComplete = "100";
+                $scope.newUserProgress.audit.timestamp = timeCompleted;
+                $scope.newUserProgress.audit.responsesPtr.push(responseObject);
+            }
+        }
+
+        $scope.currentQuestionNumber = 0;
+        $scope.currentPercentComplete = 0;
+    };
+
+    //utility function to check if objects are empty
+    function isEmpty(obj) {
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) return false;
+        }
+        return true;
+    };
+
+    function updateSurveyPercentComplete(surveyName, elemId, responseObject) {
+        var percentageComplete = 0;
+
+        //if currentUserHasProgress update the currentUserProgress, if not then need to update the audit in the newUserProgress object
+        if ($scope.currentUserProgress != null) {
+            //console.log($scope.currentUserProgress);
+            if (surveyName == "audit") {
+
+                //get the last entry index in the audit array
+                var index = $scope.currentUserProgress.attributes.audit.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.audit[index].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /*console.log("index..............." + index);
+                    console.log("current User progress in the audit");
+                    console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.audit[index].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.audit * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the audit by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.audit[index].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.audit[index].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The Audit's percentage complete was updated with the value:  " + percentageComplete + " The Audit's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "GTNSGT") {
+                //get the last entry index in the GTNSGT array
+                var _index11 = $scope.currentUserProgress.attributes.GTNSGT.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.GTNSGT[_index11].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /*console.log("index..............." + index);
+                    console.log("current User progress in the audit");
+                    console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.GTNSGT[_index11].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.GTNSGT * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the audit by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.GTNSGT[_index11].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.GTNSGT[_index11].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The GTNSGT's percentage complete was updated with the value:  " + percentageComplete + " The GTNSGT's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "howMuchHowOften") {
+                //get the last entry index in the howMuchHowOften array
+                var _index12 = $scope.currentUserProgress.attributes.howMuchHowOften.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.howMuchHowOften[_index12].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /* console.log("index..............." + index);
+                     console.log("current User progress in the howMuchHowOften");
+                     console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.howMuchHowOften[_index12].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.howMuchHowOften * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the howMuchHowOften by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.howMuchHowOften[_index12].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.howMuchHowOften[_index12].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The howMuchHowOften's percentage complete was updated with the value:  " + percentageComplete + " The howMuchHowOften's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "familyHistory") {
+                //get the last entry index in the familyHistory array
+                var _index13 = $scope.currentUserProgress.attributes.familyHistory.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.familyHistory[_index13].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /*console.log("index..............." + index);
+                    console.log("current User progress in the familyHistory");
+                    console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.familyHistory[_index13].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.familyHistory * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the familyHistory by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.familyHistory[_index13].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.familyHistory[_index13].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The familyHistory's percentage complete was updated with the value:  " + percentageComplete + " The familyHistory's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "myDrinking") {
+                //get the last entry index in the myDrinking array
+                var _index14 = $scope.currentUserProgress.attributes.myDrinking.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.myDrinking[_index14].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /*console.log("index..............." + index);
+                    console.log("current User progress in the myDrinking");
+                    console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.myDrinking[_index14].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.myDrinking * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the myDrinking by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.myDrinking[_index14].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.myDrinking[_index14].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The myDrinking's percentage complete was updated with the value:  " + percentageComplete + " The myDrinking's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "otherDrugs") {
+                //get the last entry index in the otherDrugs array
+                var _index15 = $scope.currentUserProgress.attributes.otherDrugs.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.otherDrugs[_index15].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /*console.log("index..............." + index);
+                    console.log("current User progress in the otherDrugs");
+                    console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.otherDrugs[_index15].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.otherDrugs * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the otherDrugs by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.otherDrugs[_index15].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.otherDrugs[_index15].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The otherDrugs's percentage complete was updated with the value:  " + percentageComplete + " The otherDrugs's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "ARP") {
+                //get the last entry index in the ARP array
+                var _index16 = $scope.currentUserProgress.attributes.ARP.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.ARP[_index16].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /* console.log("index..............." + index);
+                     console.log("current User progress in the ARP");
+                     console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.ARP[_index16].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.ARP * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the ARP by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.ARP[_index16].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.ARP[_index16].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The ARP's percentage complete was updated with the value:  " + percentageComplete + " The ARP's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "depression") {
+                //get the last entry index in the depression array
+                var _index17 = $scope.currentUserProgress.attributes.depression.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.depression[_index17].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /*  console.log("index..............." + index);
+                      console.log("current User progress in the depression");
+                      console.log($scope.currentUserProgress);
+                    */
+                    $scope.currentUserProgress.attributes.depression[_index17].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.depression * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the depression by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.depression[_index17].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.depression[_index17].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The depression's percentage complete was updated with the value:  " + percentageComplete + " The depression's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "MAST") {
+                //get the last entry index in the MAST array
+                var _index18 = $scope.currentUserProgress.attributes.MAST.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.MAST[_index18].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /*console.log("index..............." + index);
+                    console.log("current User progress in the MAST");
+                    console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.MAST[_index18].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.MAST * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the depression by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.MAST[_index18].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.MAST[_index18].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The MAST's percentage complete was updated with the value:  " + percentageComplete + " The MAST's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else if (surveyName == "dependence") {
+                console.log("Attempting to update the dependence survey.");
+                //get the last entry index in the dependence array
+                var _index19 = $scope.currentUserProgress.attributes.dependence.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                //as well as push the current question response into the responsesPtr array of the Progress Object
+                if (!($scope.currentUserProgress.attributes.dependence[_index19].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+
+                    /*console.log("index..............." + index);
+                    console.log("current User progress in the dependence");
+                    console.log($scope.currentUserProgress);*/
+
+                    $scope.currentUserProgress.attributes.dependence[_index19].responsesPtr.push(responseObject);
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.dependence * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the dependence by updating the percentageComplete and current element id and pushing responseObject in array
+                $scope.currentUserProgress.attributes.dependence[_index19].percentageComplete = percentageComplete;
+                $scope.currentUserProgress.attributes.dependence[_index19].currentElement = elemId;
+
+                //save users progress
+                $scope.currentUserProgress.save().then(function (progress) {
+                    return console.log("User's progress updated successfully. The dependence's percentage complete was updated with the value:  " + percentageComplete + " The dependence's current element was updated with the value: " + elemId);
+                }, function (error) {
+                    return console.log("There was an error updating the user's progress.  Error: " + error);
+                });
+            } else {
+                console.log("Could not update " + surveyName + "! Please try again!");
+            }
+        } else {
+            if (surveyName == "audit") {
+
+                //get the last entry index in the audit array
+                var _index20 = $scope.newUserProgress.audit.length - 1;
+
+                //check if the user clicks same answer twice by comparing elmId with last processed element, if not its okay to update current question number
+                if (!($scope.newUserProgress.audit[_index20].currentElement == elemId)) {
+                    $scope.currentQuestionNumber += 1;
+                }
+
+                //calculate percentage complete
+                percentageComplete = Math.round($scope.currentQuestionNumber / TOTAL_NUM_QUESTIONS.audit * 100);
+
+                //let scope know the current percentage complete to communicate to the user
+                $scope.currentPercentComplete = percentageComplete;
+
+                //update the audit by updating the percentageComplete and current element id and pushing last response
+                $scope.newUserProgress.audit[_index20].percentageComplete = percentageComplete;
+                $scope.newUserProgress.audit[_index20].currentElement = elemId;
+                $scope.newUserProgress.audit[_index20].responsesPtr.push(responseObject);
+            }
+        }
+    };
+
+    //following function is responsible for saving the users progress object in the database, once after completion of
+    //each survey - ehenl001
+    $scope.updateUserProgress = function (elmId, responseObject) {
+
+        //get abbreviated element object from elements const
+        $scope.currentElement_abbreviated = getAbbrevElementObj(elmId);
+
+        //if getAbbrevElementObj returns a valid object continue updating user progress
+        //if not do nothing
+        if ($scope.currentElement_abbreviated) {
+
+            //check if element is last in current survey
+            if ($scope.currentElement_abbreviated.isLast) {
+                markSurveyComplete($scope.currentElement_abbreviated.survey, responseObject);
+            } else {
+                //if element is not last update percentage completed in the current survey
+                updateSurveyPercentComplete($scope.currentElement_abbreviated.survey, elmId, responseObject);
+            }
+        }
+    };
+
+    //following function gets the users progress object from the database
+    function getUserProgress(usrObject, updateProgressFromNew, updateProgressFromTemp) {
+
+        $scope.progressSrv.getUserProgress(usrObject).then(function (progress) {
+            $scope.currentUserProgress = progress;
+            /*console.log("retrieving users progress..............");
+            console.log($scope.currentUserProgress);*/
+            if (updateProgressFromNew) {
+                transferUserProgress(true);
+            } else if (updateProgressFromTemp) {
+                transferUserProgress(false);
+            }
+        }, function (error) {
+            return console.log(error);
+        });
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // function called when a user answers a question answer element
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.handleQuestionAnswer = function (elemID, answer, numItems) {
+        $scope.next();
+
+        var resObj = { elemID: elemID, answer: [answer] };
+
+        if ($scope.isMenu(elemID) || $scope.isMenuCheck(elemID)) {
+            //ensure the menuChoice is a numeric value and store to be used later
+            var choiceIndex = Number(answer);
+
+            //if the menu has been encountered for the first time
+            if (!$scope.menuIdsVisited.includes(elemID)) {
+
+                //add the current menu to the list of menus visited
+                $scope.menuIdsVisited.push(elemID);
+
+                //prepare the tempArr, used for initializing the menu's flags
+                var tempArr = [];
+
+                //build the initial menuFlag list for the corresponding menu with id: elemID
+                for (var i = 0; i < numItems; i++) {
+                    if (i == choiceIndex) {
+                        tempArr[i] = true;
+                    } else {
+                        tempArr[i] = false;
+                    }
+                }
+
+                //add the newly encountered menu to available menus array
+                $scope.availableMenus.push({
+                    "menuId": elemID,
+                    "menuFlags": tempArr
+                });
+
+                //set the current menu to the current menu
+                $scope.currentMenu = {
+                    "menuId": elemID,
+                    "menuFlags": tempArr
+                };
+            } else {
+                //the menu has already been encountered
+                //look for the correct element id and set the flag of that corresponding flag menu to true
+                for (var i = 0; i < $scope.availableMenus.length; i++) {
+                    //set the flag
+                    if ($scope.availableMenus[i].menuId === elemID) {
+                        $scope.availableMenus[i].menuFlags[choiceIndex] = true;
+                    }
+
+                    //if current menu is different from incoming menu set current menu to incoming menu
+                    $scope.currentMenu = $scope.availableMenus[i];
+                }
+            }
+        } else {
+            $scope.updateUserProgress(elemID, resObj);
+        }
+
+        //if there is a currentUser save answer
+        if ($scope.currentUser) {
+            /*console.log("currentUser*****************************************************");
+             console.log($scope.currentUser);*/
+            Parse.Cloud.run('addResponse', { elemID: elemID, answer: [answer] });
+            if ($scope.tempUser) {
+                //console.log("temp user pushing new answer in tempRes");
+                if ($scope.tmpRes.length > 0) {
+                    for (var i = 0; i > $scope.tmpRes.length; i++) {
+                        if (!$scope.tmpRes[i].elemID == elemID) {
+                            $scope.tmpRes.push({
+                                elemID: elemID,
+                                answer: answer
+                            });
+                        } else {
+                            $scope.tmpRes[i] = {
+                                elemID: elemID,
+                                answer: [answer]
+                            };
+                        }
+                    }
+                } else {
+                    $scope.tmpRes.push({
+                        elemID: elemID,
+                        answer: answer
+                    });
+                }
+            }
+        } else {
+            //if there is not currentUser store answer in a temporary array
+            $scope.tmpRes.push({
+                elemID: elemID,
+                answer: answer
+            });
+        }
+
+        //todo: add responses upon successful login
+        //todo: add responses upon successful registration
+        //todo: create a parse cloud function addMultipleResponses
+        // var ansElem = $scope.responses.find(function(elem){
+        //     return elem.question == elemId;
+        // });
+
+        // if (ansElem === undefined) {
+        //     $scope.responses.push({"question": elemId, "answer": answer});
+        // } else {
+        //     ansElem.answer = answer;
+        //     if($scope.auditAnswer < 10) {
+        //         $scope.auditAnswer++;
+        //         console.log("Audit Answered: "+ $scope.auditAnswer);
+        //     }
+        // }
+
+        // $scope.progressValue = Math.max(($scope.auditAnswer / 10) * 100, 0);
+        // console.log($scope.currentQuestionnaire + " progress : " + $scope.progressValue);
+
+        $scope.$root.userResponse = "";
+    };
+    $scope.handleLRE = function () {
+        $scope.next();
+        $scope.$root.userResponse = "";
+    };
+
+    $scope.getRangeLabel = function (num) {
+        $scope.rangeLabel = $scope.readinessLabels[num];
+    };
+    $scope.handleRangeSliderElement = function (elemID) {
+        var res = $scope.$root.userResponse;
+        $scope.next();
+
+        Parse.cloud.run("addResponse", { elemID: elemID, answer: res });
+
+        $scope.$root.userResponse = "";
+    };
+
+    $scope.menuIdsVisited = [];
+    $scope.availableMenus = [];
+    $scope.currentMenu = {};
+
+    $scope.handleMenuItemSelection = function (numItems, elemID, menuChoice) {
+
+        //progress to next element in the DCU
+        //$scope.next();
+
+        //ensure the menuChoice is a numeric value and store to be used later
+        var choiceIndex = Number(menuChoice);
+
+        //Parse.Cloud.run('addResponse', { elemID: elemID, answer: [menuChoice] });
+
+
+        //if the menu has been encountered for the first time
+        if (!$scope.menuIdsVisited.includes(elemID)) {
+
+            //add the current menu to the list of menus visited
+            $scope.menuIdsVisited.push(elemID);
+
+            //prepare the tempArr, used for initializing the menu's flags
+            var tempArr = [];
+
+            //build the initial menuFlag list for the corresponding menu with id: elemID
+            for (var i = 0; i < numItems; i++) {
+                if (i == choiceIndex) {
+                    tempArr[i] = true;
+                } else {
+                    tempArr[i] = false;
+                }
+            }
+
+            //add the newly encountered menu to available menus array
+            $scope.availableMenus.push({
+                "menuId": elemID,
+                "menuFlags": tempArr
+            });
+
+            //set the current menu to the current menu
+            $scope.currentMenu = {
+                "menuId": elemID,
+                "menuFlags": tempArr
+            };
+        } else {
+            //the menu has already been encountered
+            //look for the correct element id and set the flag of that corresponding flag menu to true
+            for (var i = 0; i < $scope.availableMenus.length; i++) {
+                //set the flag
+                if ($scope.availableMenus[i].menuId === elemID) {
+                    $scope.availableMenus[i].menuFlags[choiceIndex] = true;
+                }
+
+                //if current menu is different from incoming menu set current menu to incoming menu
+                $scope.currentMenu = $scope.availableMenus[i];
+            }
+        }
+
+        /* console.log("******************************************************************************************");
+         console.log($scope.availableMenus);*/
+
+        //clear the user's response (the menu item selected)
+        //$scope.$root.userResponse = "";
+
+    };
+
+    $scope.checkVisited = function (elemID, menuChoice) {
+
+        var cssClass = '';
+
+        //check to see if we have encountered this menu if not then the items all should have the default class
+        if ($scope.menuIdsVisited.includes(elemID)) {
+            //traverse the available menus and find the appropriate menu flag, assign the class based on the flag
+            for (var i = 0; i < $scope.availableMenus.length; i++) {
+                if ($scope.availableMenus[i].menuId === elemID) {
+                    cssClass = $scope.availableMenus[i].menuFlags[menuChoice] ? 'visitedMenuItem' : 'defaultMenuItem';
+                }
+            }
+        } else {
+            cssClass = 'defaultMenuItem';
+        }
+
+        return cssClass;
+    };
+
+    $scope.getProgressValue = function () {
+        return "p" + $scope.progressValue;
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // function called when a user answers a checkbox element
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.checkboxExists = function (item) {
+        if ($scope.$root.userResponse) return $scope.$root.userResponse.indexOf(item) > -1;else return false;
+    };
+    $scope.handleCheckbox = function (elemId, item) {
+        if ($scope.$root.userResponse == null) $scope.$root.userResponse = [];
+
+        var idx = $scope.$root.userResponse.indexOf(item);
+        if (idx > -1) $scope.$root.userResponse.splice(idx, 1);else $scope.$root.userResponse.push(item);
+
+        var ansElem = $scope.responses.find(function (elem) {
+            return elem.question == elemId;
+        });
+
+        if (ansElem === undefined) $scope.responses.push({ "question": elemId, "answer": $scope.$root.userResponse });else ansElem.answer = $scope.$root.userResponse;
+
+        //console.log($scope.$root.userResponse);
+    };
+    /*$scope.handleTabularInput = function(elemID){
+       $scope.next();
+       let response = $scope.$root.userResponse;
+     let answer = new Array();
+     let size = 0, keyA, keyB, i=0;
+       for (keyA in response) {
+     if (response.hasOwnProperty(keyA)){
+     let content = new Array();
+     for (keyB in response[keyA]){
+     if (response[keyA].hasOwnProperty(keyB)){
+     content.push(response[keyA][keyB]);
+     }
+     }
+         answer[i] = content;
+     i++;
+     }
+     }
+       /!* Parse.Cloud.run('addResponse', { elemID: elemID, answer: answer });*!/
+     };*/
+    // -----------------------------------------------------------------------------------------------------------------
+    // 'defaults' a response when visiting a question already answered
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.$root.updateUserResponseFromLocal = function (elemId) {
+        var ansElem = $scope.responses.find(function (elem) {
+            return elem.question == elemId;
+        });
+
+        if (ansElem === undefined) $scope.$root.userResponse = null;else $scope.$root.userResponse = ansElem.answer;
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // stores error messages and displays them when added
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.alerts = [];
+    $scope.addAlert = function (alert) {
+        $scope.alerts.push(alert);
+        $timeout(function () {
+            $scope.alerts.splice($scope.alerts.indexOf(alert), 1);
+        }, 2500);
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // simple helper function that removes from 'arr' element at 'index'
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.removeElement = function (arr, index) {
+        arr.splice(index, 1);
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // called when the user clicks login
+    // -----------------------------------------------------------------------------------------------------------------
+
+    // $scope.loginButton = function () {
+    //     var panel = $scope.widget.userMenu;
+    //     var cameraMenu = $scope.widget.cameraMenu;
+    //     var cameraButton = $scope.widget.cameraButton;
+    //     var pauseButton = $scope.widget.pauseButton;
+    //
+    //     panel.classes['userMenu-hidden'] = !panel.classes['userMenu-hidden'];
+    //     cameraMenu.classes['cameraMenu-hidden'] = true;
+    //
+    //     if(panel.classes['userMenu-hidden']) {
+    //         if (cameraButton.classes['cameraButton-hidden'])
+    //             cameraMenu.classes['cameraMenu-hidden'] = false;
+    //     }
+    // };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // user related models, profile with answers, credentials, etc.
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.responses = [];
+    $scope.$root.userResponse = "hello";
+    //$scope.credentials = { firstname: "", username: "", password: "", email: "", education: "", gender: "", dateOfBirth:"", age: "", weight: "", height: "", ethnicity: "", race: "", maritalstatus: "", fp_email: "", fp_DOB: "" };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // called when the user clicks the register button. registers the user into the server
+    // -----------------------------------------------------------------------------------------------------------------
+
+
+    //A function that will transfer the newUsersProgress to currentUserProgress upon login
+    function transferUserProgress(xfrFromNewUser) {
+
+        var tmpIndex = 0;
+
+        //get last entry in audit array in current UserProgress
+        var auditIndx = $scope.currentUserProgress.attributes.audit.length - 1;
+        //console.log("last audit index:  " + auditIndx);
+
+        //check if we need to transfer from new user progress if not then check if we need to transfer from tempUser Progress
+        if (xfrFromNewUser) {
+            //update the current user Progress from new user progress object
+            $scope.currentUserProgress.attributes.audit[auditIndx] = $scope.newUserProgress.audit;
+            /*console.log("pushing via new user progress:  ");
+            console.log(typeof $scope.newUserProgress.audit.percentageComplete);*/
+        } else {
+
+            if ($scope.tempUserProgress.attributes.audit.length > 1) {
+                var x = $scope.tempUserProgress.attributes.audit.length - 1;
+                var audit = $scope.tempUserProgress.attributes.audit[x];
+                if (audit.timestamp === "" && audit.percentageComplete === "0") {
+                    tmpIndex = x - 1;
+                } else {
+                    tmpIndex = x;
+                }
+            }
+
+            /*console.log("currentUserProgress: ");
+             console.log($scope.currentUserProgress.attributes.audit[auditIndx]);
+             console.log("audit index: ");
+             console.log(auditIndx);
+               console.log("tempUserProgress: ");
+             console.log($scope.tempUserProgress.attributes.audit);
+             console.log("tmp index: ");
+             console.log(tmpIndex);
+             */
+
+            //update the current user Progress from new temp user progress object
+            $scope.currentUserProgress.attributes.audit[auditIndx] = $scope.tempUserProgress.attributes.audit;
+
+            //save the current user progress
+            //save users progress
+            //console.log( $scope.currentUserProgress);
+            $scope.currentUserProgress.save().then(function (progress) {
+                return console.log("Current users progress updated from temp user complete!");
+            }, function (error) {
+                return console.log("There was an error updating the user's progress from temp user.  Error: " + error);
+            });
+
+            /*console.log("pushing via temp user progress:  ");
+            console.log(typeof $scope.newUserProgress.audit.percentageComplete);*/
+
+            //clear temp scope variables
+            $scope.tempUser = {};
+            $scope.tempUserProgress = {};
+        }
+    };
+
+    //helper function to transfer temp users responses to current user in DB
+    function transferResFromTemp() {
+        for (var i = 0; i < $scope.tmpRes.length; i++) {
+            Parse.Cloud.run('addResponse', { elemID: $scope.tmpRes[i].elemID, answer: [$scope.tmpRes[i].answer] });
+        }
+
+        $scope.tmpRes = [];
+    }
+
+    $scope.register = function () {
+        //$scope.credentials.responses = $scope.responses;
+
+        $scope.credentials.tempUser = false;
+
+        AuthService.register($scope.credentials).then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "Your account has been created!"
+            });
+
+            $scope.mode.loggingIn = false;
+            $scope.mode.register = false;
+            $scope.mode.loggingOut = false;
+            $scope.mode.forgotPW = false;
+            // $scope.mode.forgotUN = false;
+            $scope.mode.loginActivated = false;
+            $scope.mode.updatePW = false;
+            $scope.mode.isLoggedIn = true;
+            $scope.mode.isTempUser = $scope.currentUser.object.attributes.tempUser;
+
+            $scope.userGivenName = success.attributes.firstName;
+
+            if ($scope.tmpRes.length > 0) {
+                transferResFromTemp();
+            }
+
+            //create new progress object for the new user and set it to the currentUserProgress
+            $scope.progressSrv.createProgress($scope.currentUser.object, $scope.currentUserProgress.attributes).then(function (progress) {
+
+                $scope.currentUserProgress = {};
+                $scope.currentUserProgress = progress;
+                /* console.log("User Progress Created Successfully");
+                 console.log($scope.currentUserProgress);*/
+            }, function (error) {
+                console.log("unsuccessful adding new progress");
+            });
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+        });
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // called when the user clicks the login button. logins the user into the site and creates a JWT
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.login = function () {
+        return AuthService.login($scope.credentials).then(function (success) {
+            //get previous User Object for Progress Obj transfer prep
+            $scope.tempUser = $scope.currentUser;
+            $scope.tempUserProgress = $scope.currentUserProgress;
+            $scope.currentUser = AuthService.currentUser();
+            $scope.mode.loggingIn = false;
+            $scope.mode.register = false;
+            $scope.mode.loggingOut = false;
+            $scope.mode.forgotPW = false;
+            // $scope.mode.forgotUN = false;
+            $scope.updatePW = false;
+            $scope.mode.loginActivated = false;
+            $scope.mode.isLoggedIn = true;
+
+            //todo: replace with addMultipleResponse when completed
+            if ($scope.tmpRes.length > 0) {
+                transferResFromTemp();
+            }
+
+            $scope.userGivenName = $scope.currentUser.object.attributes.firstName;
+            $scope.mode.isTempUser = $scope.currentUser.object.attributes.tempUser;
+
+            //if the current user is not temp and temp user is temp then set
+            //func sign:  getUserProgress(usrObject, updateProgressFromNew - bool, updateProgressFromTemp - bool)
+
+            if (!$scope.currentUser.object.attributes.tempUser && $scope.tempUser.object.attributes.tempUser) {
+                //get the users progress when logged in successfully
+                getUserProgress($scope.currentUser.object, false, true);
+            } else {
+                //get the users progress when logged in successfully
+                getUserProgress($scope.currentUser.object, true, false);
+            }
+
+            //Parse.Cloud.run("transferResFromTemp", {tempUserID: $scope.tempUser.object.id});
+
+
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "You have successfully logged in!"
+            });
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+        });
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // function called when the user clicks logout. removes JWT from the browser
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.logout = function () {
+        return AuthService.logout().then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+
+            $scope.mode.loggingIn = false;
+            $scope.mode.register = false;
+            $scope.mode.loggingOut = false;
+            $scope.mode.forgotPW = false;
+            $scope.mode.forgotUN = false;
+            $scope.mode.loginActivated = false;
+            $scope.mode.isLoggedIn = false;
+            $scope.userGivenName = "";
+
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "You have successfully logged out."
+            });
+            $state.go('home');
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+            $scope.isLoggedIn = true;
+        });
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // function called whenever the answers of the user need to be saved onto the server
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.save = function () {
+        if (!$scope.currentUser) return;
+
+        $scope.currentUser.responses = $scope.responses;
+        $scope.currentUser.save();
+    };
+    //new approach to survey list interaction
+    // var selection;
+    // $scope.setSelection = function(string_value) {
+    //     // document.getElementsById(string_value);
+    //     selection = string_value;
+    // }
+    // $scope.getSelection = function() {
+    //     return selection;
+    // }
+
+
+    //Solution to print pages by url. (requires a url of the html file to be printed.
+    function closePrint() {
+        document.body.removeChild(this.__container__);
+    }
+
+    function setPrint() {
+        this.contentWindow.__container__ = this;
+        this.contentWindow.onbeforeunload = closePrint;
+        this.contentWindow.onafterprint = closePrint;
+        this.contentWindow.focus(); // Required for IE
+        this.contentWindow.print();
+    }
+
+    $scope.printPage = function (sURL) {
+        var oHiddFrame = document.createElement("iframe");
+        oHiddFrame.onload = setPrint;
+        oHiddFrame.style.visibility = "hidden";
+        oHiddFrame.style.position = "fixed";
+        oHiddFrame.style.right = "0";
+        oHiddFrame.style.bottom = "0";
+        oHiddFrame.src = sURL;
+        document.body.appendChild(oHiddFrame);
+    };
+    // -----------------------------------------------------------------------------------------------------------------
+    // function called to print properly the pages behind the virtual character
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.printContent = function () {
+        var printWindow = window.open("", "_blank", "");
+        printWindow.document.open();
+        printWindow.document.write($rootScope.contentData.html);
+        printWindow.document.close();
+        printWindow.focus();
+        //The Timeout is ONLY to make Safari work, but it still works with FF, IE & Chrome.
+        setTimeout(function () {
+            printWindow.print();
+            printWindow.close();
+        }, 100);
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // model containing the bar graph information to be displayed on the content view of the counseling site
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.redirect = function (location) {
+        // store in browser cache the location
+        localStorageService.set("redirect-page", location);
+        $window.location.reload();
+    };
+
+    $scope.redirectNewTab = function (newTabUrl) {
+        $window.open(newTabUrl, '_blank');
+    };
+
+    $scope.privacyOpen = function () {
+        //console.log('opening privacy pop up');
+        var modalInstance = $uibModal.open({
+            templateUrl: 'views/partials/popup/privacy.popup.view.html',
+            windowClass: 'center-privacy-popup',
+            controller: 'privacyPopUpController',
+            scope: $scope
+        });
+    };
+
+    $scope.aboutUsOpen = function () {
+        //console.log('opening aboutUs pop up');
+        var modalInstance = $uibModal.open({
+            templateUrl: 'views/partials/popup/aboutUs.popup.view.html',
+            windowClass: 'center-aboutUs-popup',
+            controller: 'aboutUsPopUpController',
+            scope: $scope
+        });
+    };
+
+    $scope.adPolicyOpen = function () {
+        //console.log('opening adPolicy pop up');
+        var modalInstance = $uibModal.open({
+            templateUrl: 'views/partials/popup/adPolicy.popup.view.html',
+            windowClass: 'center-adPolicy-popup',
+            controller: 'adPolicyPopUpController',
+            scope: $scope
+        });
+    };
+
+    $scope.copyrightOpen = function () {
+        //console.log('opening copyright pop up');
+        var modalInstance = $uibModal.open({
+            templateUrl: 'views/partials/popup/copyright.popup.view.html',
+            windowClass: 'center-copyright-popup',
+            controller: 'copyrightPopUpController',
+            scope: $scope
+        });
+    };
+
+    $scope.limitationsOpen = function () {
+        //console.log('opening limitations pop up');
+        var modalInstance = $uibModal.open({
+            templateUrl: 'views/partials/popup/limitations.popup.view.html',
+            windowClass: 'center-limitations-popup',
+            controller: 'limitationsPopUpController',
+            scope: $scope
+        });
+    };
+
+    $scope.close = function () {
+        $uibModal.close({});
+    };
+
+    $scope.hideLogin = function () {
+        if ($scope.showLogin) {
+            $scope.showLogin = false;
+        } else {
+            $scope.showLogin = true;
+        }
+    };
+
+    $scope.labels = [['2006', '2007', '2008', '2009', '2010', '2011', '2012'], [], []];
+    $scope.series = ['Series A', 'Series B'];
+
+    $scope.data = [[65, 59, 80, 81, 56, 55, 40], [28, 48, 40, 19, 86, 27, 90]];
+
+    $scope.bacTableResponse = [[0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0]];
+    $scope.handlePersonalBACTable = function () {
+
+        $scope.next();
+
+        /* console.log('handlePersonalBACTable');
+         console.log(elemID);
+           console.log($scope.bacTableResponse);*/
+
+        Parse.Cloud.run('addResponse', { elemID: elemID, answer: bacTableResponse });
+    };
+
+    $scope.surveyCompleted = function (formName) {
+        switch (formName) {
+            case "The screening questionnaire you took before registering":
+                if ($scope.currentUserProgress.attributes.audit[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "How much and how often you drink":
+                if ($scope.currentUserProgress.attributes.howMuchHowOften[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "What you like and don't like about drinking":
+                if ($scope.currentUserProgress.attributes.GTNSGT[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "Age you started drinking and family history of problems":
+                if ($scope.currentUserProgress.attributes.familyHistory[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "How much you drink":
+                if ($scope.currentUserProgress.attributes.myDrinking[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "Other drug use":
+                if ($scope.currentUserProgress.attributes.otherDrugs[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "Alcohol-related problems":
+                if ($scope.currentUserProgress.attributes.ARP[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "A screening for depressed mood":
+                if ($scope.currentUserProgress.attributes.depression[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "Chances of success with moderate drinking":
+                if ($scope.currentUserProgress.attributes.MAST[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            case "How much you've come to depend on drinking":
+                if ($scope.currentUserProgress.attributes.dependence[0].timestamp) {
+                    return true;
+                } else return false;
+                break;
+            default:
+                return false;
+        }
+    };
+
+    $scope.myDrinks = {
+        beer: [],
+        wine: [],
+        liquor: [],
+        hours: []
+    };
+
+    $scope.saveMDRes = function () {
+        var ans = [];
+        ans[0] = $scope.myDrinks;
+        Parse.Cloud.run('addResponse', { elemID: "wPFh7S9lhn", answer: ans }).then(function (success) {
+            $scope.Success("Your responses have been saved successfully");
+        }, function (error) {
+            $scope.Error("Your responses were not saved. Error: " + error);
+        });
+    };
+
+    $scope.peakDrink = {
+        beer: [],
+        wine: [],
+        liquor: [],
+        hours: []
+    };
+
+    $scope.savePeakRes = function () {
+        var ans = [];
+        ans[0] = $scope.peakDrink;
+        Parse.Cloud.run('addResponse', { elemID: "f8B0ihkAKr", answer: ans }).then(function (success) {
+            $scope.Success("Your responses have been saved successfully");
+        }, function (error) {
+            $scope.Error("Your responses were not saved. Error: " + error);
+        });
+    };
+
+    $scope.testRegistration = function () {
+
+        for (var i = 0; i < $scope.raceType.length; i++) {
+            if ($scope.raceType[i].checked) {
+                $scope.credentials.race.push($scope.raceType[i].name);
+            }
+        }
+
+        $scope.credentials.maritalstatus = $scope.selectedMaritalStatus;
+        $scope.credentials.education = $scope.selectedEducation;
+
+        //console.log(typeof $scope.selectedEthnicity);
+        $scope.credentials.ethnicity = $scope.selectedEthnicity;
+        //console.log(typeof $scope.credentials.dateOfBirth);
+        //console.log($scope.credentials.dateOfBirth);
+        $scope.credentials.gender = $scope.selectedGender;
+
+        var userAge = parseInt($scope.getAge());
+        var userHeight = Number($scope.getHeight());
+        $scope.credentials.age = userAge;
+        $scope.register();
+    };
+
+    init();
+
+    // $scope.registerOpen = function () {
+    //     console.log('opening register pop up');
+    //     var modalInstance = $uibModal.open({
+    //         templateUrl: 'views/partials/popup/register.popup.view.html',
+    //         controller: 'registerPopUpController',
+    //         windowClass: 'center-register-popup',
+    //         scope: $scope
+    //     });
+    // };
+
+    /*$scope.goBackButton = function(){
+     $scope.$root.userResponse = -99;
+     $scope.next();
+     };*/
+
+    /*$scope.loginActivation = function(){
+     var modalInstance = $uibModal.open({
+     templateUrl: 'views/parti als/popup/loginNEW.popup.view.html',
+     windowClass: 'center-loginNEW-popup',
+     scope: $scope
+     });
+     };*/
+
+    $scope.deactivateLoginPopup = function () {
+        $scope.mode.loggingIn = false;
+        $scope.mode.register = false;
+        $scope.mode.loggingOut = false;
+        $scope.mode.forgotPW = false;
+        // $scope.mode.forgotUN = false;
+        $scope.mode.loginActivated = false;
+        $scope.mode.updatePW = false;
+    };
+
+    $scope.loginActivation = function () {
+        $scope.mode.loggingIn = false;
+        $scope.mode.register = false;
+        $scope.mode.loggingOut = false;
+        $scope.mode.forgotPW = false;
+        // $scope.mode.forgotUN = false;
+        $scope.mode.loginActivated = true;
+        $scope.mode.optionsActivated = true;
+        $scope.mode.updatePW = false;
+    };
+
+    $scope.loginLoad = function () {
+        $scope.mode.loggingIn = true;
+        $scope.mode.register = false;
+        $scope.mode.loggingOut = false;
+        $scope.mode.forgotPW = false;
+        // $scope.mode.forgotUN = false;
+        $scope.mode.optionsActivated = false;
+        $scope.mode.updatePW = false;
+    };
+
+    $scope.registrationLoad = function () {
+        $scope.mode.loggingIn = false;
+        $scope.mode.register = true;
+        $scope.mode.loggingOut = false;
+        $scope.mode.forgotPW = false;
+        // $scope.mode.forgotUN = false;
+        $scope.mode.optionsActivated = false;
+        $scope.mode.updatePW = false;
+    };
+
+    $scope.forgotPWLoad = function () {
+        $scope.mode.loggingIn = false;
+        $scope.mode.register = false;
+        $scope.mode.loggingOut = false;
+        $scope.mode.forgotPW = true;
+        // $scope.mode.forgotUN = false;
+        $scope.mode.updatePW = false;
+    };
+
+    $scope.updatePWLoad = function () {
+        $scope.mode.loggingIn = false;
+        $scope.mode.register = false;
+        $scope.mode.loggingOut = false;
+        $scope.mode.forgotPW = false;
+        // $scope.mode.forgotUN = false;
+        $scope.mode.updatePW = true;
+    };
+
+    // $scope.forgotUNLoad = function(){
+    //     $scope.mode.loggingIn = false;
+    //     $scope.mode.register = false;
+    //     $scope.mode.loggingOut = false;
+    //     $scope.mode.forgotPW = false;
+    //     $scope.mode.forgotUN = true;
+    // };
+
+    $scope.fpUser = {};
+
+    //function that helps validate email
+    function checkEmail(email) {
+        //find user by email
+        var atpos = email.indexOf("@");
+        var dotpos = email.lastIndexOf(".");
+
+        if (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= email.length) {
+            window.alert("Failed in the forgot pw before email");
+            return false;
+        }
+        return true;
+    }
+
+    //new function reset user's password
+    $scope.forgotPassword = function () {
+        console.log("going to see if email in db");
+        var emailIsValid = checkEmail($scope.credentials.fp_email);
+
+        if (!emailIsValid) {
+            window.alert("Not a valid e-mail address");
+            return false;
+        }
+
+        $scope.usrSrvc.validateUserbyEmail($scope.credentials.fp_email).then(function (success) {
+            Parse.User.requestPasswordReset($scope.credentials.fp_email, {
+                success: function success() {
+                    $scope.mode = {
+                        "loggingIn": false,
+                        "register": false,
+                        "loggingOut": false,
+                        "isLoggedIn": false,
+                        "forgotPW": false,
+                        // "forgotUN": false,
+                        "loginActivated": false,
+                        "optionsActivated": false,
+                        "updatePW": false,
+                        "isTempUser": true
+                    };
+                    window.alert("Password reset link has been sent to " + $scope.credentials.fp_email);
+                    return true;
+                },
+                error: function error(_error) {
+                    window.alert(_error.message);
+                    return false;
+                }
+            });
+        }, function (error) {
+            return false;
+        });
+    };
+
+    //function to reset user's PW
+    $scope.resetPW = function () {
+        //console.log("Going into reset PW function");
+        var userEmail = $scope.credentials.fp_email;
+        var userDOB = $scope.credentials.fp_DOB;
+        /*        // if ((userEmail==$scope.credentials.email) && (userDOB==$scope.credentials.dateOfBirth))
+                // {
+                //     $scope.addAlert({
+                //         style: "alert-success",
+                //         type: "Success!",
+                //         message: "Email and Date of Birth match"
+                //     });
+                //     console.log("Credentials match!!!");
+                //     $scope.mode.loggingIn = false;
+                //     $scope.mode.register = false;
+                //     $scope.mode.loggingOut = false;
+                //     $scope.mode.forgotPW = false;
+                //     // $scope.mode.forgotUN = false;
+                //     $scope.updatePW = true;
+                //     $scope.mode.loginActivated = false;
+                //     $scope.mode.isLoggedIn = false;
+                //
+                // }
+                // else
+                // {
+                //     $scope.addAlert({
+                //         style: "alert-danger",
+                //         type: "Error:",
+                //         message: error
+                //     });
+                //     console.log("Sorry, credentials do NOT match!");
+                // }*/
+        /*$scope.usrSrvc.updatePW(userEmail, userDOB).then(
+            foundUser =>{
+                $scope.fpUser = foundUser;
+                /!*console.log("User was found in usrSrv.updatePW");
+                console.log(foundUser);*!/
+                $scope.updatePWLoad();
+            },
+            error => console.log("User not found.  Error: " + error)
+        );*/
+    };
+
+    $scope.changePW = function () {
+        if ($scope.credentials.password === $scope.credentials.confirmpassword) {
+            /* console.log("in Change PW webgl................");
+             console.log($scope.fpUser);*/
+            Parse.Cloud.run('updatePW', { updateUsr: $scope.fpUser.id, newPW: $scope.credentials.password }).then(function (success) {
+                return console.log(success);
+            }, function (error) {
+                return console.log(error);
+            });
+
+            /*$scope.usrSrvc.changePW($scope.credentials.password, $scope.fpUser).then(
+                success => {
+                    console.log("Success in changePW");
+                    $scope.loginLoad();
+                },
+                error =>  {
+                    console.log({
+                        style: "alert-danger",
+                        type: "Error:",
+                        message: "Problem: " + error
+                    });
+                }
+            );*/
+        } else {
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: "Sorry! Passwords do not match! Please try again."
+            });
+        }
+    };
+
+    $scope.educationType = ['Some high school', 'High school graduate or equivalent', 'Trade or Vocational degree', 'Some college', 'Associate degree', 'Bachelor\'s degree', 'Graduate or professional degree'];
+
+    $scope.selectedEducation = "";
+
+    $scope.genderType = ['Male', 'Female', 'Other'];
+    $scope.selectedGender = "";
+
+    $scope.ethnicityType = ['Hispanic or Latino', 'Not Hispanic or Latino'];
+
+    $scope.selectedEthnicity = "";
+
+    /*$scope.raceType = [
+     'American Indian or Alaska Native',
+     'Asian',
+     'Black or African Descent',
+     'Native Hawaiian or Other Pacific Islander',
+     'White'
+     ];*/
+    $scope.raceType = [{
+        "name": "American Indian or Alaska Native",
+        "checked": false
+    }, {
+        "name": "Asian",
+        "checked": false
+    }, {
+        "name": "Black or African Descent",
+        "checked": false
+    }, {
+        "name": "Native Hawaiian or Other Pacific Islander",
+        "checked": false
+    }, {
+        "name": "White",
+        "checked": false
+    }];
+
+    $scope.selectedRace = [];
+
+    $scope.maritalType = ['Single, Not Married', 'Married', 'Living with partner', 'Separated', 'Divorced', 'Widowed', 'Prefer not to answer'];
+    $scope.selectedMaritalStatus = "";
+
+    $scope.selectedAnwser = "";
+
+    $scope.changeEthnicity = function (val) {
+        $scope.selectedEthnicity = val;
+    };
+
+    $scope.changeGender = function (val) {
+        $scope.selectedGender = val;
+    };
+
+    $scope.changeMaritalStatus = function (val) {
+        $scope.selectedMaritalStatus = val;
+    };
+
+    $scope.changeEducation = function (val) {
+        $scope.selectedEducation = val;
+    };
+
+    //function for generating age from birthday
+    $scope.getAge = function () {
+        var birthday = $scope.credentials.dateOfBirth;
+        var today = new Date();
+        var age = (today - birthday) / 31557600000;
+        age = Math.floor(age);
+        return age;
+    };
+
+    //function for generating height from feet and inches entered
+    $scope.getHeight = function () {
+        var height_ft = $scope.credentials.height.feet;
+        height_ft = Number(height_ft);
+        var height_in = $scope.credentials.height.inches;
+        height_in = Number(height_in);
+        $scope.credentials.height.total = height_ft * 12 + height_in;
+    };
+}
+'use strict';
+
+angular.module('app').controller('welcomeController', welcomeController);
+
+welcomeController.$inject = ['$scope', '$window', '$uibModal', '$state', 'localStorageService', 'AuthService', '$timeout', 'ProgressService', 'UserService'];
+
+function welcomeController($scope, $window, $uibModal, $state, localStorageService, AuthService, $timeout, ProgressService, UserService) {
+    $scope.usrSrvc = UserService;
+
+    var NEW_USER_PROGRESS = {
+        user: {},
+        GTNSGT: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        audit: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        howMuchHowOften: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        familyHistory: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        myDrinking: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        otherDrugs: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        ARP: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        depression: [{
+            "formId": "",
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        MAST: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }],
+        dependence: [{
+            "timestamp": "",
+            "responsesPtr": [],
+            "percentageComplete": "0",
+            "currentElement": ""
+        }]
+    };
+    $scope.currentUser = Parse.User.current();
+    $scope.tempUser = false;
+    $scope.alerts = [];
+    var DEFAULTCREDENTIALS = {
+        firstname: "",
+        //lastname: "",
+        username: "",
+        password: "",
+        email: "",
+        education: "",
+        gender: "",
+        dateOfBirth: "",
+        age: "",
+        weight: "",
+        height: {
+            total: 0,
+            feet: "",
+            inches: ""
+        },
+        ethnicity: "",
+        race: [],
+        maritalstatus: "",
+        confirmpassword: "",
+        confirmemail: "",
+        tempUser: false
+    };
+
+    $scope.credentials = DEFAULTCREDENTIALS;
+    $scope.progressSrv = ProgressService;
+    $scope.newUserProgress = NEW_USER_PROGRESS;
+    $scope.currentUserProgress = {};
+
+    //helper function for generating random strings
+    function genString() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (var i = 0; i < 5; i++) {
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+        }return text;
+    };
+
+    //helper function for generating age from birthday
+    $scope.getTempAge = function () {
+        var birthday = $scope.credentials.dateOfBirth;
+        var today = new Date();
+        var age = (today - birthday) / 31557600000;
+        var age = Math.floor(age);
+        return age;
+    };
+
+    $scope.tempUserStatus = function () {
+        //allow user to log in if logged in as temp or not logged in at all
+
+        if (!$scope.currentUser.object.attributes.tempUser && $scope.currentUser != null) {
+            //the user logged in is not a temp  User => let user log out
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    $scope.createTempAccount = function () {
+
+        //ehenl001 16 July 2018
+        //flag this account is temp user account
+        $scope.credentials.tempUser = true;
+        $scope.tempUser = $scope.credentials.tempUser;
+
+        //create temp string as id
+        $scope.credentials.username = genString();
+
+        //create temp string as password
+        $scope.credentials.password = genString();
+
+        //give the temp user the fName guest
+        $scope.credentials.firstname = "Guest";
+
+        //give bogus email for temp user
+        $scope.credentials.email = $scope.credentials.username + "@g.c";
+
+        //create temp education
+        $scope.credentials.education = "Some college";
+
+        //create temp gender
+        $scope.credentials.gender = "Male";
+
+        //create temp DOB using angular ng date format (yyyy-MM-dd)
+        $scope.credentials.dateOfBirth = new Date();
+
+        //generate age function for temp user
+        $scope.credentials.age = 25;
+
+        //create weight for temp user
+        $scope.credentials.weight = "120";
+
+        //create height for temp user
+        $scope.credentials.height.total = 22;
+
+        //create ethnicity for temp user
+        $scope.credentials.ethnicity = "Hispanic or Latino";
+
+        //create race for temp user
+        $scope.credentials.race = ["Asian"];
+
+        //create marital status for temp user
+        $scope.credentials.maritalstatus = "Divorced";
+
+        //create temp user in the database via Auth srvc registration function
+        AuthService.register($scope.credentials).then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.userGivenName = $scope.currentUser.object.attributes.firstName;
+            $scope.credentials.username = "";
+            $scope.credentials.password = "";
+
+            //create new progress object for the new user and set it to the currentUserProgress
+            $scope.createNewProgressObject($scope.currentUser.object);
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            console.log(error);
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+        });
+    };
+
+    $scope.createNewProgressObject = function (userObj) {
+
+        /*console.log("the user object___________:");
+        console.log(userObj);*/
+        $scope.progressSrv.createProgress(userObj, $scope.newUserProgress).then(function (progress) {
+            $scope.currentUserProgress = progress;
+            //console.log($scope.currentUserProgress);
+        }, function (error) {
+            console.log("unsuccessful adding new progress");
+        });
+    };
+
+    function init() {
+
+        AuthService.logout().then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+
+            // get from cache the variable
+            var variable = localStorageService.get("redirect-page");
+            localStorageService.remove("redirect-page");
+
+            switch (variable) {
+                case "home":
+                    $state.go('home');
+                    break;
+                default:
+                    break; //do nothing
+            }
+
+            //$scope.tempUser = AuthService.getTempUserStatus();
+
+            //check if current user logged in
+            if (AuthService.currentUser()) {
+                $scope.currentUser = AuthService.currentUser();
+                $scope.userGivenName = $scope.currentUser.object.attributes.firstName;
+                if (AuthService.currentUser().object.attributes.tempUser) {
+
+                    /* console.log("user is a temp!");
+                     console.log($scope.currentUser.object.attributes.username);
+                     console.log($scope.currentUser.object.attributes.tempUser);
+                    */
+                    $scope.createTempAccount();
+                }
+            } else {
+                $scope.createTempAccount();
+            }
+        }, function (error) {
+            return $scope.currentUser = AuthService.currentUser();
+        });
+    }
+
+    init();
+
+    $scope.addAlert = function (alert) {
+        $scope.alerts.push(alert);
+        $timeout(function () {
+            $scope.alerts.splice($scope.alerts.indexOf(alert), 1);
+        }, 2500);
+    };
+
+    //for logging in
+    $scope.login = function () {
+        return AuthService.login($scope.credentials).then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+
+            $scope.userGivenName = success.attributes.firstname;
+            $scope.tempUser = success.attributes.tempUser;
+            /*  console.log("logging in from welcome.js");
+              console.log($scope.tempUser);*/
+
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "You have successfully logged in!"
+            });
+
+            $('#loginModal').modal('hide');
+
+            //$state.go('counseling');
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+        });
+    };
+
+    //for logging out
+    $scope.logout = function () {
+        return AuthService.logout().then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.userGivenName = "";
+            $scope.tempUser = false;
+
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "You have successfully logged out."
+            });
+            //$state.go('/');
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+            $scope.isLoggedIn = true;
+        });
+    };
+
+    //function that helps validate email
+    function checkEmail(email) {
+        //find user by email
+        var atpos = email.indexOf("@");
+        var dotpos = email.lastIndexOf(".");
+
+        if (atpos < 1 || dotpos < atpos + 2 || dotpos + 2 >= email.length) {
+            window.alert("Failed in the forgot pw before email");
+            return false;
+        }
+        return true;
+    }
+
+    //new function reset user's password
+    $scope.forgotPassword = function () {
+        //console.log("going to see if email in db");
+        var emailIsValid = checkEmail($scope.credentials.fp_email);
+
+        if (!emailIsValid) {
+            window.alert("Not a valid e-mail address");
+            return false;
+        }
+
+        $scope.usrSrvc.validateUserbyEmail($scope.credentials.fp_email).then(function (success) {
+            Parse.User.requestPasswordReset($scope.credentials.fp_email, {
+                success: function success() {
+                    window.alert("Password reset link has been sent to " + $scope.credentials.fp_email);
+                    return true;
+                },
+                error: function error(_error) {
+                    window.alert(_error.message);
+                    return false;
+                }
+            });
+        }, function (error) {
+            return false;
+        });
+    };
+
+    $scope.openLogin = function () {
+        //console.log('opening log in pop up');
+        var modalInstance = $uibModal.open({
+            templateUrl: 'views/partials/popup/login.popup.view.html',
+            controller: 'loginPopUpController',
+            windowClass: 'center-login-popup',
+            scope: $scope
+        });
+    };
+
+    $scope.openAbout = function () {
+        //console.log('opening About pop up');
+        var modalInstance = $uibModal.open({
+            templateUrl: 'views/partials/popup/aboutUs.popup.view.html',
+            windowClass: 'center-aboutUs-popup',
+            controller: 'aboutUsPopUpController',
+            scope: $scope
+        });
+    };
+
+    $scope.redirect = function (location) {
+        // store in browser cache the location
+        localStorageService.set("redirect-page", location);
+        $window.location.reload();
+    };
+}
+'use strict';
+
+/*
+ *   Authors: Guido Ruiz, Daniel Rivero
+ *
+ *   Description: A directive is a custom HTML tag, similar to <html>, <body>, <a>, etc, with angular, you can create
+ *   your own custom HTML tag that when read puts within a controller, actual HTML, the works. For example, instead of
+ *   copying the controller for the navigation bar across all pages, we simply use the tag <navadmin></navadmin>, which
+ *   in turn will inject within it the template and the adminNavController, in charge of that particular section. In
+ *   other words, a directive is a packaged controller and html template that can be written as a tag anywhere.
+ */
+
+angular.module('app').directive('navadmin', adminNavDirective);
+
+function adminNavDirective() {
+    return {
+        restrict: 'EA',
+        templateUrl: 'views/templates/navadmin.view.html',
+        controller: 'adminNavController'
+    };
+}
+
+angular.module('app').controller('adminNavController', adminNavController);
+
+adminNavController.$inject = ['$scope', '$window'];
+
+function adminNavController($scope, $window) {
+    $scope.auth = AuthService;
+
+    console.log($scope.auth.currentUser);
+
+    $scope.logout = function () {
+        Parse.User.logOut().then(function (success) {
+            console.log(success);
+            $scope.currentUser = null;
+            $scope.$apply();
+        }, function (error) {
+            ErrorService.handleParseError(error);
+            $scope.$apply();
+        });
+    };
+}
+'use strict';
+
+/*
+ *   State Machine Filters
+ *
+ *   Authors: Guido Ruiz
+ *
+ *   Description: Think of filters as helper functions that format data. Imagine you store a timestamp on the server,
+ *   say 201507081456, which is really hard to read. A formatter can convert that into many different formats, say,
+ *   07/08/2015 14:56. In the state machine we only use one filter that converts an id of a class to its respective
+ *   name. For example, id of 0 to State_Empty to use for the start and end states. Below is the function that does this
+ */
+
+angular.module('app').filter('friendlyClass', friendlyClass);
+
+friendlyClass.$inject = ['StateMachineService'];
+
+function friendlyClass(StateMachineService) {
+    var manager = StateMachineService;
+
+    return function (x) {
+        var res = manager.getClassById(x);
+
+        if (res) return res.name;else return null;
+    };
+}
+'use strict';
+
+angular.module('app').filter('parseFilter', parseFilter);
+
+parseFilter.$inject = [];
+
+function parseFilter() {
+    return function (x) {
+        var y = angular.copy(x);
+        delete y.object;
+        return y;
+    };
+}
+'use strict';
+
+/*
+ *   State Machine Runs
+ *
+ *   Authors: Guido Ruiz
+ *
+ *   Description: Runs are configurations that are taken in by module dependencies. We have x-editable, which is an
+ *   angular addon module that allows to edit text on the spot. We use this for the state graph details section where
+ *   you can add a name, description, code to run before, after, etc. This x-editable module can take settings before
+ *   it loads, which happens in the 'editableOptions' inject as seen below.
+ */
+
+angular.module('app').run(xeditSettings);
+
+xeditSettings.$inject = ['editableOptions'];
+
+function xeditSettings(editableOptions) {
+  editableOptions.theme = 'bs3';
+}
+'use strict';
+
+angular.module('app').service('characterService', characterService);
+
+characterService.$inject = [];
+
+function characterService() {
+    var counselors = [{
+        id: "001_FEMALE_CAU",
+        name: "Amy",
+        //description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque felis ex, cursus a " + "turpis ac, laoreet sollicitudin ipsum. Cras hendrerit eget elit ut pretium. Proin vel diam consectetur, " + "pharetra magna et, placerat tellus. Donec dignissim tempus dolor, ac interdum dui sagittis in. In maximus " + "diam sed lacus mollis maximus. Nunc gravida varius lorem vitae bibendum. Nunc sit amet mattis ipsum, eu " + "pellentesque ex. Cras porta condimentum neque, nec mattis eros suscipit eu. Curabitur ac elementum sem. ",
+        img: "unity/img/001_FEMALE_CAU.PNG",
+        type: "virtualys",
+        // path: "unity/sources/001_FEMALE_CAU_2017_11_22/",
+        path: "unity/sources/001_FEMALE_CAU_2019_05_06/",
+        scene: "scene_001_FEMALE_CAU",
+        voiceIndex: 5
+    }];
+
+    var selectedCounselor = counselors[0];
+    var foundCounselor = false;
+
+    var setUsersCounselor = function setUsersCounselor(index) {
+        /*for(var i = 0; i < counselors.length; i++){
+            if(charID == counselors[i].id){
+                selectedCounselor = counselors[i];
+                foundCounselor = true;
+                // changeName(counselors[i].name);
+                return 0;
+            }
+        }
+        if(!foundCounselor){
+            selectedCounselor = counselors[0];
+            return 1;
+        }*/
+
+        selectedCounselor = counselors[index];
+        return 0;
+    };
+
+    var getUsersCounselor = function getUsersCounselor() {
+        if (selectedCounselor != null) {
+            return selectedCounselor;
+        } else {
+            return counselors[0];
+        }
+    };
+
+    return {
+        counselors: counselors,
+        setUsersCounselor: setUsersCounselor,
+        getUsersCounselor: getUsersCounselor
+    };
+}
+'use strict';
+
+angular.module('app').service('ctService', ctService);
+
+ctService.$inject = [];
+
+function ctService() {
+    var obj = {
+        editor: null,
+        elementID: null,
+
+        stopEditing: function stopEditing() {
+            console.log("Stopped editing");
+            if (this.editor.isEditing()) this.editor.stop(this.save);
+        },
+        startEditing: function startEditing() {
+            console.log("Started editing");
+            //this.init('*[data-editable]', 'data-name', null, false);
+            if (!this.editor.isEditing()) this.editor.start();
+        },
+        save: function save() {
+            this.showAlert(true);
+            return angular.element(this.elementID)[0].innerHTML;
+        },
+        initHTML: function initHTML(defaultHTML) {
+            angular.element(this.elementID)[0].innerHTML = defaultHTML;
+        },
+        showAlert: function showAlert(success) {
+            if (success) {
+                console.log("Saved");
+                new ContentTools.FlashUI('ok');
+            } else {
+                console.log("Not Saved");
+                new ContentTools.FlashUI('no');
+            }
+        },
+        init: function init(query, naming, fixture, ignition, elementID) {
+            ContentTools.StylePalette.add([new ContentTools.Style('Author', 'author', ['p'])]);
+
+            this.editor = ContentTools.EditorApp.get();
+            this.editor.init(query, naming, fixture, ignition);
+            this.elementID = elementID;
+        }
+    };
+
+    return obj;
+}
+'use strict';
+
+angular.module('app').service('GWYWService', GWYWService);
+
+GWYWService.$inject = [];
+
+function GWYWService() {
+
+    //stores the users answers to The Good Things About Drinking Questionnaire
+    var defaultAnswers = [{
+        response: "To reduce my stress levels",
+        dragID: "drag1"
+    }, {
+        response: "To adjust my attitude",
+        dragID: "drag2"
+    }, {
+        response: "To be more sociable",
+        dragID: "drag3"
+    }, {
+        response: "To enjoy sex more",
+        dragID: "drag4"
+    }, {
+        response: "To be more assertive",
+        dragID: "drag5"
+    }, {
+        response: "To get high",
+        dragID: "drag6"
+    }, {
+        response: "To be more creative",
+        dragID: "drag7"
+    }, {
+        response: "To be a better lover",
+        dragID: "drag8"
+    }, {
+        response: "To be braver or more daring",
+        dragID: "drag9"
+    }, {
+        response: "To sleep",
+        dragID: "drag10"
+    }, {
+        response: "To forget",
+        dragID: "drag11"
+    }, {
+        response: "To feel better",
+        dragID: "drag12"
+    }, {
+        response: "To fight boredom",
+        dragID: "drag13"
+    }, {
+        response: "To escape",
+        dragID: "drag14"
+    }, {
+        response: "To be more relaxed in social situations",
+        dragID: "drag15"
+    }, {
+        response: "To feel accepted",
+        dragID: "drag16"
+    }, {
+        response: "To have fun",
+        dragID: "drag17"
+    }, {
+        response: "To fit in",
+        dragID: "drag18"
+    }];
+
+    //stores the users answers to What I Like About Drinking in The Good Things Revisited Survey
+    //need to grab these responses from the database
+    var usersAnswers = [];
+
+    return {
+        defaultAnswers: defaultAnswers,
+        addUsersAnswer: function addUsersAnswer(answer) {
+            var addIndex = usersAnswers.length;
+            usersAnswers[addIndex] = answer;
+        },
+        removeUsersAnswer: function removeUsersAnswer(elemIndex) {
+            usersAnswers.splice(elemIndex, 1);
+        },
+        getUsersAnswers: function getUsersAnswers() {
+            return usersAnswers;
+        }
+
+    };
+}
+'use strict';
+
+/*
+ *  State Machine Services
+ *
+ *  Authors: Guido Ruiz
+ *
+ *  Description: This service is a self contained resource that has the actual <nodes> and <edges>, their names, ids,
+ *  and logic as well as code and comments. This service has a series of classes that are called by the machine
+ *  controller to add a new node, remove a node, add a transition, remove transition, reset a node, change the x,y
+ *  position of a node, keeps what node is selected, etc. All this logic is self sustained here as a service, which
+ *  means the machine controller is essentially a Facade to the complex logic of this service. The name of each function
+ *  should be self explanatory.
+ *
+ *  I highly suggest you keep each block minimized in the editor and only open the one you're interested in
+ */
+
+angular.module('app').service('StateMachineService', StateMachineService);
+
+StateMachineService.$inject = [];
+
+function StateMachineService() {
+    var _this = this;
+
+    this.showLoad = true;
+    this.showAdded = false;
+    this.showSettings = false;
+    this.selected = null;
+    this.instance = null;
+    this.nodeId = "1";
+    this.transId = "1";
+    this.left = 50;
+    this.top = 50;
+    this.lastExpression = "";
+    this.transitionIdToObject = {};
+    this.added = [];
+    this.sm = {};
+
+    this.guardTypes = ["Conditional Guard", "Event Guard"];
+
+    this.incrementNID = function () {
+        return _this.nodeId++;
+    };
+    this.incrementTID = function () {
+        return _this.transId++;
+    };
+
+    this.addNodeAngular = function (class_id) {
+        // add state to angular array
+        var state = {};
+
+        state.name = "nodeId_" + _this.nodeId;
+        state.id = "nodeId_" + _this.nodeId;
+        state.plumbleft = _this.left + "px";
+        state.plumbtop = _this.top + "px";
+        state.class = class_id;
+        state.params = [];
+
+        var c = _this.getClassById(class_id);
+        c.init.params.forEach(function (p) {
+            return state.params.push("");
+        });
+
+        _this.sm.init.states.push(state);
+
+        _this.left += 10;
+        _this.top += 10;
+    };
+    this.addNodePlumb = function (el) {
+        _this.instance.draggable(el, {
+            drag: function drag(e) {
+                var state = _this.sm.init.states.find(function (s) {
+                    return s.id == e.el.id;
+                });
+
+                if (state) {
+                    state.plumbleft = e.pos[0] + "px";
+                    state.plumbtop = e.pos[1] + "px";
+                }
+            }
+        });
+
+        _this.instance.makeSource(el, {
+            filter: ".ep",
+            anchor: "Continuous",
+            connectorStyle: {
+                strokeStyle: "#5c96bc",
+                lineWidth: 2,
+                outlineColor: "transparent",
+                outlineWidth: 4
+            },
+            connectionType: "basic",
+            extract: {
+                "action": "the-action"
+            },
+            maxConnections: -1,
+            onMaxConnections: function onMaxConnections(info, e) {
+                return alert("Maximum connections (" + info.maxConnections + ") reached");
+            }
+        });
+
+        _this.instance.makeTarget(el, {
+            dropOptions: {
+                hoverClass: "dragHover"
+            },
+            anchor: "Continuous",
+            allowLoopback: true
+        });
+
+        _this.incrementNID();
+    };
+    this.removeNode = function (name) {
+        _this.sm.init.states.splice(_this.sm.init.states.indexOf(name), 1);
+    };
+
+    this.addTransition = function (source, target) {
+        var transition = {};
+
+        transition.id = "transId_" + _this.transId;
+        transition.from = source;
+        transition.to = target;
+        transition.guard = {
+            "type": "",
+            "expression": "",
+            "onTransition": ""
+        };
+
+        _this.sm.init.transitions.push(transition);
+    };
+    this.removeTransition = function (id) {
+        var transIndex = _this.sm.init.transitions.findIndex(function (t) {
+            return t.id == id;
+        });
+
+        if (transIndex > -1) _this.sm.init.transitions.splice(transIndex, 1);
+    };
+
+    this.getParameterById = function (x, y) {
+        return _this.added.find(function (a) {
+            return a.object.id == x;
+        }).init.params[y] || null;
+    };
+    this.getClassById = function (x) {
+        return _this.added.find(function (a) {
+            return a.object.id == x;
+        }) || null;
+    };
+
+    this.reset = function () {
+        _this.showLoad = true;
+        _this.showAdded = false;
+        _this.showSettings = false;
+        _this.selected = null;
+        _this.instance = null;
+        _this.nodeId = "1";
+        _this.transId = "1";
+        _this.left = 50;
+        _this.top = 50;
+        _this.lastExpression = "";
+        _this.transitionIdToObject = {};
+        _this.added = [];
+        _this.sm = {};
+    };
+}
+'use strict';
+
+angular.module('app').service('ScoreService', ScoreService);
+
+ScoreService.$inject = ['$q'];
+
+function ScoreService($q) {
+    this.formscore = function (user, form) {
+        var deferred = $q.defer();
+
+        Parse.Cloud.run('calculateFormScore', { user: user, form: form }).then(function (score) {
+            return deferred.resolve(score);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+        return deferred.promise;
+    };
+}
+'use strict';
+
+angular.module('app').service('ScoreService', ScoreService);
+
+ScoreService.$inject = ['$q'];
+
+function ScoreService($q) {
+    this.calculateFormScore = function (formID) {
+        var deferred = $q.defer();
+
+        Parse.Cloud.run('calculateFormScore', { formID: formID }).then(function (score) {
+            return deferred.resolve(score);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+}
+'use strict';
+
+/*
+ *  Counseling Services
+ *
+ *  Authors: Guido Ruiz, Daniel Rivero
+ *
+ *  Description: Pretty much code that has been split away from the counseling controller, as it is tightly coupled with
+ *  just getting HTML injects on the page and modifying them as such. Think of the HTML injects as building blocks that
+ *  can be changed (their size, color, shape, what they do when they are clicked, etc) and these properties are
+ *  maintained and modified in here. Therefore, the counseling controller, given a series of HTML modules to show,
+ *  loads them from the client and stores them here, modifying the values whenever needed. For example, the eEva WebGL
+ *  Unity scene is an HTML inject module, and the size is modified from fullscreen to halfscreen with the change of
+ *  a parameter within this service.
+ *
+ *  Format: The format is as follows:
+ *      <HTML block>:
+ *          <id>: uniquely identifies the block
+ *          <hidden>: dictates if the element is visible or not
+ *          <content>: Actual HTML for the element, a.k.a <http><a href=""></a> .....
+ *          <classes>: The classes that modify the block found on the main css file
+ *          <fetch>: When called, replaces <content> with HTML fetched from the .html file
+ *          <click>: When the 'block' is clicked, handle the click.
+ *
+ *  I highly suggest you keep each block minimized in the editor and only open the one you're interested in
+ */
+
+angular.module('app').service('widgetService', widgetService);
+
+widgetService.$inject = ['$sce', '$templateRequest', '$state', '$window'];
+
+function widgetService($sce, $templateRequest, $state) {
+    var obj = {
+        // ----- MENU ITEMS ----- //
+        userButton: {
+            id: 'userButton',
+            hidden: false,
+            content: "",
+            classes: { 'userButton-hidden': false },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/menu/user.image.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                    console.log("Content has been replaced!");
+                });
+            },
+            click: function click() {
+                var self = this;
+                var userMenu = obj.userMenu;
+                var cameraMenu = obj.cameraMenu;
+                var cameraButton = obj.cameraButton;
+
+                //css manipulation for displaying the widgets
+                userMenu.classes['userMenu-hidden'] = !userMenu.classes['userMenu-hidden'];
+                self.classes['userButton-hidden'] = !self.classes['userButton-hidden'];
+
+                if (self.classes['userButton-hidden']) {
+                    cameraMenu.classes['cameraMenu-hidden'] = true;
+                } else if (!self.classes['userButton-hidden']) {
+                    if (cameraButton.classes['cameraButton-hidden']) cameraMenu.classes['cameraMenu-hidden'] = false;
+                }
+
+                if (!self.classes['userButton-hidden']) userMenu.classes['userMenu-hidden'] = true;
+            }
+        },
+        cameraButton: {
+            id: 'cameraButton',
+            hidden: false,
+            content: "",
+            classes: { 'cameraButton-hidden': false },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/menu/camera.image.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                    console.log("Content has been replaced!");
+                });
+            },
+            click: function click() {
+                var self = this;
+                var cameraMenu = obj.cameraMenu;
+                var userMenu = obj.userMenu;
+                var userButton = obj.userButton;
+
+                //css manipulation for displaying the widgets
+                cameraMenu.classes['cameraMenu-hidden'] = !cameraMenu.classes['cameraMenu-hidden'];
+                self.classes['cameraButton-hidden'] = !self.classes['cameraButton-hidden'];
+
+                if (self.classes['cameraButton-hidden']) userMenu.classes['userMenu-hidden'] = true;else if (!self.classes['cameraButton-hidden']) if (userButton.classes['userButton-hidden']) userMenu.classes['userMenu-hidden'] = false;
+
+                if (!this.classes['cameraButton-hidden']) cameraMenu.classes['cameraMenu-hidden'] = true;
+            }
+        },
+        userMenu: {
+            id: 'userMenu',
+            hidden: false,
+            content: '',
+            classes: { 'userMenu-hidden': true },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/menu/user.menu.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+        cameraMenu: {
+            id: 'cameraMenu',
+            hidden: false,
+            content: '',
+            classes: { 'cameraMenu-hidden': true },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/menu/user.camera.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+        //removing pause since doesn't work slunn002 04/23/2018
+
+        // pauseButton: {
+        //     id: 'pauseButton',
+        //     hidden: false,
+        //     content: '',
+        //     classes: { 'pauseButton-hidden' :false },
+        //     fetch: function(){
+        //         var self =this;
+        //         $templateRequest('/views/partials/menu/pause.button.html')
+        //             .then(function(template){
+        //                     self.content = $sce.trustAsHtml(template);
+        //                     console.log("Pause button has been replaced!");
+        //                 }
+        //             );
+        //     },
+        //     click: function() {
+        //         var self = this;
+        //         var resumeButton = obj.resumeButton;
+        //         //window.confirm("Voice paused!");
+        //         resumeButton.classes['resumeButton-hidden'] = !resumeButton.classes['resumeButton-hidden'];
+        //         self.classes['pauseButton-hidden'] = !self.classes['pauseButton-hidden'];
+        //     }
+        // },
+        // resumeButton: {
+        //     id: 'resumeButton',
+        //     hidden: false,
+        //     content: '',
+        //     classes: { 'resumeButton-hidden': true},
+        //     fetch: function() {
+        //         var self = this;
+        //         $templateRequest('/views/partials/menu/resume.button.html')
+        //             .then(function(template){
+        //                     self.content = $sce.trustAsHtml(template);
+        //                 }
+        //             );
+        //     },
+        //     click: function() {
+        //         var self = this;
+        //         var pauseButton = obj.pauseButton;
+        //         //window.confirm("Voice paused!");
+        //
+        //
+        //         //css manipulation for displaying the widgets
+        //         pauseButton.classes['pauseButton-hidden'] = !pauseButton.classes['pauseButton-hidden'];
+        //         self.classes['resumeButton-hidden'] = !self.classes['resumeButton-hidden'];
+        //     }
+        // },
+        micButton: {
+            id: 'micButton',
+            hidden: false,
+            content: '',
+            classes: { 'micButton-hidden': false },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/menu/mic.button.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                    console.log("Microphone button has been replaced!");
+                });
+            },
+            click: function click() {
+                if (!this.classes['micButton-hidden']) {
+                    this.classes['micButton-hidden'] = true;
+                    console.log("Microphone switch on");
+                } else if (this.classes['micButton-hidden']) {
+                    this.classes['micButton-hidden'] = false;
+                    console.log("Microphone switch off");
+                }
+            }
+        },
+        micSlash: {
+            id: 'micSlash',
+            hidden: false,
+            content: '',
+            classes: { 'micSlash-hidden': false },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/menu/micSlash.button.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                    console.log("Microphone Slash button has been replaced!");
+                });
+            },
+            click: function click() {}
+        },
+        backButton: {
+            id: 'backButton',
+            hidden: false,
+            content: '',
+            classes: '',
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/menu/back.button.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+        progressBar: {
+            id: 'progressBar',
+            hidden: false,
+            content: '',
+            classes: '',
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/menu/progress.bar.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+        // ----- MISC ITEMS ----- //
+        elementPanel: {
+            id: 'elementPanel',
+            hidden: true,
+            content: '',
+            classes: {},
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('views/partials/misc/element.panel.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+        contentView: {
+            id: 'contentView',
+            hidden: false,
+            content: '',
+            classes: { 'contentView': true },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('views/partials/misc/content.panel.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+        navBar: {
+            id: 'navBar',
+            hidden: false,
+            content: '',
+            classes: {},
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/misc/navbar.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+        myProgress: {
+            id: 'myProgress',
+            hidden: true,
+            content: '',
+            classes: {},
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/misc/myprogress.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+
+        // ----- VIRTUALYS ----- //
+        virtualys: {
+            id: 'virtualys',
+            hidden: false,
+            content: '',
+            classes: { 'unityEva': true, 'ue-full': true, 'ue-half': false },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/chars/virtualys.webgl.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+
+        // ----- HAPTEK ----- //
+        webglEva: {
+            id: 'webgl-app',
+            hidden: false,
+            content: '',
+            classes: { 'webglEva': true },
+            fetch: function fetch() {
+                var self = this;
+                $templateRequest('/views/partials/chars/eva.webgl.html').then(function (template) {
+                    self.content = $sce.trustAsHtml(template);
+                });
+            },
+            click: function click() {}
+        },
+
+        // ----- HELPER FUNCTIONS ----- //
+        htmls: [],
+        htmlUsed: function htmlUsed(id) {
+            return $state.current.data.htmlModules.indexOf(id) >= 0;
+        },
+        fetchAll: function fetchAll() {
+            for (var widget in obj) {
+                if (obj[widget].id != undefined && obj.htmlUsed(obj[widget].id)) {
+                    obj[widget].fetch();
+                    obj.htmls.push(obj[widget]);
+                }
+            }
+        }
+    };
+
+    return obj;
+}
+'use strict';
+
+angular.module('app').controller('treeViewController', treeViewController);
+
+treeViewController.$inject = ['$scope', '$http', 'InterventionService', 'FormService', 'ElementService'];
+
+function treeViewController($scope, $http, InterventionService, FormService, ElementService) {
+    $scope.showTree = false;
+    $scope.roleList = [];
+    $scope.buttonText = "";
+    $scope.interventionSrv = InterventionService;
+    $scope.formSrv = FormService;
+    $scope.elSrv = ElementService;
+
+    /*console.log("starting the tree view controller");
+    let interventions = $scope.interventionSrv.getAllInterventions();
+      for(var i = 0; i < interventions.length; i++){
+          $scope.roleList.push({
+            roleName: interventions[i].name,
+            roleId: interventions[i].id,
+            collapsed: true,
+            children: []
+        });
+          var tmpChildren = $scope.formSrv.getFormsByIntervention(interventions[i]);
+          for(var j = 0; j < tmpChildren.length; j++){
+            $scope.roleList[i].children.push({
+                roleName:tmpChildren[j].name,
+                roleId: tmpChildren[j].id,
+                collapsed: true,
+                children: []
+            });
+        }
+          for(var k = 0; $scope.roleList[i].children.length; k++){
+            var elTmpChildren = $scope.elSrv.getElementsByForm($scope.roleList[i].children[k]);
+              for(var l = 0; elTmpChildren.length; l++){
+                $scope.roleList[i].children[k].push({
+                    roleName: $scope.getElementDescription(elTmpChildren[l]),
+                    roleId: elTmpChildren[l].id,
+                    roleType: elTmpChildren[l].type,
+                    roleOrder: elTmpChildren[l].order,
+                    collapsed: true,
+                    children: []
+                });
+            }
+          }
+        }*/
+
+    console.log($scope.roleList);
+
+    /*$http.get('/api/interventions').then(
+        function(success) {
+            for(var i = 0; i < success.data.length; ++i){
+                $scope.roleList.push({
+                    roleName: success.data[i].name,
+                    roleId: success.data[i]._id,
+                    collapsed: true,
+                    children: []
+                });
+            }
+        },
+        function (err) {
+          }
+    );*/
+
+    /* $http.get('/api/forms').then(
+         function(success){
+             //TODO Design faster algorithm
+             for(var i = 0; i < $scope.roleList.length; ++i) {
+                 for(var j = 0; j < success.data.length; ++j) {
+                     if( $scope.roleList[i].roleId == success.data[j].intervention_id){
+                         $scope.roleList[i].children.push({
+                             roleName:success.data[j].name,
+                             roleId: success.data[j]._id,
+                             collapsed: true,
+                             children: []
+                         });
+                     }
+                 }
+             }
+         },
+         function(err){}
+     );*/
+    /*
+        $http.get('/api/elements').then(
+         function(success){
+             //TODO Design faster algorithm
+             for(var i = 0; i < $scope.roleList.length; ++i) {
+                 for(var j = 0; j < $scope.roleList[i].children.length; ++j) {
+                     for(var k = 0; k < success.data.length; ++k) {
+                         if( $scope.roleList[i].children[j].roleId == success.data[k].form_id){
+                             $scope.roleList[i].children[j].children.push({
+                                 roleName: $scope.getElementDescription(success.data[k]),
+                                 roleId: success.data[k]._id,
+                                 roleType: success.data[k].type,
+                                 roleOrder: success.data[k].order,
+                                 collapsed: true,
+                                 children: []
+                             });
+                         }
+                     }
+                 }
+             }
+         },
+         function (err) {
+           }
+     );
+    */
+
+    $scope.getElementDescription = function (dataElement) {
+        if (dataElement.type == "QuestionAnswer") return dataElement.order + ": " + dataElement.phrase;else if (dataElement.type == "QuestionAnswer-Checkbox") return dataElement.order + ": " + dataElement.phrase;else if (dataElement.type == "textArea") return dataElement.order + ": " + dataElement.phrase;else if (dataElement.type == "feedback") return dataElement.order + ": " + dataElement.phrase;else if (dataElement.type == "feedbackList") return dataElement.order + ": " + dataElement.phrase[0].feedback_text;
+
+        return "Unknown data element";
+    };
+}
+'use strict';
+
+/*
+ *   Home Controllers
+ *
+ *   Authors: Guido Ruiz
+ *
+ *   Description: This angular controller controls the main index page. At the time of writing this description, it only
+ *   has a simple login interface and links to other pages once logged in.
+ */
+angular.module('app').controller('passwordController', passwordController);
+
+passwordController.$inject = ['$scope', '$http', '$stateParams', '$state'];
+
+function passwordController($scope, $http, $stateParams, $state) {
+    $scope.newPassword = "";
+    $scope.confirmPassword = "";
+
+    /*$scope.resetPassword = function(){
+        var obj = {
+            token: $stateParams.token,
+            password: $scope.newPassword,
+            confirm: $scope.confirmPassword
+        };
+          $http.post('/auth/password/complete', obj)
+            .then(function(res){
+                console.log(res);
+                $state.go('login');
+            })
+            .catch(function(err){
+                console.log(err);
+                $state.go('login');
+            })
+    }*/
+}
+'use strict';
+
+/*
+ *   Shared Controllers
+ *
+ *   Authors: Guido Ruiz, Daniel Rivero
+ *
+ *   Description: Here lies all the controllers that manage all pages. Essentially, functionality that needs to be
+ *   accessed by all other controllers are here (think of it like the dad of controllers, or an abstract class, etc.)
+ *   At the time of writing this, the only thing that is shared between all controllers is the admin navigation bar
+ *   in which the adminNavController handles the logout feature (button) on the right side.
+ */
+
+angular.module('app').controller('loginPopUpController', loginPopUpController);
+angular.module('app').controller('registerPopUpController', registerPopUpController);
+angular.module('app').controller('aboutUsPopUpController', aboutUsPopUpController);
+angular.module('app').controller('adPolicyPopUpController', adPolicyPopUpController);
+angular.module('app').controller('privacyPopUpController', privacyPopUpController);
+angular.module('app').controller('copyrightPopUpController', copyrightPopUpController);
+angular.module('app').controller('limitationsPopUpController', limitationsPopUpController);
+angular.module('app').controller('notYetMappedController', notYetMappedController);
+
+loginPopUpController.$inject = ['$scope', '$window', 'AuthService', '$uibModalInstance', '$timeout'];
+registerPopUpController.$inject = ['$scope', '$window', 'AuthService', '$uibModalInstance'];
+aboutUsPopUpController.$inject = ['$scope', '$window', '$uibModalInstance'];
+adPolicyPopUpController.$inject = ['$scope', '$window', '$uibModalInstance'];
+privacyPopUpController.$inject = ['$scope', '$window', '$uibModalInstance'];
+copyrightPopUpController.$inject = ['$scope', '$window', '$uibModalInstance'];
+limitationsPopUpController.$inject = ['$scope', '$window', '$uibModalInstance'];
+notYetMappedController.$inject = ['$scope', '$window'];
+
+function loginPopUpController($scope, $window, AuthService, $uibModalInstance, $timeout) {
+    $scope.auth = AuthService;
+    $scope.isLoggedIn = false;
+
+    $scope.alerts = [];
+    $scope.addAlert = function (alert) {
+        $scope.alerts.push(alert);
+        $timeout(function () {
+            $scope.alerts.splice($scope.alerts.indexOf(alert), 1);
+        }, 2500);
+    };
+
+    $scope.credentials = {
+        username: "",
+        password: ""
+    };
+
+    /* $scope.login = function()
+     {
+         console.log("*******************************************************");
+         console.log("Attempting to login");
+         $scope.auth.login($scope.credentials).then(
+             success => {
+                 $scope.currentUser = $scope.auth.currentUser();
+                 $window.location.href = '/';
+             },
+             error => $scope.currentUser = $scope.auth.currentUser()
+         );
+       };*/
+
+    $scope.login = function () {
+        return AuthService.login($scope.credentials).then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.userFname = AuthService.userFname;
+
+            //console.log($scope.currentUser.get('firstName'));
+            $scope.isLoggedIn = true;
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "You have successfully logged in!"
+            });
+
+            /*Parse.Cloud.run("getUserName", {}).then(function (e){
+               $scope.userFName = e.userGivenName;
+                console.log("userFname: " +  $scope.userFName);
+            });*/
+            //$scope.cancel();
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+            $scope.isLoggedIn = false;
+        });
+    };
+
+    $scope.logout = function () {
+        return AuthService.logout($scope.credentials).then(function (success) {
+            $scope.currentUser = {};
+            $scope.userFname = "";
+
+            $scope.isLoggedIn = false;
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "You have successfully logged out!"
+            });
+        }, function (error) {
+            //$scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+        });
+    };
+
+    $scope.logout = function () {
+        $scope.auth.logout().then(function (success) {
+            $scope.currentUser = $scope.auth.currentUser();
+            $window.location.href = '/';
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "You have successfully logged out!"
+            });
+        }, function (error) {
+            $scope.currentUser = $scope.auth.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+        });
+    };
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+
+function registerPopUpController($scope, $window, AuthService, $uibModalInstance) {
+    $scope.auth = AuthService;
+
+    $scope.profile = { "answers": [] };
+    $scope.$root.userResponse = "hello";
+    $scope.credentials = {
+        firstname: "",
+        //lastname: "",
+        username: "",
+        password: "",
+        email: "",
+        education: "",
+        gender: "",
+        dateOfBirth: "",
+        age: "",
+        weight: "",
+        height: {
+            total: 0,
+            feet: "",
+            inches: ""
+        },
+        ethnicity: "",
+        race: "",
+        maritalstatus: ""
+    };
+
+    $scope.educationType = ['Some high school', 'High school graduate or equivalent', 'Trade or Vocational degree', 'Some college', 'Associate degree', 'Bachelor\'s degree', 'Graduate or professional degree'];
+    $scope.selectedEducation = "";
+
+    $scope.genderType = ['Male', 'Female', 'Other'];
+    $scope.selectedGender = "";
+
+    $scope.ethnicityType = ['Hispanic or Latino', 'Not Hispanic or Latino'];
+    $scope.selectedEthnicity = "";
+
+    $scope.raceType = ['American Indian or Alaska Native', 'Asian', 'Black or African Descent', 'Native Hawaiian or Other Pacific Islander', 'White'];
+    $scope.selectedRace = [];
+
+    $scope.maritalType = ['Single, Not Married', 'Married', 'Living with partner', 'Separated', 'Divorced', 'Widowed', 'Prefer not to answer'];
+    $scope.selectedMaritalStatus = "";
+
+    $scope.selectedAnwser = "";
+
+    // -----------------------------------------------------------------------------------------------------------------
+    // called when the user clicks the register button. registers the user into the server
+    // -----------------------------------------------------------------------------------------------------------------
+
+    $scope.register = function () {
+
+        $scope.hasRegistered = false;
+        $scope.credentials.answers = $scope.profile.answers;
+        $scope.credentials.education = $scope.selectedEducation;
+        $scope.credentials.gender = $scope.selectedGender;
+        $scope.credentials.ethnicity = $scope.selectedEthnicity;
+        $scope.credentials.race = $scope.selectedRace;
+        $scope.credentials.maritalstatus = $scope.selectedMaritalStatus;
+        $scope.credentials.programRequired = $scope.selectedAnwser;
+        //console.log($scope.credentials);
+
+
+        AuthService.register($scope.credentials).then(function (success) {
+
+            $scope.hasRegistered = true;
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: success.message
+            });
+
+            //$scope.login();
+
+        }, function (error) {
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error.message
+            });
+        });
+        //uncommented slunn002 04/23/2018
+        /*$scope.auth.register($scope.credentials)
+            // .then(
+            //     function(res) {
+            //         var data = res.data;
+            //
+            //         if(data.success) {
+            //             $scope.addAlert({
+            //                 style: "alert-success",
+            //                 type: "Success!",
+            //                 message: data.message
+            //             });
+            //         } else {
+            //             $scope.addAlert({
+            //                 style: "alert-danger",
+            //                 type: "Error:",
+            //                 message: data.message
+            //             });
+            //         }
+            //
+            //         return res;
+            //     },
+            //     function(err) {
+            //         $scope.addAlert({
+            //             style: "alert-danger",
+            //             type: "Error:",
+            //             message: "The servers are currently down."
+            //         });
+            //
+            //         return err;
+            //     }
+            // );*/
+    };
+    //uncommented slunn002 04/23/2018
+    $scope.credentials = {
+        username: "",
+        password: ""
+    };
+
+    $scope.login = function () {
+        console.log("Attempting to login");
+        $scope.auth.login($scope.credentials).then(function (success) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.isLoggedIn = true;
+            $scope.addAlert({
+                style: "alert-success",
+                type: "Success!",
+                message: "You have successfully logged in!"
+            });
+        }, function (error) {
+            $scope.currentUser = AuthService.currentUser();
+            $scope.addAlert({
+                style: "alert-danger",
+                type: "Error:",
+                message: error
+            });
+            $scope.isLoggedIn = false;
+        });
+        //$window.location.href = '/';
+    };
+
+    $scope.logout = function () {
+        $scope.auth.logout();
+        $window.location.href = '/';
+    };
+
+    $scope.close = function () {
+        $modalInstance.close();
+    };
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+
+function aboutUsPopUpController($scope, $window, $uibModalInstance) {
+
+    $scope.close = function () {
+        $modalInstance.close();
+    };
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+
+function adPolicyPopUpController($scope, $window, $uibModalInstance) {
+
+    $scope.close = function () {
+        $modalInstance.close();
+    };
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+
+function privacyPopUpController($scope, $window, $uibModalInstance) {
+
+    $scope.close = function () {
+        $modalInstance.close();
+    };
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+
+function copyrightPopUpController($scope, $window, $uibModalInstance) {
+
+    $scope.close = function () {
+        $modalInstance.close();
+    };
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+
+function limitationsPopUpController($scope, $window, $uibModalInstance) {
+
+    $scope.close = function () {
+        $modalInstance.close();
+    };
+
+    $scope.ok = function () {
+        $uibModalInstance.close();
+    };
+    $scope.cancel = function () {
+        $uibModalInstance.dismiss('cancel');
+    };
+}
+
+function notYetMappedController($scope, $window) {
+
+    $scope.redirect = function (location) {
+        // store in browser cache the location
+        localStorageService.set("redirect-page", location);
+        $window.location.reload();
+    };
+}
+'use strict';
+
+/**
+ * Created by SpeedProxy on 3/27/2017.
+ */
+angular.module('app').service('AlternativesToGetYouWhereYouWantToGoService', AlternativesToGetYouWhereYouWantToGoService);
+//All these data should be fetched from data base. and not be hardcoded on service. TO DO/CHANGE
+function AlternativesToGetYouWhereYouWantToGoService() {
+
+    //stores the users answers to The Good Things About Drinking Questionnaire
+    var defaultAnswers = [{
+        response: "Meditate",
+        dragID: "drag1"
+    }, {
+        response: "Call a friend",
+        dragID: "drag2"
+    }, {
+        response: "Go work out",
+        dragID: "drag3"
+    }, {
+        response: "Go dancing",
+        dragID: "drag4"
+    }, {
+        response: "Catch a movie",
+        dragID: "drag5"
+    }, {
+        response: "Go out to eat",
+        dragID: "drag6"
+    }, {
+        response: "Play video games",
+        dragID: "drag7"
+    }, {
+        response: "Go to the mall/shopping",
+        dragID: "drag8"
+    }, {
+        response: "Listen to/play music",
+        dragID: "drag9"
+    }, {
+        response: "Play sports",
+        dragID: "drag10"
+    }, {
+        response: "Attend a sporting event",
+        dragID: "drag11"
+    }, {
+        response: "Spend time with friends",
+        dragID: "drag12"
+    }, {
+        response: "Go on AIM/chat",
+        dragID: "drag13"
+    }, {
+        response: "Facebook",
+        dragID: "drag14"
+    }, {
+        response: "Act like I've been drinking",
+        dragID: "drag15"
+    }, {
+        response: "Go for a bike ride",
+        dragID: "drag16"
+    }];
+
+    //stores the users answers to What I Like About Drinking in The Good Things Revisited Survey
+    //need to grab these responses from the database
+    var usersAnswers = [];
+
+    return {
+        defaultAnswers: defaultAnswers,
+        userAnswers: usersAnswers,
+        addUsersAnswer: function addUsersAnswer(answer) {
+            var addIndex = usersAnswers.length;
+            usersAnswers[addIndex] = answer;
+        },
+        removeUsersAnswer: function removeUsersAnswer(elemIndex) {
+            usersAnswers.splice(elemIndex, 1);
+        },
+        getUsersAnswers: function getUsersAnswers() {
+            return usersAnswers;
+        }
+
+    };
+}
+'use strict';
+
+angular.module('app').service('GettingWhatYouWantService', GettingWhatYouWantService);
+function GettingWhatYouWantService() {
+
+    //stores the users answers to The Good Things About Drinking Questionnaire
+    var defaultAnswers = [{
+        response: "To reduce my stress levels",
+        dragID: "drag1"
+    }, {
+        response: "To adjust my attitude",
+        dragID: "drag2"
+    }, {
+        response: "To be more sociable",
+        dragID: "drag3"
+    }, {
+        response: "To enjoy sex more",
+        dragID: "drag4"
+    }, {
+        response: "To be more assertive",
+        dragID: "drag5"
+    }, {
+        response: "To get high",
+        dragID: "drag6"
+    }, {
+        response: "To be more creative",
+        dragID: "drag7"
+    }, {
+        response: "To be a better lover",
+        dragID: "drag8"
+    }, {
+        response: "To be braver or more daring",
+        dragID: "drag9"
+    }, {
+        response: "To sleep",
+        dragID: "drag10"
+    }, {
+        response: "To forget",
+        dragID: "drag11"
+    }, {
+        response: "To feel better",
+        dragID: "drag12"
+    }, {
+        response: "To fight boredom",
+        dragID: "drag13"
+    }, {
+        response: "To escape",
+        dragID: "drag14"
+    }, {
+        response: "To be more relaxed in social situations",
+        dragID: "drag15"
+    }, {
+        response: "To feel accepted",
+        dragID: "drag16"
+    }, {
+        response: "To have fun",
+        dragID: "drag17"
+    }, {
+        response: "To fit in",
+        dragID: "drag18"
+    }];
+
+    //stores the users answers to What I Like About Drinking in The Good Things Revisited Survey
+    //need to grab these responses from the database
+    var usersAnswers = [{
+        response: "To be more relaxed in social situations.",
+        dragID: "drag1"
+    }, {
+        response: "To feel accepted.",
+        dragID: "drag2"
+    }, {
+        response: "To have fun.",
+        dragID: "drag3"
+    }, {
+        response: "To fit in.",
+        dragID: "drag4"
+    }];
+
+    return {
+        defaultAnswers: defaultAnswers,
+        userAnswers: usersAnswers,
+        addUsersAnswer: function addUsersAnswer(answer) {
+            var addIndex = usersAnswers.length;
+            usersAnswers[addIndex] = answer;
+        },
+        removeUsersAnswer: function removeUsersAnswer(elemIndex) {
+            usersAnswers.splice(elemIndex, 1);
+        },
+        getUsersAnswers: function getUsersAnswers() {
+            return usersAnswers;
+        }
+
+    };
+}
+'use strict';
+
+angular.module('app').directive('personalBACTable', personalBACTable);
+
+function personalBACTable() {
+    return {
+        template: '<div class="table-container"><table class="table"> <tr><th class="center title-header" colspan="12">Numbers of Hours You Drink</th></tr>' + '<tr><th rowspan="11" class="box-rotate vertical-title-header"><div><span>Number of Drinks You Might Have</span></div></th><th class="EMPTY"></th> <th class="1">1</th> <th class="2">2' + '</th> <th class="3">3</th> <th class="4">4</th> <th class="5">5</th> <th class="6">6</th> <th class="7">7</th> ' + '<th class="8">8</th> <th class="9">9</th> <th class="10">10</th> </tr><tr> <th >1</th><td>0.013</td>' + '<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>' + '<tr> <th>2</th><td>0.043</td><td>0.026</td><td>0.009</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0' + '</td></tr><tr> <th >3</th><td>0.073</td><td>0.056</td><td>0.039</td><td>0.022</td><td>0.005</td>' + '<td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr><tr> <th>4</th><td>0.103</td><td>0.086</td>' + '<td>0.069</td><td>0.052</td><td>0.035</td><td>0.018</td><td>0.001</td><td>0</td><td>0</td><td>0</td></tr><tr>' + ' <th >5</th><td>0.133</td><td>0.116</td><td>0.099</td><td>0.082</td><td>0.065</td><td>0.048</td><td>' + '0.031</td><td>0.014</td><td>0</td><td>0</td></tr><tr> <th >6</th><td>0.163</td><td>0.146</td>' + '<td>0.129</td><td>0.112</td><td>0.095</td><td>0.078</td><td>0.061</td><td>0.044</td><td>0.027</td><td>0.01' + '</td></tr><tr> <th >7</th><td>0.193</td><td>0.176</td><td>0.159</td><td>0.142</td><td>0.125</td>' + '<td>0.108</td><td>0.091</td><td>0.074</td><td>0.057</td><td>0.04</td></tr><tr> <th >8</th><td>' + '0.233</td><td>0.206</td><td>0.189</td><td>0.172</td><td>0.155</td><td>0.138</td><td>0.121</td><td>0.104' + '</td><td>0.087</td><td>0.007</td></tr><tr> <th >9</th><td>0.253</td><td>0.236</td><td>0.219' + '</td><td>0.202</td><td>0.185</td><td>0.168</td><td>0.151</td><td>0.134</td><td>0.117</td><td>0.1</td>' + '</tr><tr> <th >10</th><td>0.283</td><td>0.266</td><td>0.249</td><td>0.232</td><td>0.215</td>' + '<td>0.198</td><td>0.181</td><td>0.164</td><td>0.147</td><td>0.13</td></tr></table></div>'
+    };
+}
+'use strict';
+
+/*
+ *   Counseling Controllers
+ *
+ *   Authors: Guido Ruiz, Daniel Rivero, Vishal Chattwani
+ *
+ *   Description: This is an angular controller, designed to handle all the logic related with the counseling view. The
+ *   counseling view is the view where the virtual counselor lies, and where the user takes his/her interventions.
+ *   Among the many functions are some that communicate with the mainframe, which is Mihai's statemachine runner, or
+ *   functions that login the user into the system, retrieve their answers, save their answers, and more. There are also
+ *   helper functions as well, like print and progress bar, that modify content on the page dynamically or assist in
+ *   tasks such as printing.
+ */
+
+angular.module('app').controller('ratingProsConsController', ratingProsConsController);
+angular.module('app').controller('TGTRevisitedController', TGTRevisitedController);
+angular.module('app').controller('TNSGTRevisitedController', TNSGTRevisitedController);
+angular.module('app').controller('GWYWController', GWYWController);
+angular.module('app').controller('ImportanceController', ImportanceController);
+angular.module('app').controller('AlternativesController', AlternativesController);
+angular.module('app').controller('gamePlanController', gamePlanController);
+angular.module('app').controller('bacController', bacController);
+//angular.module('app').controller('otherDrugsController', otherDrugsController);
+
+// -----------------------------------------------------------------------------------------------------------------
+// injects, or dependencies, used by each controller. must follow function signature
+// -----------------------------------------------------------------------------------------------------------------
+
+TGTRevisitedController.$inject = ['$scope', 'goodThingsAboutDrinkingService'];
+TNSGTRevisitedController.$inject = ['$scope', 'notSoGoodThingsAboutDrinkingService'];
+ratingProsConsController.$inject = ['$scope', 'notSoGoodThingsAboutDrinkingService', 'goodThingsAboutDrinkingService'];
+GWYWController.$inject = ['$scope', 'GettingWhatYouWantService'];
+ImportanceController.$inject = ['$scope', 'goodThingsAboutDrinkingService', 'notSoGoodThingsAboutDrinkingService'];
+AlternativesController.$inject = ['$scope', 'AlternativesToGetYouWhereYouWantToGoService', 'GettingWhatYouWantService'];
+gamePlanController.$inject = ['$scope', 'notSoGoodThingsAboutDrinkingService', 'gamePlanService'];
+bacController.$inject = ['$scope', 'ScoreService'];
+//otherDrugsController.$inject = ['$scope', 'otherDrugsService'];
+// -----------------------------------------------------------------------------------------------------------------
+// CounselingController: view description above
+// -----------------------------------------------------------------------------------------------------------------
+
+//for code reusability and handling of certain surveys that contain list functionality.
+function surveyHandler(scp, srv) {
+    var selection;
+    scp.defaultResponses = srv.defaultAnswers;
+    scp.userResponses = srv.getUsersAnswers();
+    scp.addItem = function () {
+        var obj = {
+            response: scp.newResponse
+        };
+        srv.addUsersAnswer(obj);
+        scp.newResponse = ''; //clears input field when done.
+    };
+    scp.moveItemToLeftList = function () {
+        var elementIndex = selection;
+        if (elementIndex == null) return;
+        scp.defaultResponses.push(scp.userResponses[elementIndex]);
+        scp.userResponses.splice(elementIndex, 1);
+        selection = null;
+    };
+
+    scp.moveItemToRightList = function () {
+        var elementIndex = selection;
+        if (elementIndex == null) return;
+        scp.userResponses.push(scp.defaultResponses[elementIndex]);
+        scp.defaultResponses.splice(elementIndex, 1);
+        selection = null;
+    };
+
+    scp.setSelection = function (elementIndex) {
+        selection = elementIndex;
+    };
+
+    scp.allowDrop = function (ev) {
+        ev.preventDefault();
+    };
+
+    scp.drag = function (ev) {
+        ev.dataTransfer.setData("text", ev.target.id);
+    };
+
+    scp.drop = function (ev) {
+        ev.preventDefault();
+        var data = ev.dataTransfer.getData("text");
+        ev.target.appendChild(document.getElementById(data));
+    };
+}
+
+function TGTRevisitedController($scope, goodThingsAboutDrinkingService) {
+    surveyHandler($scope, goodThingsAboutDrinkingService);
+
+    //following handles the Success and Error messages
+    $scope.Success = function (message) {
+        $scope.alert = {
+            alertClass: "alert-success",
+            alertType: "Success!",
+            alertText: message
+        };
+    };
+    $scope.Error = function (message) {
+        $scope.alert = {
+            alertClass: "alert-danger",
+            alertType: "Error!",
+            alertText: message
+        };
+    };
+
+    $scope.saveTGTR = function () {
+
+        var tmp = [];
+
+        $scope.userResponses.forEach(function (e) {
+            tmp.push(e.response);
+        });
+
+        var userAnswer = tmp;
+        var elementId = "PBuf3sVCCj";
+
+        Parse.Cloud.run('addResponse', { elemID: elementId, answer: userAnswer }).then(function (success) {
+            $scope.Success("Your responses have been saved successfully");
+        }, function (error) {
+            $scope.Error("Your responses were not saved. Error: " + error);
+        });
+    };
+}
+function TNSGTRevisitedController($scope, notSoGoodThingsAboutDrinkingService) {
+    surveyHandler($scope, notSoGoodThingsAboutDrinkingService);
+    //following handles the Success and Error messages
+    $scope.Success = function (message) {
+        $scope.alert = {
+            alertClass: "alert-success",
+            alertType: "Success!",
+            alertText: message
+        };
+    };
+    $scope.Error = function (message) {
+        $scope.alert = {
+            alertClass: "alert-danger",
+            alertType: "Error!",
+            alertText: message
+        };
+    };
+
+    $scope.saveTNSGTR = function () {
+
+        var tmp = [];
+
+        $scope.userResponses.forEach(function (e) {
+            tmp.push(e.response);
+        });
+
+        var userAnswer = tmp;
+        var elementId = "UY59yLDhwG";
+
+        Parse.Cloud.run('addResponse', { elemID: elementId, answer: userAnswer }).then(function (success) {
+            $scope.Success("Your responses have been saved successfully");
+        }, function (error) {
+            $scope.Error("Your responses were not saved. Error: " + error);
+        });
+    };
+}
+//
+// function otherDrugsController ($scope, otherDrugsService){
+//     surveyHandler($scope, otherDrugsService);
+//
+//     $scope.saveOtherDrugs = function(){
+//
+//         var tmp = [];
+//
+//         $scope.userResponses.forEach(function (e) {
+//             tmp.push(e.response);
+//         });
+//
+//         var userAnswer = tmp;
+//         var elementId = "UY59yLDhwG";
+//
+//         Parse.Cloud.run('addResponse', { elemID: elementId, answer: userAnswer });
+//     }
+// }
+
+
+function GWYWController($scope, GettingWhatYouWantService) {
+    surveyHandler($scope, GettingWhatYouWantService);
+}
+function AlternativesController($scope, AlternativesToGetYouWhereYouWantToGoService, GettingWhatYouWantService) {
+    $scope.myDesiredEffects = GettingWhatYouWantService.getUsersAnswers(); //this line fetches the data from the GWYWService array of user answers
+    surveyHandler($scope, AlternativesToGetYouWhereYouWantToGoService);
+
+    $scope.saveAlternatives = function () {
+
+        var tmp = [];
+
+        $scope.userResponses.forEach(function (e) {
+            tmp.push(e.response);
+        });
+
+        var userAnswer = tmp;
+        var elementId = "PEOFZ3qPHR";
+
+        Parse.Cloud.run('addResponse', { elemID: elementId, answer: userAnswer });
+    };
+}
+function ImportanceController($scope, goodThingsAboutDrinkingService, notSoGoodThingsAboutDrinkingService, otherDrugsService) {
+    $scope.goodThings = goodThingsAboutDrinkingService.getUsersAnswers();
+    $scope.notGoodThings = notSoGoodThingsAboutDrinkingService.getUsersAnswers();
+    $scope.otherDrugs = otherDrugsService.getUsersAnswers();
+}
+
+function ratingProsConsController($scope, notSoGoodThingsAboutDrinkingService, goodThingsAboutDrinkingService) {
+    var listName;
+    var elementIndex;
+    $scope.userResponsesLikeAboutDrinking = goodThingsAboutDrinkingService.getUsersAnswers();
+    $scope.userResponsesDontLikeAboutDrinking = notSoGoodThingsAboutDrinkingService.getUsersAnswers();
+    $scope.setSelection = function (index, list) {
+        listName = list;
+        elementIndex = index;
+    };
+    $scope.shiftDown = function () {
+
+        if (listName === 'WILAD') {
+            var len = $scope.userResponsesLikeAboutDrinking.length;
+            if (elementIndex < len - 1) {
+                var temp = $scope.userResponsesLikeAboutDrinking[elementIndex + 1];
+                $scope.userResponsesLikeAboutDrinking[elementIndex + 1] = $scope.userResponsesLikeAboutDrinking[elementIndex];
+                $scope.userResponsesLikeAboutDrinking[elementIndex] = temp;
+                goodThingsAboutDrinkingService.updateUsersAnswersOrder($scope.userResponsesLikeAboutDrinking);
+            }
+        } else if (listName === 'WIDLAD') {
+            var len = $scope.userResponsesDontLikeAboutDrinking.length;
+            if (elementIndex < len - 1) {
+                var temp = $scope.userResponsesDontLikeAboutDrinking[elementIndex + 1];
+                $scope.userResponsesDontLikeAboutDrinking[elementIndex + 1] = $scope.userResponsesDontLikeAboutDrinking[elementIndex];
+                $scope.userResponsesDontLikeAboutDrinking[elementIndex] = temp;
+                goodThingsAboutDrinkingService.updateUsersAnswersOrder($scope.userResponsesLikeAboutDrinking);
+            }
+        }
+    };
+    $scope.shiftUp = function () {
+        if (listName === 'WILAD') {
+            var len = $scope.userResponsesLikeAboutDrinking.length;
+            if (elementIndex != 0) {
+                var temp = $scope.userResponsesLikeAboutDrinking[elementIndex - 1];
+                $scope.userResponsesLikeAboutDrinking[elementIndex - 1] = $scope.userResponsesLikeAboutDrinking[elementIndex];
+                $scope.userResponsesLikeAboutDrinking[elementIndex] = temp;
+                notSoGoodThingsAboutDrinkingService.updateUsersAnswersOrder($scope.userResponsesDontLikeAboutDrinking);
+            }
+        } else if (listName === 'WIDLAD') {
+            var len = $scope.userResponsesDontLikeAboutDrinking.length;
+            if (elementIndex != 0) {
+                var temp = $scope.userResponsesDontLikeAboutDrinking[elementIndex - 1];
+                $scope.userResponsesDontLikeAboutDrinking[elementIndex - 1] = $scope.userResponsesDontLikeAboutDrinking[elementIndex];
+                $scope.userResponsesDontLikeAboutDrinking[elementIndex] = temp;
+                notSoGoodThingsAboutDrinkingService.updateUsersAnswersOrder($scope.userResponsesDontLikeAboutDrinking);
+            }
+        }
+    };
+}
+
+function gamePlanController($scope, notSoGoodThingsAboutDrinkingService, gamePlanService) {
+    $scope.userResponses = gamePlanService.usersAnswers;
+    $scope.notSoGoodList = notSoGoodThingsAboutDrinkingService.getUsersAnswers();
+
+    //following handles the Success and Error messages
+    $scope.Success = function (message) {
+        $scope.alert = {
+            alertClass: "alert-success",
+            alertType: "Success!",
+            alertText: message
+        };
+    };
+    $scope.Error = function (message) {
+        $scope.alert = {
+            alertClass: "alert-danger",
+            alertType: "Error!",
+            alertText: message
+        };
+    };
+
+    $scope.elementID_GP = ["QGPgGLjWyA", "B4r2DavPKN", "EFwmDRi9mP", "Q9AJDNzBvp", "rWxrQmpzuQ", "jo4cPjzut6"];
+    $scope.saveAnswer = function (index, usrRes) {
+        Parse.Cloud.run('addResponse', { elemID: $scope.elementID_GP[index], answer: [usrRes] }).then(function (success) {
+            $scope.Success("Your responses have been saved successfully");
+        }, function (error) {
+            $scope.Error("Your responses were not saved. Error: " + error);
+        });
+    };
+
+    $scope.insertList = function () {
+        var len = $scope.notSoGoodList.length;
+        var str = "";
+        //console.log(len);
+        for (i = 0; i < len; i++) {
+            str += $scope.notSoGoodList[i].response;
+            if (len > 1 && i < len - 1) {
+                str += "\n";
+            }
+        }
+        $scope.usrResponse = str;
+    };
+}
+
+function bacController($scope, ScoreService, Constants) {
+    /* $scope.calculateBAC = function () {
+       var TD = $scope.x;
+       var TH = $scope.totalHours;
+         var allTableCells = document.getElementsByTagName("td");
+       for (var i = 0, max = allTableCells.length; i < max; i++) {
+           var node = allTableCells[i];
+           var currentText = node.childNodes[0].nodeValue;
+           if (TD == 1 && TH == 1) {
+               if (currentText === "0.013") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 1) {
+               if (currentText === "0.043") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 1) {
+               if (currentText === "0.073") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 1) {
+               if (currentText === "0.103") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 1) {
+               if (currentText === "0.133") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 1) {
+               if (currentText === "0.163") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 1) {
+               if (currentText === "0.193") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 1) {
+               if (currentText === "0.233") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 1) {
+               if (currentText === "0.253") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 1) {
+               if (currentText === "0.283") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 2) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 2) {
+               if (currentText === "0.026") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 2) {
+               if (currentText === "0.056") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 2) {
+               if (currentText === "0.086") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 2) {
+               if (currentText === "0.116") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 2) {
+               if (currentText === "0.146") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 2) {
+               if (currentText === "0.176") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 2) {
+               if (currentText === "0.206") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 2) {
+               if (currentText === "0.236") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 2) {
+               if (currentText === "0.266") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 3) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 3) {
+               if (currentText === "0.009") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 3) {
+               if (currentText === "0.039") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 3) {
+               if (currentText === "0.069") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 3) {
+               if (currentText === "0.099") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 3) {
+               if (currentText === "0.129") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 3) {
+               if (currentText === "0.159") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 3) {
+               if (currentText === "0.189") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 3) {
+               if (currentText === "0.219") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 3) {
+               if (currentText === "0.249") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 4) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 4) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 4) {
+               if (currentText === "0.022") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 4) {
+               if (currentText === "0.052") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 4) {
+               if (currentText === "0.082") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 4) {
+               if (currentText === "0.112") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 4) {
+               if (currentText === "0.142") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 4) {
+               if (currentText === "0.172") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 4) {
+               if (currentText === "0.202") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 4) {
+               if (currentText === "0.232") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 5) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 5) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 5) {
+               if (currentText === "0.005") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 5) {
+               if (currentText === "0.035") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 5) {
+               if (currentText === "0.065") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 5) {
+               if (currentText === "0.095") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 5) {
+               if (currentText === "0.125") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 5) {
+               if (currentText === "0.155") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 5) {
+               if (currentText === "0.185") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 5) {
+               if (currentText === "0.215") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 6) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 6) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 6) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 6) {
+               if (currentText === "0.018") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 6) {
+               if (currentText === "0.048") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 6) {
+               if (currentText === "0.078") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 6) {
+               if (currentText === "0.108") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 6) {
+               if (currentText === "0.138") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 6) {
+               if (currentText === "0.168") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 6) {
+               if (currentText === "0.198") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 7) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 7) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 7) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 7) {
+               if (currentText === "0.001") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 7) {
+               if (currentText === "0.031") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 7) {
+               if (currentText === "0.061") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 7) {
+               if (currentText === "0.091") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 7) {
+               if (currentText === "0.121") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 7) {
+               if (currentText === "0.151") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 7) {
+               if (currentText === "0.181") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 8) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 8) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 8) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 8) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 8) {
+               if (currentText === "0.014") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 8) {
+               if (currentText === "0.044") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 8) {
+               if (currentText === "0.074") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 8) {
+               if (currentText === "0.104") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 8) {
+               if (currentText === "0.134") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 8) {
+               if (currentText === "0.164") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 9) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 9) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 9) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 9) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 9) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 9) {
+               if (currentText === "0.027") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 9) {
+               if (currentText === "0.057") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 9) {
+               if (currentText === "0.087") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 9) {
+               if (currentText === "0.117") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 9) {
+               if (currentText === "0.147") node.style.backgroundColor = "yellow";
+           } else if (TD == 1 && TH == 10) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 2 && TH == 10) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 3 && TH == 10) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 4 && TH == 10) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 5 && TH == 10) {
+               if (currentText === "0") node.style.backgroundColor = "yellow";
+           } else if (TD == 6 && TH == 10) {
+               if (currentText === "0.01") node.style.backgroundColor = "yellow";
+           } else if (TD == 7 && TH == 10) {
+               if (currentText === "0.04") node.style.backgroundColor = "yellow";
+           } else if (TD == 8 && TH == 10) {
+               if (currentText === "0.007") node.style.backgroundColor = "yellow";
+           } else if (TD == 9 && TH == 10) {
+               if (currentText === "0.1") node.style.backgroundColor = "yellow";
+           } else if (TD == 10 && TH == 10) {
+               if (currentText === "0.13") node.style.backgroundColor = "yellow";
+           } else {
+               alert("Invalid Entry!");
+               break;
+           }
+       }
+    };
+    $scope.resetValues = function (){
+         $scope.totalDrinks = 0;
+       $scope.totalHours = 0;
+         var isOdd = function (value) {
+           var num = value/10;
+           num = Math.floor(num);
+           return (num%2);
+       };
+         var allTableCells = document.getElementsByTagName("td");
+         for (var i = 0, max = allTableCells.length; i < max; i++) {
+             var node = allTableCells[i];
+             if (node.style.backgroundColor == "yellow") {
+                 if(!isOdd(i)){
+                   node.style.backgroundColor = "white";
+               }
+               else
+                   node.style.backgroundColor = "#a9dba9";
+           }
+       }
+    };*/
+
+    var bacTableTemplate_male = [[0, 100, 120, 140, 160, 180, 200, 220, 240], [1, .021, .015, .010, .007, .004, .002, .001, .000], [2, .058, .046, .036, .030, .024, .020, .018, .014], [3, .095, .077, .062, .053, .044, .038, .035, .029], [4, .132, .108, .088, .076, .064, .056, .052, .044], [5, .169, .139, .114, .099, .084, .074, .069, .059], [6, .206, .170, .140, .122, .104, .092, .086, .074], [7, .243, .201, .166, .145, .124, .110, .103, .089], [8, .280, .232, .192, .168, .144, .128, .120, .104], [9, .317, .263, .218, .191, .164, .146, .137, .119], [10, .354, .294, .244, .214, .184, .164, .154, .134], [11, .391, .325, .270, .237, .204, .182, .171, .149], [12, .428, .356, .296, .260, .224, .200, .188, .164]];
+    var bacTableTemplate_female = [[0, 100, 120, 140, 160, 180, 200, 220, 240], [1, .029, .021, .016, .012, .009, .006, .004, .002], [2, .074, .058, .048, .040, .034, .028, .024, .020], [3, .119, .095, .080, .068, .059, .050, .044, .038], [4, .164, .132, .112, .096, .084, .072, .064, .056], [5, .209, .169, .144, .124, .109, .094, .084, .074], [6, .253, .206, .176, .152, .134, .116, .104, .092], [7, .299, .243, .208, .180, .159, .138, .124, .110], [8, .344, .280, .240, .208, .184, .160, .144, .128], [9, .389, .317, .272, .236, .209, .182, .164, .146], [10, .434, .354, .304, .264, .234, .204, .184, .164], [11, .479, .391, .336, .292, .259, .226, .204, .182], [12, .524, .428, .368, .320, .284, .248, .224, .200]];
+    var bacTableTemplate = void 0;
+    var genBacTable = "";
+    $scope.genBacTable;
+
+    $scope.init = function () {
+
+        Parse.Cloud.run("calculateAllScores", {}).then(function (e) {
+            var yAxisHeaderCreated = false;
+
+            $scope.avgBAC = e.bac.score.avgBAC;
+            if (e.bac.score.userStats.gender == "Male") {
+                bacTableTemplate = bacTableTemplate_male;
+            } else bacTableTemplate = bacTableTemplate_female;
+
+            angular.forEach(bacTableTemplate, function (row, index) {
+
+                row.forEach(function (value, key) {
+
+                    if (index == 0 && key == 0) {
+                        //first cell need to set up table structure
+                        genBacTable += "<table>";
+
+                        //need to add the x-axis label
+                        genBacTable += "<tr ><th colspan='10' class='center'>Weight (in lbs)</th></tr>";
+                    }
+                    if (key == 0) {
+                        //first cell in the table row need to add tr tag to indicate this
+                        genBacTable += "<tr>";
+                        if (!yAxisHeaderCreated) {
+                            genBacTable += "<th rowspan='13'class='box-rotate vertical-title-header'><div><span>Number of Drinks You Might Have</span></div></th>";
+                            yAxisHeaderCreated = true;
+                        }
+                    }
+                    if (index == 0 || key == 0) {
+                        //the row cell belongs to the heading
+                        genBacTable += "<th>";
+                        genBacTable += value;
+                        genBacTable += "</th>";
+                    } else {
+
+                        //console.log("avgBAC: " + $scope.avgBAC);
+                        //console.log("value: " + value);
+                        //the row cell is not a header and is data
+                        if ($scope.avgBAC == value && key == e.bac.score.bac_y && index == e.bac.score.bac_x) {
+                            //if usr avg bac is equal to current value hightlight and border
+                            genBacTable += "<td class='usrBAC'>";
+                        } else {
+                            //if usr avg bac is not greater than or equal to current value do nothing just print value
+                            genBacTable += "<td>";
+                        }
+                        genBacTable += value;
+                        genBacTable += "</td>";
+                    }
+                }, $scope.avgBAC);
+                //out of the row need to close tr tag
+                genBacTable += "</tr>";
+            }, $scope.avgBAC);
+
+            //out of for loop close table tag
+            genBacTable += "</table>";
+
+            $scope.genBacTable = genBacTable;
+        });
+    };
+    $scope.init();
+}
+'use strict';
+
+/**
+ * Created by ejhen on 3/23/2017.
+ */
+
+angular.module('app').service('gamePlanService', gamePlanService);
+
+function gamePlanService() {
+
+    //stores the users answers to What I Do Like About Drinking in What I Do Like About Drinking Survey
+    //need to grab these responses from the database
+    var usersAnswers = [{
+        question: "What changes are you going to make?  Be specific.  Include positive goals (beginning, increase," + " improve, do more of something) as well as negative goals (stopping, decreasing, avoiding)",
+        response: "Become more aware of my drinking"
+
+    }, {
+        question: "Reasons for changing--What are your most important reasons for changing?",
+        response: "It's ruining my life"
+
+    }, {
+        question: "The steps in changing--How do you plan to achieve your goals?  What are the specific steps " + "involved?  When, where, and how will you take them?",
+        response: "Taking one day at a time"
+
+    }, {
+        question: "How can others help?  How can you get them to help you?",
+        response: "By letting me know when I am not on track with my drinking plan.  Explaining the importance for" + " me to change my drinking habits."
+    }, {
+        question: "What could go wrong or undermine your plan?  How can you stick with your plan despite these " + "setbacks or problems?",
+        response: "Continuing to hang out with the 'bad crowd'.  Choose my friends wisely."
+    }, {
+        question: "What good things will happen as a result of changing?",
+        response: "I will save money and hopefully improve my relationships."
+    }];
+
+    return {
+        usersAnswers: usersAnswers
+
+    };
+}
+'use strict';
+
+angular.module('app').service('goodThingsAboutDrinkingService', goodThingsAboutDrinkingService);
+
+function goodThingsAboutDrinkingService() {
+
+    //stores the users answers to The Good Things About Drinking Questionnaire
+    var defaultAnswers = [{
+        response: "It helps me sleep",
+        dragID: "drag1"
+    }, {
+        response: "It helps me be more open socially",
+        dragID: "drag2"
+    }, {
+        response: "It helps me forget my problems",
+        dragID: "drag3"
+    }, {
+        response: "It helps me adjust my attitude",
+        dragID: "drag4"
+    }, {
+        response: "It helps me feel sexier or have better sex",
+        dragID: "drag5"
+    }, {
+        response: "I feel more creative when I drink",
+        dragID: "drag6"
+    }, {
+        response: "I like the high",
+        dragID: "drag7"
+    }];
+
+    var usersAnswers = [];
+
+    var dragIndex = 1;
+
+    return {
+        defaultAnswers: defaultAnswers,
+        addUsersAnswer: function addUsersAnswer(answer) {
+            var addIndex = usersAnswers.length;
+            usersAnswers[addIndex] = answer;
+        },
+        removeUsersAnswer: function removeUsersAnswer(elemIndex) {
+            usersAnswers.splice(elemIndex, 1);
+        },
+        getUsersAnswers: function getUsersAnswers() {
+
+            Parse.Cloud.run("calculateAllScores", {}).then(function (e) {
+                e.goodThings.score.goodThingsResponses.forEach(function (answer) {
+
+                    var tmp = {
+                        response: answer,
+                        dragID: "drag" + dragIndex
+                    };
+                    dragIndex++;
+                    usersAnswers.push(tmp);
+                });
+            });
+            return usersAnswers;
+        },
+        updateUsersAnswersOrder: function updateUsersAnswersOrder(newOrderedAnswers) {
+            usersAnswers = newOrderedAnswers;
+        }
+    };
+}
+'use strict';
+
+/**
+ * Created by ejhen on 3/2/2017.
+ */
+
+angular.module('app').service('notSoGoodThingsAboutDrinkingService', notSoGoodThingsAboutDrinkingService);
+
+function notSoGoodThingsAboutDrinkingService() {
+
+    //stores the users answers to The Good Things About Drinking Questionnaire
+    var defaultAnswers = [{
+        response: "It affects my relationships with others",
+        dragID: "drag1"
+    }, {
+        response: "Health-related problems",
+        dragID: "drag2"
+    }, {
+        response: "Money Problems",
+        dragID: "drag3"
+    }, {
+        response: "Memory blackouts",
+        dragID: "drag4"
+    }, {
+        response: "Make poor decisions",
+        dragID: "drag5"
+    }, {
+        response: "Feel guilty or ashamed",
+        dragID: "drag6"
+    }, {
+        response: "Miss class or work the next day",
+        dragID: "drag7"
+    }, {
+        response: "Affecting my school or work performance",
+        dragID: "drag8"
+    }, {
+        response: "Shamed or embarrassed someone",
+        dragID: "drag9"
+    }, {
+        response: "Neglecting responsibilities",
+        dragID: "drag10"
+    }, {
+        response: "Need to drink more for the same effect",
+        dragID: "drag11"
+    }, {
+        response: "Passing out or fainting suddenly",
+        dragID: "drag12"
+    }, {
+        response: "Feeling dependent on alcohol",
+        dragID: "drag13"
+    }, {
+        response: "Being a poor role model for my kids when I drink",
+        dragID: "drag14"
+    }, {
+        response: "DWI/DUIs",
+        dragID: "drag15"
+    }, {
+        response: "Other legal problems",
+        dragID: "drag16"
+    }];
+
+    //stores the users answers to What I Don't Like About Drinking in What I Don't Like About Drinking Survey
+    //need to grab these responses from the database
+    // var usersAnswers = [
+    // {
+    //         response: "It doesn't last forever.",
+    //         dragID: "drag1",
+    //     },
+    //     {
+    //         response: "Can't afford to drink as much as I would like to.",
+    //         dragID: "drag2"
+    //     }
+    // ];
+
+    var usersAnswers = [];
+
+    var dragIndex = 1;
+
+    return {
+        defaultAnswers: defaultAnswers,
+        addUsersAnswer: function addUsersAnswer(answer) {
+            var addIndex = usersAnswers.length;
+            usersAnswers[addIndex] = answer;
+        },
+        removeUsersAnswer: function removeUsersAnswer(elemIndex) {
+            usersAnswers.splice(elemIndex, 1);
+        },
+        getUsersAnswers: function getUsersAnswers() {
+            Parse.Cloud.run("calculateAllScores", {}).then(function (e) {
+                e.notGoodThings.score.notGoodThingsResponses.forEach(function (answer) {
+
+                    var tmp = {
+                        response: answer,
+                        dragID: "drag" + dragIndex
+                    };
+                    dragIndex++;
+                    usersAnswers.push(tmp);
+                });
+            });
+            return usersAnswers;
+        },
+        updateUsersAnswersOrder: function updateUsersAnswersOrder(newOrderedAnswers) {
+            usersAnswers = newOrderedAnswers;
+        }
+    };
+}
+/*
+
+
+angular.module('app').service('otherDrugsService',otherDrugsService);
+
+
+function otherDrugsService (){
+
+    //stores the users answers to The Good Things About Drinking Questionnaire
+    var defaultAnswers = [
+        {
+            response: "Marijuana, Hash, THC",
+            dragID: "drag1",
+        },
+        {
+            response: "Stimulants, meth, speed, ritalin",
+            dragID: "drag2"
+        },
+        {
+            response: "Cocaine or crack",
+            dragID: "drag3"
+        },
+        {
+            response: "Opioids (Oxycontin, Oxycodone, heroin)",
+            dragID: "drag4"
+        },
+        {
+            response: "Hallucinogens (LSD, peyote, mushrooms)",
+            dragID: "drag5"
+        },
+        {
+            response: "Inhalants",
+            dragID: "drag6"
+        },
+        {
+            response: "Ecstasy or club drugs",
+            dragID: "drag7"
+        },
+        {
+            response: "Tranquilizers (Valium, Xanax)",
+            dragID: "drag8"
+        },
+        {
+            response: "PCP, Phencyclidine",
+            dragID: "drag9"
+        },
+        {
+            response: "Sedatives (Barbiturates)",
+            dragID: "drag10"
+        },
+        {
+            response: "Have not taken any of the above",
+            dragID: "drag11"
+        }
+    ];
+
+
+
+    var usersAnswers = [];
+
+    var dragIndex = 1;
+
+
+    return{
+        defaultAnswers: defaultAnswers,
+        addUsersAnswer: function (answer) {
+            var addIndex = usersAnswers.length;
+            usersAnswers[addIndex] = answer;
+
+        },
+        removeUsersAnswer: function (elemIndex){
+            usersAnswers.splice(elemIndex, 1);
+        },
+        getUsersAnswers: function (){
+
+            Parse.Cloud.run("calculateAllScores", {}).then(function(e){
+                e.otherDrugs.score.otherDrugsResponses.forEach(function(answer){
+
+                    var tmp = {
+                        response: answer,
+                        dragID: "drag" + dragIndex
+                    };
+                    dragIndex++;
+                    usersAnswers.push(tmp);
+                });
+            });
+            return usersAnswers;
+        },
+        updateUsersAnswersOrder: function (newOrderedAnswers){
+            usersAnswers = newOrderedAnswers;
+        }
+    };
+}*/
+"use strict";
+'use strict';
+
+angular.module('app').directive('selfHelpContent', selfHelpContent);
+angular.module('app').directive('professionalHelp', professionalHelp);
+angular.module('app').directive('selfDirectedBooks', selfDirectedBooks);
+angular.module('app').directive('feelingsMoodDisorders', feelingsMoodDisorders);
+angular.module('app').directive('medicalIssues', medicalIssues);
+angular.module('app').directive('medicatiguidescohol', medicationsAlcohol);
+angular.module('app').directive('medicationsMarijuana', medicationsMarijuana);
+angular.module('app').directive('medicationsOpiates', medicationsOpiates);
+angular.module('app').directive('medicationsStimulants', medicationsStimulants);
+angular.module('app').directive('medicationsGambling', medicationsGambling);
+angular.module('app').directive('medications', medications);
+angular.module('app').directive('relationships', relationships);
+angular.module('app').directive('tobacco', tobacco);
+angular.module('app').directive('socialAssertivenessSkills', socialAssertivenessSkills);
+angular.module('app').directive('urgesCravings', urgesCravings);
+angular.module('app').directive('readingList', readingList);
+
+function selfHelpContent() {
+    return {
+        template: "<p><a href='http://smartrecovery.org' target='_blank'>SMART Recovery</a> is the self-help " + "program upon which this web course is based. It is a tremendous resource for getting support from others for " + "your efforts. There also is a lot of collective wisdom there on practical strategies for achieving and " + "maintaining abstinence from all addictions.</p>"
+    };
+}
+
+function professionalHelp() {
+    return {
+        template: "<p>If you've been struggling to achieve or maintain abstinence, consider getting some professional " + "help. <a href='http://www.abct.org' target='_blank'>The Association for Behavioral and Cognitive Therapies " + "(ABCT)</a> is an organization of cognitive-behavioral therapist and researchers with an emphasis on " + "evidence-based approaches to helping people. Their “<a href='https://aabt.org/members/Directory/Find_A_Therapist.cfm' target='_blank'>find a therapist</a>” feature may help you to find someone in your area. Another resource is " + "a list of evidence-based cognitive behavioral treatment programs that is available <a href='http://www.smartrecovery.org/Misc/provider_programs.php' target='_blank'>here</a>.</p>"
+    };
+}
+function selfDirectedBooks() {
+    return {
+        template: "<ul><li><a href='http://smartrecovery.org/SMARTStore/index.php?main_page=product_info&cPath=1&products_id=21' " + "target='_blank'>Sex, Drugs, Gambling, and Chocolate</a> by Dr. Tom Horvath is an excellent manual. He is the " + "president of <a href='http://www.smartrecovery.org' target='_blank'>SMART Recovery</a> and past president of " + "the Addictions Division of the American Psychological Association.</li><li>" + "<a href='http://smartrecovery.org/SMARTStore/index.php?main_page=product_info&cPath=1&products_id=23' target='_blank'>" + "Sober for Good</a> is for people who have decided to stop drinking and or interested in how others have his " + "succeeded. It's also helpful for people who are thinking about abstaining.  " + "<a href='http://www.behaviortherapy.com/soberforgoodreview.htm' target='_blank'>Click here</a> for a detailed " + "review.</li><li>SMART Recovery also has a good list of " + "<a href='http://www.smartrecovery.org/resources/readlist.html' target='_blank'>recommended readings</a>. " + "An edited list is below.</li></ul>"
+    };
+}
+function feelingsMoodDisorders() {
+    return {
+        template: "<p>If you know or wonder whether you have a mood disorder (e.g., clinical depression, bipolar " + "disorder), we encourage you to seek professional help. If you're not under the care of a professional, consult" + " your family physician. Another resource is the " + "<a href='http://mentalhealth.samhsa.gov/databases' target='_blank'>mental health services</a> locator site for" + " the Federal Government.  </p><ul><li>" + "<a href='http://www.health.harvard.edu/special_health_reports/Coping_with_Anxiety_and_Phobias.htm' target='_blank'>" + "Mastering anxiety and phobias</a>. This is a health report published by the Harvard Medical School.</li><li>" + "<a href='http://www.amazon.com/gp/product/0380810336?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=0380810336' target='_blank'>" + "Feeling Good: The New Mood Therapy</a> and " + "<a href='http://www.amazon.com/gp/product/0452281326?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=0452281326' target='_blank'>" + "The Feeling Good Handbook</a> These self-help manuals are based on cognitive behavioral therapy (CBT) " + "principles and focus on depression and anxiety. There is a lot of scientific evidence supporting the " + "effectiveness of CBT for depression and anxiety.</li><li>" + "<a href='http://www.amazon.com/gp/product/0898621283?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=0898621283' target='_blank'>" + "Mind Over Mood: Change How You Feel by Changing the Way You Think</a></li></ul><p>The following are client " + "manuals used in evidence-based treatments for anxiety disorders. If you think you have anxiety disorder, " + "consider seeing a therapist with expertise in these areas. The programs can be challenging to complete by " + "yourself.</p><ul><li>" + "<a href='http://www.amazon.com/gp/product/0195189183/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399369&creativeASIN=0195189183' target='_blank'>" + "Mastering Your Fears and Phobias</a></li><li>" + "<a href='http://www.amazon.com/gp/product/0195336690/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399369&creativeASIN=0195336690' target='_blank'>" + "Managing Social Anxiety, Workbook, 2nd Edition: A Cognitive-Behavioral Therapy Approach</a></li><li>" + "<a href='http://www.amazon.com/gp/product/0195186850/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399373&creativeASIN=0195186850' target='_blank'>" + "Mastery of Obsessive-Compulsive Disorder: A Cognitive Behavioral Approach</a></li><li>" + "<a href='http://www.amazon.com/gp/product/0195338553/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399373&creativeASIN=0195338553' target='_blank'>" + "Stopping Anxiety Medication Workbook</a></li><li>" + "<a href='http://www.amazon.com/gp/product/0195183762/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399373&creativeASIN=0195183762' target='_blank'>" + "Reclaiming Your Life After Rape: Cognitive-Behavioral Therapy for Posttraumatic Stress Disorder</a></li></ul>"
+    };
+}
+function medicalIssues() {
+    return {
+        template: "<ul><li><a href='http://www.mayoclinic.com' target='_blank'>The Mayo Clinic</a></li><li>" + "<a href='http://www.webmd.com' target='_blank'>WebMD</a></li></ul><p>If you're searching for health-related " + "issues on the Internet we recommend sites that subscribe to the <a href='http://www.hon.ch' target='_blank'>" + "Health on the Net Foundation</a> (HON). Sites that subscribe to the HON and agreed to respect and honor the " + "eight principles of the <a href='http://www.hon.ch/HONcode/Conduct.html' target='_blank'>HON code of conduct" + "</a>.</p>"
+    };
+}
+function medicationsAlcohol() {
+    return {
+        template: "<h5 class='bold italic'>Medications--Alcohol</h5><p>There are three medications approved by the FDA " + "for use with people who are trying to abstain from drinking: acamprosate, naltrexone, disulfiram.  There is " + "evidence of effectiveness of all three medications.</p><ul><li>Acamprosate reduces withdrawal symptoms.</li>" + "<li>Naltrexone is available in tablet form (generic) and as a once-a-month injection (Vivitrol).  It reduces " + "urges and cravings to drink (discussed below).</li><li>Disulfiram acts as a deterrent to drinking.  It causes " + "serious psychological reactions if a person does drink. It can be effective in preventing drinking but only " + "when it is taking as part of a daily ritual between the drinker and a concern significant other who is " + "supportive of the drinker’s effort to remain sober. If you’re interested in this, consider seeing a therapist" + " who has been trained in the CRA (Community Reinforcement Approach) protocol. See the ABCT linked above in the" + " Professional help section to help you " + "<a href='https://aabt.org/members/Directory/Find_A_Therapist.cfm' target='_blank'>find a therapist</a>.</li></ul>" };
+}
+function medicationsMarijuana() {
+    return {
+        template: "<h5 class='bold italic'>Medications—Marijuana</h5><p>Currently there is are no medications for the" + " treatment of marijuana dependence.</p>"
+    };
+}
+function medicationsOpiates() {
+    return {
+        template: "<h5 class='bold italic'>Medications—Opiates</h5><p>There are two medications that help people get " + "clean from using opioids, buprenorphine and methadone.</p>" };
+}
+function medicationsStimulants() {
+    return {
+        template: "<h5 class='bold italic'>Medication—Stimulants</h5><p>Detoxification from stimulants can be lengthy " + "and challenging. Currently there are no medications for the treatment of stimulant abuse or dependence.</p>"
+    };
+}
+function medicationsGambling() {
+    return {
+        template: "<h5 class='bold italic'>Medications--Compulsive Gambling</h5><p>Currently there are no medications " + "for the treatment of compulsive gambling.</p>"
+    };
+}
+function medications() {
+    return {
+        template: "<medications-alcohol></medications-alcohol><medications-marijuana>" + "</medications-marijuana><medications-opiates></medications-opiates><medications-stimulants>" + "</medications-stimulants><medications-gambling></medications-gambling>"
+    };
+}
+function relationships() {
+    return {
+        template: "<p>Spouse or significant others. Would you like to have a better relationship? Here two resources you" + " may find useful.</p><ul><li>" + "<a href='http://www.amazon.com/gp/product/0965981800?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=0965981800' target='_blank'>" + "Making it as a Couple: Prescription for a Quality Relationship</a> We consider this one of the best self-help " + "guides for couples who want to improve their relationships.</li><li>" + "<a href='http://smartrecovery.org/SMARTStore/index.php?main_page=product_info&cPath=1&products_id=17' target='_blank'>" + "Get Your Loved One Sober: Alternatives to Nagging, Pleading, and Threatening.</a> This self-help manual helps " + "spouses and others who are concerned about a person's drinking learn how to positively reinforce sobriety. " + "It also shows them how to help keep you motivated in your efforts. </li></ul>"
+    };
+}
+function tobacco() {
+    return {
+        template: "<p>The <a href='https://www.quitnow.net/programlookup' target='_blank'>Quit for Life</a> program is a " + "free (for many in the U.S.) smoking cessation program that's endorsed by the American Cancer Society. The " + "company that runs his program handles most State-run smoking quit lines.</p>"
+    };
+}
+function socialAssertivenessSkills() {
+    return {
+        template: "<ul><li><a href='http://www.amazon.com/gp/product/1572242094?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=1789&creative=9325&creativeASIN=1572242094' target='_blank'>" + "The Assertiveness Workbook: How to Express Your Ideas and Stand Up for Yourself at Work and in Relationships" + "</a></li></ul>"
+    };
+}
+function urgesCravings() {
+    return {
+        template: "<ul><li><a href='https://www.smartrecovery.org/shop/?main_page=product_info&cPath=1&products_id=21' target='_blank'>" + "Sex, Drugs, Gambling, and Chocolate</a> by dr. Tom Horvath. This help self-help manual written by the " + "President of <a href='http://www.smartrecovery.org' target='_blank'>SMART Recovery</a> has several excellent " + "chapters on identifying and managing urges and cravings.</li><li>Dr. Robert Westenneyer also has a good " + "<a href='http://www.doctordeluca.com/Library/DetoxEngage/CopingUrges.htm' target='_blank'>write-up</a> on " + "coping with urges.</li><li> <a href='http://www.campral.com' target='_blank'>Campral</a> (Acamprosate) is " + "prescription medication. It is clinically proven to reduce urges, cravings, and the arousal that precedes " + "drinking for many people. Why the typical dose, 2 pills 3 times per day can be inconvenient, taking them can " + "serve as an ongoing reminder of your priorities.</li><li>Naltrexone is a prescription medication that is " + "clinically shown to reduce urges and Cravings to drink. It's available as a pill (generic) and as a once " + "monthly injection (<a href='http://www.vivitrol.com' target='_blank'>Vivitrol</a>).  The genetic pills are " + "relatively inexpensive. Vivitrol is expensive but does not require daily decision and is covered by many " + "insurance plans.</li><li>Antabuse (disulfiram) is also prescription medication. It can be an effective " + "deterrent to drinking. Drinking while taking disulfiram is a medical emergency.  Because of this many people " + "want take it regularly unless it is taken as part of a supportive ritual with a loved one.  Then it can " + "reassure and rebuild trust with loved ones. Learning this supportive ritual is best done with the help of a " + "behavioral marital therapist with expertise in substance abuse. Consider the “" + "<a href='https://aabt.org/members/Directory/Find_A_Therapist.cfm' target='_blank'>find a therapist</a>” " + "feature on the ABCT website to find someone to help you with this.</li></ul>"
+    };
+}
+function readingList() {
+    return {
+        template: "<ul><li><a href='http://smartrecovery.org/SMARTStore/index.php?main_page=product_info&cPath=1&products_id=31' target='_blank'>" + "SMART Recovery Handbook.</a>  A compilation of practical information designed to assist the reader in " + "attaining the ultimate goal of recovery.</li><li>" + "<a href='http://www.amazon.com/gp/product/1884365108/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399369&creativeASIN=1884365108' target='_blank'>" + "Alcohol: how to Give It Up and Be Glad You Did</a></li><li>" + "<a href='http://www.amazon.com/gp/redirect.html?ie=UTF8&location=http%3A%2F%2Fwww.amazon.com%2FWhen-AA-Doesnt-Work-You%2Fdp%2F0942637534&tag=behaviorthera-20&linkCode=ur2&camp=1789&creative=9325' target='_blank'>" + "When AAA Doesn't Work for You: Rational Steps to Quitting Alcohol</a></li><li>" + "<a href='http://www.amazon.com/exec/obidos/tg/detail/-/047134575X/qid=1122566810/sr=8-1/ref=sr_8_xs_ap_i1_xgl14/103-3041215-3097453?v=glance&amp;s=books&amp;n=507846' target='_blank'>" + "Recovery Options: The Complete Guide</a></li><li>" + "<a href='http://www.amazon.com/gp/product/1884365175/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399369&creativeASIN=1884365175' target='_blank'>" + "Resisting 12-step Coercion</a></li><li>" + "<a href='http://www.amazon.com/gp/product/0671755307/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399369&creativeASIN=0671755307' target='_blank'>" + "Truth About Addiction and Recovery</a></li><li><a href='http://www.amazon.com/gp/product/0932838057/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399369&creativeASIN=0932838057' target='_blank'>" + "Coping Better… Anytime, Anywhere: The Handbook of Rational Self-Counseling</a></li><li>" + "<a href='http://www.amazon.com/exec/obidos/tg/detail/-/0380810336/qid=1122567373/sr=8-1/ref=pd_bbs_sbs_1/103-3041215-3097453?v=glance&amp;s=books&amp;n=507846' target='_blank'>" + "Feeling Good</a> David Burns (Signet, 1980)</li><li>" + "<a href='http://www.amazon.com/exec/obidos/tg/detail/-/B000736CP2/qid=1122567420/sr=8-1/ref=sr_8_xs_ap_i1_xgl14/103-3041215-3097453?v=glance&amp;s=books&amp;n=507846' target='_blank'>" + "How to Stubbornly Refuse to Make Yourself Miserable about Anything, Yes anything!</a></li><li>" + "<a href='http://www.amazon.com/gp/product/0944435424/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399369&creativeASIN=0944435424' target='_blank'>" + "Three Minute Therapy: Change Your Thinking, Change Your Life</a></li><li>" + "<a href='http://www.amazon.com/gp/product/0553263900/ref=as_li_ss_tl?ie=UTF8&tag=behaviorthera-20&linkCode=as2&camp=217145&creative=399369&creativeASIN=0553263900' target='_blank'>" + "When I Say No, I Feel Guilty</a></li><li>" + "<a href='http://www.amazon.com/exec/obidos/tg/detail/-/038072572X/qid=1122567814/sr=8-1/ref=pd_bbs_sbs_1/103-3041215-3097453?v=glance&amp;s=books&amp;n=507846' target='_blank'>" + "Changing for Good</a></li></ul>"
+    };
+}
+'use strict';
+
+angular.module('app').factory('Added', Added);
+angular.module('app').service('AddedService', AddedService);
+
+Added.$inject = ['$q'];
+AddedService.$inject = ['$q', 'Added'];
+
+function Added($q) {
+    Added = function Added(object) {
+        var _this = this;
+
+        this.object = object;
+
+        this.name = object.get('name');
+        this.desc = object.get('desc');
+        this.primitive = object.get('primitive');
+        this.before = object.get('before');
+        this.execute = object.get('execute');
+        this.init = object.get('init');
+
+        this.save = function () {
+            var deferred = $q.defer();
+
+            _this.object.set('name', _this.name);
+            _this.object.set('desc', _this.desc);
+            _this.object.set('primitive', _this.primitive);
+            _this.object.set('before', _this.before);
+            _this.object.set('execute', _this.execute);
+            _this.object.set('init', _this.init);
+
+            _this.object.save(null).then(function (success) {
+                return deferred.resolve(success);
+            }, function (error) {
+                return deferred.reject(error);
+            });
+
+            return deferred.promise;
+        };
+        this.delete = function () {
+            var deferred = $q.defer();
+
+            _this.object.destroy().then(function (success) {
+                return deferred.resolve(success);
+            }, function (error) {
+                return deferred.reject(error);
+            });
+
+            return deferred.promise;
+        };
+    };
+
+    return Added;
+}
+function AddedService($q, Added) {
+    var schema = Parse.Object.extend('Added');
+
+    this.prototype = function () {
+        return {
+            name: "State_NameDefault",
+            desc: "",
+            primitive: false,
+            before: "",
+            execute: "",
+            init: {
+                params: [],
+                during: "",
+                states: [],
+                transitions: []
+            }
+        };
+    };
+
+    this.createAdded = function (added) {
+        var deferred = $q.defer();
+        var object = new schema();
+
+        object.set('name', added.name);
+        object.set('desc', added.desc);
+        object.set('primitive', added.primitive);
+        object.set('before', added.before);
+        object.set('execute', added.execute);
+        object.set('init', added.init);
+
+        object.save(null).then(function (response) {
+            return deferred.resolve(new Added(response));
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.getAllAdded = function () {
+        var deferred = $q.defer();
+        var query = new Parse.Query(schema);
+
+        query.find().then(function (response) {
+            var results = [];
+            response.forEach(function (res) {
+                return results.push(new Added(res));
+            });
+            deferred.resolve(results);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+}
+'use strict';
+
+angular.module('app').service('AuthService', AuthService);
+
+AuthService.$inject = ['$q'];
+
+function AuthService($q) {
+    var _this = this;
+
+    //this.isLoggedIn = false;
+    this.tempUser = false;
+
+    this.currentUser = Parse.User.current();
+
+    this.register = function (credentials) {
+        var deferred = $q.defer();
+
+        var user = new Parse.User();
+
+        user.set("username", credentials.username);
+        user.set("password", credentials.password);
+        user.set("email", credentials.email);
+        user.set("firstName", credentials.firstname);
+        //user.set("lastName", credentials.lastname);
+        user.set("ethnicity", credentials.ethnicity);
+        user.set("education", credentials.education);
+        user.set("gender", credentials.gender);
+        user.set("race", credentials.race);
+        user.set("dateOfBirth", credentials.dateOfBirth);
+        user.set("age", credentials.age);
+        user.set("maritalStatus", credentials.maritalstatus);
+        user.set("weight", credentials.weight);
+        user.set("heightTotal", credentials.height.total);
+        user.set("programRequired", credentials.answers);
+        user.set("tempUser", credentials.tempUser);
+
+        user.signUp(null).then(function (success) {
+            return deferred.resolve(success);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.then(function (success) {
+            return _this.currentUser = Parse.User.current();
+        }, function (error) {
+            return ErrorService.handleParseError(error);
+        });
+    };
+
+    this.logout = function () {
+        var deferred = $q.defer();
+        Parse.User.logOut().then(function (success) {
+            _this.isLoggedIn = false;
+            /*console.log(success);*/
+            $rootScope.currentUser = null;
+            $rootScope.$apply();
+        }, function (error) {
+            ErrorService.handleParseError(error);
+            $rootScope.$apply();
+        });
+    };
+
+    this.login = function (credentials) {
+        Parse.User.logIn(credentials.username, credentials.password).then(function (success) {
+            /*console.log(success);*/
+            _this.isLoggedIn = true;
+            $rootScope.currentUser = Parse.User.current();
+            $rootScope.$apply();
+        }, function (error) {
+            ErrorService.handleParseError(error);
+            $rootScope.$apply();
+        });
+    };
+
+    this.getTempUserStatus = function () {
+        return this.tempUser;
+    };
+}
+'use strict';
+
+angular.module('app').factory('Element', Element);
+angular.module('app').service('ElementService', ElementService);
+
+Element.$inject = ['$q'];
+ElementService.$inject = ['$q', 'Element'];
+
+function Element($q) {
+    Element = function Element(object) {
+        var _this = this;
+
+        this.object = object;
+
+        this.type = object.get('type'); //type of element
+        this.form = object.get('form'); //form the element belongs to
+        this.order = object.get('order'); //order the element is displayed in a form
+        this.phrase = object.get('phrase'); //determines what the counselor speaks either for Q/A, Feedback, or FeedbackList elements
+        this.content = object.get('content'); //displays available answer choices to the user
+        this.html = object.get('html'); //where the custom html content is stored
+        this.lang = object.get('lang'); //lang that the speech is encoded currently only english supported
+        this.deleted = object.get('deleted'); //indicates if the element was deleted from the form
+        this.isRecorded = object.get('isRecorded'); //indicates if the element was deleted from the form
+        this.displayBackBtn = object.get('displayBackBtn'); //indicates if the element was deleted from the form
+        this.displayProgress = object.get('displayProgress'); //indicates if the element was deleted from the form
+        /*this.tableStructure = object.get('tableStructure');//represents the table as a multidemensional array*/
+
+        this.save = function () {
+
+            var deferred = $q.defer();
+
+            _this.object.set('type', _this.type);
+            _this.object.set('form', _this.form);
+            _this.object.set('order', _this.order);
+            _this.object.set('phrase', _this.phrase);
+            _this.object.set('content', _this.content);
+            _this.object.set('html', _this.html);
+            _this.object.set('lang', _this.lang);
+            _this.object.set('deleted', _this.deleted);
+            _this.object.set('isRecorded', _this.isRecorded);
+            _this.object.set('displayBackBtn', _this.displayBackBtn);
+            _this.object.set('displayProgress', _this.displayProgress);
+            /*this.object.set('tableStructure', this.tableStructure);*/
+
+            _this.object.save(null).then(function (success) {
+                return deferred.resolve(success);
+            }, function (error) {
+                return deferred.reject(error);
+            });
+
+            return deferred.promise;
+        };
+    };
+
+    return Element;
+}
+
+function ElementService($q, Element) {
+    var _this2 = this;
+
+    var schema = Parse.Object.extend('Element');
+
+    this.prototype = function (element, form) {
+        if (!element.content) {
+            element.content = [""];
+        }
+
+        return {
+            type: element.type,
+            form: form,
+            order: element.order,
+            phrase: [""],
+            content: element.content,
+            html: "",
+            lang: "en-US",
+            deleted: false,
+            isRecorded: true,
+            displayBackBtn: true,
+            displayProgress: true /*,
+                                  tableStructure: element.tableStructure*/
+        };
+    };
+
+    this.getElementsByForm = function (form) {
+        var deferred = $q.defer();
+        var query = new Parse.Query(schema);
+
+        query.equalTo('form', form);
+        query.notEqualTo('deleted', true);
+        query.ascending('order');
+
+        query.find(function (response) {
+            var results = [];
+            response.forEach(function (res) {
+                return results.push(new Element(res));
+            });
+            deferred.resolve(results);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.createElement = function (element, form) {
+
+        var deferred = $q.defer();
+        var object = new schema();
+
+        var defaultElement = _this2.prototype(element, form);
+
+        object.set('type', defaultElement.type);
+        object.set('form', defaultElement.form);
+        object.set('order', defaultElement.order);
+        object.set('phrase', defaultElement.phrase);
+        object.set('content', defaultElement.content);
+        object.set('html', defaultElement.html);
+        object.set('lang', defaultElement.lang);
+        object.set('deleted', defaultElement.deleted);
+        object.set('isRecorded', defaultElement.isRecorded);
+        object.set('displayBackBtn', defaultElement.displayBackBtn);
+        object.set('displayProgress', defaultElement.displayProgress);
+        /*object.set('tableStructure', defaultElement.tableStructure);*/
+
+        object.save(null).then(function (response) {
+            return deferred.resolve(response);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.deleteElement = function (element, form) {
+        var deferred = $q.defer();
+        element.deleted = true;
+        element.save(null).then(function (response) {
+            deferred.resolve(response);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+        return deferred.promise;
+    };
+}
+'use strict';
+
+angular.module('app').service('ErrorService', ErrorService);
+
+ErrorService.$inject = [];
+
+function ErrorService() {
+    this.handleParseError = function (error) {
+        console.log(error);
+        switch (error.code) {
+            case Parse.Error.INVALID_SESSION_TOKEN:
+                //TODO: test if this has promise, if so, use defer pattern
+                Parse.User.logOut();
+                break;
+            default:
+                console.log('Unhandled error code detected');
+        }
+    };
+}
+'use strict';
+
+angular.module('app').factory('Form', Form);
+angular.module('app').service('FormService', FormService);
+
+Form.$inject = ['$q'];
+FormService.$inject = ['$q', 'Form'];
+
+function Form($q) {
+    Form = function Form(object) {
+        var _this = this;
+
+        this.object = object;
+
+        this.name = object.get('name');
+
+        this.save = function () {
+            var deferred = $q.defer();
+
+            _this.object.set('name', _this.name);
+
+            _this.object.save(null).then(function (success) {
+                return deferred.resolve(success);
+            }, function (error) {
+                return deferred.reject(error);
+            });
+
+            return deferred.promise;
+        };
+    };
+
+    return Form;
+}
+function FormService($q, Form) {
+    var schema = Parse.Object.extend('Form');
+
+    this.getAllForms = function () {
+        var deferred = $q.defer();
+        var query = new Parse.Query(schema);
+
+        query.find().then(function (response) {
+            var results = [];
+            response.forEach(function (res) {
+                results.push(new Form(res));
+            });
+            deferred.resolve(results);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.getFormsByIntervention = function (intervention) {
+        var deferred = $q.defer();
+        var query = new Parse.Query(schema);
+
+        query.equalTo('intervention', intervention);
+
+        query.find(function (response) {
+            var results = [];
+            response.forEach(function (res) {
+                return results.push(new Form(res));
+            });
+            deferred.resolve(results);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.getFormsByName = function (formName) {
+        var deferred = $q.defer();
+        var query = new Parse.Query(schema);
+
+        query.equalTo('name', formName);
+
+        query.find(function (response) {
+            var results = [];
+            response.forEach(function (res) {
+                return results.push(new Form(res));
+            });
+            deferred.resolve(results);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.createForm = function (form, intervention) {
+        var deferred = $q.defer();
+        var object = new schema();
+
+        object.set('name', form.name);
+        object.set('intervention', intervention);
+
+        object.save(null).then(function (response) {
+            return deferred.resolve(response);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+}
+'use strict';
+
+angular.module('app').factory('Intervention', Intervention);
+angular.module('app').service('InterventionService', InterventionService);
+
+Intervention.$inject = ['$q'];
+InterventionService.$inject = ['$q', 'Intervention'];
+
+function Intervention($q) {
+    Intervention = function Intervention(object) {
+        var _this = this;
+
+        this.object = object;
+
+        this.name = object.get('name');
+
+        this.save = function () {
+            var deferred = $q.defer();
+
+            _this.object.set('name', _this.name);
+
+            _this.object.save(null).then(function (success) {
+                return deferred.resolve(success);
+            }, function (error) {
+                return deferred.reject(error);
+            });
+
+            return deferred.promise;
+        };
+    };
+
+    return Intervention;
+}
+function InterventionService($q, Intervention) {
+    var schema = Parse.Object.extend('Intervention');
+
+    this.createIntervention = function (intervention) {
+        var deferred = $q.defer();
+        var object = new schema();
+
+        object.set('name', intervention.name);
+
+        object.save(null).then(function (response) {
+            return deferred.resolve(response);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.getAllInterventions = function () {
+        var deferred = $q.defer();
+        var query = new Parse.Query(schema);
+
+        query.find().then(function (response) {
+            var results = [];
+            response.forEach(function (res) {
+                results.push(new Intervention(res));
+            });
+            deferred.resolve(results);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+}
+'use strict';
+
+angular.module('app').factory('Progress', Progress);
+angular.module('app').service('ProgressService', ProgressService);
+
+Progress.$inject = ['$q'];
+ProgressService.$inject = ['$q', 'Progress'];
+
+function Progress($q) {
+    Progress = function Progress(object) {
+        var _this = this;
+
+        this.object = object;
+
+        this.user = object.get('user'); //ptr to the user that Progress belongs to
+        this.GTNSGT = object.get('GTNSGT'); //The good things and not so good things list,
+        this.audit = object.get('audit'); //the AUDIT
+        this.howMuchHowOften = object.get('howMuchHowOften'); //How Much and How Often Includes Family history, Drugs, and Your Drinking...
+        this.familyHistory = object.get('howMuchHowOften'); //How Much and How Often Includes Family history, Drugs, and Your Drinking...
+        this.myDrinking = object.get('howMuchHowOften'); //How Much and How Often Includes Family history, Drugs, and Your Drinking...
+        this.otherDrugs = object.get('howMuchHowOften'); //How Much and How Often Includes Family history, Drugs, and Your Drinking...
+        this.ARP = object.get('ARP'); //Alcohol related problems
+        this.depression = object.get('depression'); //depression survey
+        this.MAST = object.get('MAST'); //your chances of reducing alcohol-related problems with moderation or chances of success AKA MAST
+        this.dependence = object.get('dependence'); //your dependence of alcohol
+        //this.likeDontLike = object.get('likeDontLike');//your likeDontLike of alcohol
+
+        this.save = function () {
+            var deferred = $q.defer();
+
+            _this.object.set('user', _this.user);
+            _this.object.set('GTNSGT', _this.GTNSGT);
+            _this.object.set('audit', _this.audit);
+            _this.object.set('howMuchHowOften', _this.howMuchHowOften);
+            _this.object.set('familyHistory', _this.familyHistory);
+            _this.object.set('myDrinking', _this.myDrinking);
+            _this.object.set('otherDrugs', _this.otherDrugs);
+            _this.object.set('ARP', _this.ARP);
+            _this.object.set('depression', _this.depression);
+            _this.object.set('MAST', _this.MAST);
+            _this.object.set('dependence', _this.dependence);
+            //this.object.set('likeDontLike', this.likeDontLike);
+
+            _this.object.save(null).then(function (success) {
+                return deferred.resolve(success);
+            }, function (error) {
+                return deferred.reject(error);
+            });
+
+            return deferred.promise;
+        };
+    };
+
+    return Progress;
+}
+function ProgressService($q, Progress) {
+    var _this2 = this;
+
+    var schema = Parse.Object.extend('Progress');
+
+    this.prototype = function (userObj, progressObj) {
+        if (!progressObj.GTNSGT) {
+            progressObj.GTNSGT = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.audit) {
+            progressObj.audit = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.howMuchHowOften) {
+            progressObj.howMuchHowOften = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.familyHistory) {
+            progressObj.familyHistory = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.myDrinking) {
+            progressObj.myDrinking = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.otherDrugs) {
+            progressObj.otherDrugs = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.ARP) {
+            progressObj.ARP = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.depression) {
+            progressObj.depression = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.MAST) {
+            progressObj.MAST = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        if (!progressObj.dependence) {
+            progressObj.dependence = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }
+        /*if(!progressObj.likeDontLike){
+            progressObj.likeDontLike = [{
+                "timestamp": "",
+                "responsesPtr": [],
+                "percentageComplete": "0",
+                "currentElement": ""
+            }];
+        }*/
+
+        return {
+            user: userObj,
+            GTNSGT: progressObj.GTNSGT,
+            audit: progressObj.audit,
+            howMuchHowOften: progressObj.howMuchHowOften,
+            familyHistory: progressObj.familyHistory,
+            myDrinking: progressObj.myDrinking,
+            otherDrugs: progressObj.otherDrugs,
+            ARP: progressObj.ARP,
+            depression: progressObj.depression,
+            MAST: progressObj.MAST,
+            dependence: progressObj.dependence
+            //likeDontLike: progressObj.likeDontLike
+        };
+    };
+
+    this.createProgress = function (userObj, progressObj) {
+        var deferred = $q.defer();
+        var object = new schema();
+
+        var defaultProgress = _this2.prototype(userObj, progressObj);
+
+        object.set('user', defaultProgress.user);
+        object.set('GTNSGT', defaultProgress.GTNSGT);
+        object.set('audit', defaultProgress.audit);
+        object.set('howMuchHowOften', defaultProgress.howMuchHowOften);
+        object.set('familyHistory', defaultProgress.familyHistory);
+        object.set('myDrinking', defaultProgress.myDrinking);
+        object.set('otherDrugs', defaultProgress.otherDrugs);
+        object.set('ARP', defaultProgress.ARP);
+        object.set('depression', defaultProgress.depression);
+        object.set('MAST', defaultProgress.MAST);
+        object.set('dependence', defaultProgress.dependence);
+        //object.set('likeDontLike', defaultProgress.likeDontLike);
+
+        object.save(null).then(function (progress) {
+            return deferred.resolve(progress);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.getUserProgress = function (userObj) {
+        var deferred = $q.defer();
+        var query = new Parse.Query(schema);
+
+        query.equalTo('user', userObj);
+
+        query.first(function (progress) {
+
+            deferred.resolve(progress);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.updateUserProgress = function (progress) {
+        var deferred = $q.defer();
+        var object = new schema();
+
+        object.set('user', progress.user);
+        object.set('GTNSGT', progress.GTNSGT);
+        object.set('audit', progress.audit);
+        object.set('howMuchHowOften', progress.howMuchHowOften);
+        object.set('familyHistory', progress.familyHistory);
+        object.set('myDrinking', progress.myDrinking);
+        object.set('otherDrugs', progress.otherDrugs);
+        object.set('ARP', progress.ARP);
+        object.set('depression', progress.depression);
+        object.set('MAST', progress.MAST);
+        object.set('dependence', progress.dependence);
+        //object.set('likeDontLike', progress.likeDontLike);
+
+        object.save(null).then(function (response) {
+            return deferred.resolve(response);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+}
+'use strict';
+
+angular.module('app').factory('Response', Response);
+angular.module('app').service('ResponseService', ResponseService);
+
+Response.$inject = ['$q'];
+ResponseService.$inject = ['$q', 'Response'];
+
+function Response($q) {
+    Response = function Response(object) {
+        var _this = this;
+
+        this.object = object;
+
+        this.user = object.get('user'); //ptr to the user that response belongs to
+        this.element = object.get('element'); //the element that the response belongs to
+        this.answer = object.get('answer'); //the answer that the user has selected as their response
+
+        this.save = function () {
+
+            var deferred = $q.defer();
+
+            _this.object.set('user', _this.user);
+            _this.object.set('element', _this.element);
+            _this.object.set('answer', _this.answer);
+
+            _this.object.save(null).then(function (success) {
+                return deferred.resolve(success);
+            }, function (error) {
+                return deferred.reject(error);
+            });
+
+            return deferred.promise;
+        };
+    };
+
+    return Response;
+}
+
+function ResponseService($q, Response) {
+    var _this2 = this;
+
+    var schema = Parse.Object.extend('Response');
+
+    this.prototype = function (response, form) {
+        return {
+            user: response.user,
+            element: element,
+            answer: response.answer
+        };
+    };
+
+    this.getResponsesByUser = function (user) {
+        var deferred = $q.defer();
+        var query = new Parse.Query(schema);
+
+        query.equalTo('user', user);
+
+        query.find(function (response) {
+            var results = [];
+            response.forEach(function (res) {
+                return results.push(new Response(res));
+            });
+            deferred.resolve(results);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.saveResponse = function (response, form) {
+
+        var deferred = $q.defer();
+        var object = new schema();
+
+        var defaultResponse = _this2.prototype(response, form);
+
+        object.set('user', defaultResponse.user);
+        object.set('element', defaultResponse.element);
+        object.set('answer', defaultResponse.answer);
+
+        object.save(null).then(function (response) {
+            return deferred.resolve(response);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+}
+'use strict';
+
+angular.module('app').factory('User', User);
+angular.module('app').service('UserService', UserService);
+angular.module('app').service('AuthService', AuthService);
+angular.module('app').service('AdminService', AdminService);
+
+User.$inject = ['$q'];
+UserService.$inject = ['$q', 'User'];
+AuthService.$inject = ['$q', 'User'];
+AdminService.$inject = ['$q', 'User'];
+
+function User($q) {
+    User = function User(object) {
+        var _this = this;
+
+        this.object = object;
+        this.responses = object.get('responses');
+
+        this.save = function () {
+            var deferred = $q.defer();
+
+            object.set('responses', _this.responses);
+
+            _this.object.save(null).then(function (success) {
+                return deferred.resolve(success);
+            }, function (error) {
+                return deferred.reject(error);
+            });
+
+            return deferred.promise;
+        };
+    };
+
+    return User;
+}
+function UserService($q, User) {
+    //Todo: need to see if the current user is admin first
+
+    //query database for all active users
+    this.getActiveUsers = function () {
+        var deferred = $q.defer();
+        var ActiveUser = Parse.Object.extend("User");
+        var queryActiveUsrs = new Parse.Query(ActiveUser);
+
+        //find active users and only return user name
+        queryActiveUsrs.find(function (response) {
+            var allUsers = [];
+            response.forEach(function (res) {
+                return allUsers.push(res.get('username'));
+            });
+            deferred.resolve(allUsers);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.validateUserbyEmail = function (usrEmail) {
+        var deferred = $q.defer();
+        var FindUser = Parse.Object.extend("User");
+        var queryUsr = new Parse.Query(FindUser);
+        var userIsValid = false;
+
+        queryUsr.equalTo('email', usrEmail);
+        queryUsr.equalTo('emailVerified', true);
+
+        queryUsr.first(function (response) {
+            userIsValid = true;
+            deferred.resolve(userIsValid);
+        }, function (error) {
+            userIsValid = false;
+            deferred.resolve(userIsValid);
+        });
+
+        return deferred.promise;
+    };
+
+    //query database and get user with usrname matching usrID
+    this.getUsrByUsrName = function (usrID) {
+        var deferred = $q.defer();
+        var FindUser = Parse.Object.extend("User");
+        var queryUsrs = new Parse.Query(FindUser);
+
+        //find active users and only return user name
+        queryUsrs.equalTo("username", usrID);
+        queryUsrs.find(function (usr) {
+            var newAdmin = usr[0];
+            deferred.resolve(newAdmin);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.updatePW = function (enteredEmail, enteredDOB) {
+        var deferred = $q.defer();
+        var ActiveUser = Parse.Object.extend("User");
+        var queryActiveUsrs = new Parse.Query(ActiveUser);
+
+        /*console.log(enteredEmail);
+        console.log(enteredDOB);*/
+        queryActiveUsrs.equalTo('email', enteredEmail);
+        queryActiveUsrs.equalTo('dateOfBirth', enteredDOB);
+
+        queryActiveUsrs.first(function (res) {
+            console.log("found user in userSrvc.updatePw");
+            var fpUser = res;
+            deferred.resolve(fpUser);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+        return deferred.promise;
+    };
+
+    this.changePW = function (npw, usr) {
+        var deferred = $q.defer();
+        /*let ActiveUser = Parse.Object.extend("User");
+        let queryActiveUsrs = new Parse.Query(ActiveUser);*/
+
+        // console.log("start changePW");
+        // console.log(usr.id);
+
+        //queryActiveUsrs.equalTo('objectId', usr.id);
+
+        /*queryActiveUsrs.first(
+            res => {
+                console.log("in User Service.............");
+                console.log(res);
+               res.set("password", newPW);
+               res.save(null, {useMasterKey: true}).then(
+                   success => {console.log("user credentials updated in DB")},
+                   error => {
+                       console.log(error);
+                   }
+               );
+            },
+            error => deferred.reject(error)
+        );*/
+        //Parse.Cloud.run('addResponse', { elemID: elemID, answer: [answer] });
+        Parse.Cloud.run('updatePW', { updateUsr: usr.id, newPW: npw });
+
+        return deferred.promise;
+    };
+}
+function AuthService($q) {
+    this.register = function (credentials) {
+        var deferred = $q.defer();
+
+        var user = new Parse.User();
+
+        user.set("username", credentials.username);
+        user.set("password", credentials.password);
+        user.set("email", credentials.email);
+        user.set("firstName", credentials.firstname);
+        //user.set("lastName", credentials.lastname);
+        user.set("ethnicity", credentials.ethnicity);
+        user.set("education", credentials.education);
+        user.set("gender", credentials.gender);
+        user.set("race", credentials.race);
+        user.set("dateOfBirth", credentials.dateOfBirth);
+        user.set("age", credentials.age);
+        user.set("maritalStatus", credentials.maritalstatus);
+        user.set("weight", credentials.weight);
+        user.set("heightTotal", credentials.height.total);
+        user.set("programRequired", credentials.answers);
+        user.set("tempUser", credentials.tempUser);
+
+        user.set("responses", credentials.responses || []);
+
+        user.signUp(null).then(function (success) {
+            return deferred.resolve(success);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.logout = function () {
+        var deferred = $q.defer();
+
+        Parse.User.logOut().then(function (success) {
+            return deferred.resolve(success);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.login = function (credentials) {
+        var deferred = $q.defer();
+
+        Parse.User.logIn(credentials.username, credentials.password).then(function (success) {
+            return deferred.resolve(success);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+
+        return deferred.promise;
+    };
+
+    this.currentUser = function () {
+        return Parse.User.current() ? new User(Parse.User.current()) : null;
+    };
+}
+
+function AdminService($q, User) {
+
+    this.setUpRole = function () {
+        var roleACL = new Parse.ACL();
+        var role = new Parse.Role("Administrator", roleACL);
+        roleACL.setPublicReadAccess(true);
+        role.save();
+    };
+
+    this.addUserToAdminGroup = function (usr) {
+        var deferred = $q.defer();
+
+        Parse.Cloud.run('addToAdminGroup', { userToAdmin: usr }).then(function (success) {
+            return deferred.resolve(success);
+        }, function (error) {
+            return deferred.reject(error);
+        });
+        return deferred.promise;
+    };
+}
+//# sourceMappingURL=app.min.js.map
