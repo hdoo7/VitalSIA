@@ -1,0 +1,60 @@
+.preview{
+    background-color: whitesmoke;
+    padding: 2%;
+    border-radius: 25px;
+}
+
+.surveyFormInput{
+    width: 81%;
+}
+
+.surveyForm{
+    background-color: whitesmoke;
+    padding: 2%;
+    border-style: solid;
+    border-color: whitesmoke;
+    border-radius: 25px;
+}
+.updateBtn{
+    width: 80%;
+}
+.center {
+    margin: auto;
+    max-width: 80%;
+    padding: 10px;
+}
+
+.mainDiv{
+  margin: 0% 5%;
+}
+
+.newElBtnGroup{
+    width: 100%;
+}
+
+.btnMargin {
+    margin: 10px;
+}
+
+#htmlPreview{
+    word-wrap: break-word;
+    max-height: 200px;
+    overflow: scroll;
+}
+
+#renameModal.modal h1, h2, h3, h4, h5, h6, p{
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; !important;
+}
+
+ul li {
+
+    list-style-type: disc !important;
+
+}
+
+
+.htmlContent{
+    width: 100%;
+    min-height: 500px;
+
+}

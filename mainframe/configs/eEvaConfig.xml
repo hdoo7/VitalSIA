@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<xml>
+    <!-- <module name="ChromeSpeech" uri="/sensors/ChromeSpeech"/> -->
+    <!--<module name="UserCommandInterpreter" uri="/processors/UserCommandInterpreter"/>-->
+    <module name="WebRTCVideo" uri="/sensors/WebRTCVideo"/>
+    <module name="VideoStreamDisplay" uri="/effectors/VideoStreamDisplay"/>
+    <!-- <module name="SpeechMirroringBehavior" uri="/processors/SpeechMirroringBehavior"/> -->
+    <!-- <module name="ReflectiveListening" uri="/processors/ReflectiveListening"/> -->
+    
+    <!-- <module name="VirtualysCharacter" uri="/processors/VirtualysCharacter"/> -->
+    <!--<module name="Intervention_DCU" uri="/processors/InterventionEngine">-->
+        <!--<param name="interventionClass" value="HSR"/>-->
+    <!--</module>-->
+    <!--<module name="ElementHandler" uri="/processors/ElementHandler"/>-->
+    <!-- <module name="WinSAPISynth" uri="/processors/WinSAPISynth"/>    -->
+   <!-- <module name="ROSHandler" uri="/sensors/ROSHandler"/> -->
+    <module name="CharacterBlink" uri="/processors/CharacterBlink"/>
+    <module name="FaceAPI_base" uri="/processors/FaceAPI"/>
+    <!-- <module name="TonyMM" uri="/processors/TonyMM"/> -->
+    <module name="GPTSuper" uri="/processors/GPTSuper"/>
+    <!-- <module name="CharacterMirror" uri="/processors/CharacterMirror"/> -->
+    <!-- <module name="CharacterHeadNod" uri="/processors/CharacterHeadNod"/> -->
+</xml>

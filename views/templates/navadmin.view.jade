@@ -1,0 +1,22 @@
+nav.navbar.navbar-default(ng-show="auth.isLoggedIn()")
+  .container-fluid
+    .navbar-header
+      button.navbar-toggle.collapsed(type='button', data-toggle='collapse', data-target='#navbar', aria-expanded='false', aria-controls='navbar')
+        span.sr-only Toggle navigation
+        span.icon-bar
+        span.icon-bar
+        span.icon-bar
+      a.navbar-brand(ui-sref="home") eEva Counseling
+    #navbar.navbar-collapse.collapse
+      ul.nav.navbar-nav
+        li.active
+          a(ui-sref="home") Home
+        li
+          a(ui-sref="machine") State Machine
+        li
+          a(ui-sref="survey.intervention") Survey Editor
+        li
+          a(ui-sref="welcome") Counseling
+      ul.nav.navbar-nav.navbar-right
+        li
+          a(ng-click='logout()') Logout

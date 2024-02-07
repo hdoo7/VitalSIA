@@ -1,0 +1,103 @@
+/*This CSS Class's purpose is reusability, since many surveys share the same style. This class is being referenced in
+ GettingWhatYouWant, Good Things Revisited, Not So Good Things Revisited, AlternativesToGetYouWhereYouWantToGo and Rating Pros and Cons Surveys. By Andy.*/
+.hoverable:hover {
+    background-color: #f2f289;
+}
+#newResponseInputField {
+    margin-top: 10px;     width: 60%;    margin-left: 20px;
+}
+#title{
+    color: black;     left: -15px;         right: -15px;     padding-top: 30px;   text-align: center;
+}
+#formInstructions {
+    color: lightslategray;
+}
+div.responseBox {
+    display: inline-block;         width: 100%;         height: 75%;         padding: 10px;         border: 1px solid black;         overflow: auto;
+}
+div.textBox {
+    display: inline;         float: left;         width: 40%;         height: 500px;         margin-left: 15px;
+}
+div.alternativeTextBox {
+    display: inline;         float: left;         width: 25%;         height: 500px;         margin-left: 15px;
+}
+div.directions {
+    display: inline;         float: left;   margin-top: 180px;   margin-left: 15px;
+}
+.myClass {
+    background-color: #5faff4;
+}
+.responseSection{
+    min-height: 40px;
+}
+/*shared button properties*/
+#custom-right-button, #custom-left-button, #custom-down-button, #custom-up-button {
+    display: inline-block;
+    text-align: center;
+    vertical-align: middle;
+    padding: 9px 10px;
+    border: 0px solid #a12727;
+    border-radius: 8px;
+    background: #4a77ff;
+    background: -webkit-gradient(linear, left top, left bottom, from(#4a77ff), to(#46cef0));
+    background: -moz-linear-gradient(top, #4a77ff, #46cef0);
+    background: linear-gradient(to bottom, #4a77ff, #46cef0);
+    text-shadow: #591717 1px 1px 1px;
+    font: normal normal bold 14px arial;
+    color: #ffffff;
+    text-decoration: none;
+}
+/*circle bulleted list items*/
+.bulletedItem{
+    list-style-type: circle;
+}
+/*shared hover and focus button properties*/
+#custom-right-button:hover, #custom-left-button:hover, #custom-down-button:hover, #custom-up-button:hover,
+#custom-right-button:focus, #custom-left-button:focus, #custom-down-button:focus, #custom-up-button:focus {
+    background: #598fff;
+    background: -webkit-gradient(linear, left top, left bottom, from(#598fff), to(#54f7ff));
+    background: -moz-linear-gradient(top, #598fff, #54f7ff);
+    background: linear-gradient(to bottom, #598fff, #54f7ff);
+    color: #ffffff;
+    text-decoration: none;
+}
+/*shared active properties*/
+#custom-right-button:active, #custom-left-button:active, #custom-down-button:active, #custom-up-button:active {
+    background: #2c4799;
+    background: -webkit-gradient(linear, left top, left bottom, from(#2c4799), to(#46cef0));
+    background: -moz-linear-gradient(top, #2c4799, #46cef0);
+    background: linear-gradient(to bottom, #2c4799, #46cef0);
+}
+
+/*shared before properties*/
+#custom-right-button:before, #custom-left-button:before,
+#custom-up-button:before, #custom-down-button:before{
+    content:  "\0000a0";
+    display: inline-block;
+    height: 24px;
+    width: 24px;
+    line-height: 24px;
+    margin: 0 4px -6px -4px;
+    position: relative;
+    top: -2px;
+    left: 4px;
+
+}
+
+/*the icon images. may download an icon and make reference to a file instead of url. up to you.*/
+#custom-right-button:before {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAi0lEQVRIiWNgGAU0AFUMDAxMtLTgJwMDQyOtLfhPS0tgFsAsoXpwIVtA0CcsaPytWMQI6amD0vXkuI4UTFRwUWIBURFPqQUYltAiw3Dhk6TUB92EHE2JBVgNR09yJ7CIoQMLLAb1MDAwlBLQRzRA9yXBYKHEAqobjmxBN7UNRraAJi6HgVZaGj4CAQBLAm3/1WFXogAAAABJRU5ErkJggg==") no-repeat left center transparent;
+    background-size: 100% 100%;
+}
+#custom-left-button:before {
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAmUlEQVRIie2USwqAMAxERxF3nszruLa49E4ewEP529hSQ2poTXYOhEJT5qVpCfBLWQOA1tJ8twJ489MCMNzGPlQBceVFgEownwHUZH8BcAi+PYDt7QBtS2683pJrixpAw/wBoP3tmD11TYVVZ/20r5AAaBIAd68jk1shf1MpH8TdRH1UUIjJsIshZuPaQ7IAqUfm5OQjvwp0AZ3xcegzqAiIAAAAAElFTkSuQmCC") no-repeat left center transparent;
+    background-size: 100% 100%;
+}
+#custom-up-button:before{
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAfElEQVRIie2TQQ6AIAwER0N8sR/wXT7APxlFL8qBlAakJB7YpDe6s90E6DLWDCzA2Mr8BK4H0sz8HTPIHBnHkKq6pOQSpJn5Z4hWS3VdJcmLL6kxz4JMwqyK2ZbYCXIRYBegXgnkEztBTb58B3SArYaMN04J4oHDLs4fdQO4lV4LYyrOhAAAAABJRU5ErkJggg==") no-repeat left center transparent;
+    background-size: 100% 100%;
+}
+#custom-down-button:before{
+    background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAeklEQVRIie2TMQ6AIAxFX5R4ZRM3ByfO466zJ3JAXdwUaIGxL/kb/a9pAhgNWIEzkj037AQCBwyl851AUIUJTNCeie9nCsAdSfh5v+Qkc6IwF4/wKiUScXmJxGuKtRL15hpJdXlKUnwWiUS8ea8QbG/pAYzApdvPiPAAjNxaU56iL1QAAAAASUVORK5CYII=") no-repeat left center transparent;
+    background-size: 100% 100%;
+}

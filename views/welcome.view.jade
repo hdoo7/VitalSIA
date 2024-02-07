@@ -1,0 +1,145 @@
+.welcome-background
+    ul.welcome-top
+        //li
+        //    a(href="") Help
+        li
+            a(ng-click="openAbout()" style="float: right;") About
+    //.welcome-heading
+        center
+            .welcome-header Welcome to Virtual Health Counseling!
+    br
+    br
+    br
+    .row
+        .col-sm-5
+            div.div-welcome-right
+                button.button-welcome.fill(ui-sref="counseling" style="float: right;")
+                    span Get Started
+
+                div(style="clear: both; margin-bottom: 20px;")
+
+                div.div-logo-welcome
+                    img.img-logo.center-block(src= "img/eEVA_LogoWhite.png")
+
+                div(style="clear: both; margin-bottom: 20px;")
+
+                //login button
+                //button.button-welcome.fill(ng-click="openLogin()" ng-hide="currentUser" style="float: left;")
+                    span Returning User
+
+                div(ng-if="tempUser")
+                    button.button-welcome.fill(type='button', data-toggle='modal', data-target='#loginModal' style="float: left;")
+                        span Returning User
+
+                div(ng-if="!tempUser")
+                    button.button-welcome.fill(ng-hide="currentUser" type='button', data-toggle='modal', data-target='#loginModal' style="float: left;")
+                        span Returning User
+
+                    //logout button
+                    button.button-welcome.fill(ng-click="logout()" ng-show="currentUser" style="float: left;")
+                        span Logout
+
+                //button.button-welcome.fill(ng-click="logout()" ng-show="currentUser" style="float: left;")
+                    span Logout
+
+                div(style="clear: both;")
+
+        .col-sm-7
+            .welcome-heading
+                center
+                    .welcome-header Welcome to Virtual Health Counseling!
+                br
+                br
+                br
+                div.panel-welcome
+                    .panel-body.panel-welcome-body
+                        h4 We have gathered a team of skilled virtual health counselors to meet with you to discuss your drinking habits. Get started to:
+                            ul(style="list-style-type:circle")
+                                li - find out what virtual health counselors are all about
+                                li - take a confidential screening and get objective feedback about whether the program might be useful for you
+                        h4 After getting feedback from just a few questions, you can decide whether or not to register with us. Once you've registered, you can get:
+                            ul(style="list-style-type:circle")
+                                li - a comprehensive evaluation
+                                li - detailed, objective feedback
+                                li - help with making a decision about whether or not to change your drinking. Our virtual health counselors will not, however, pressure you to change in any way.
+                        h4 If you would like to speak with a virtual counselor now, please click the "Get Started" button. Returning users can access their account by selecting the "Returning User" button.
+
+// Modal
+#loginModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+        .modal-content
+            .modal-header
+                img.logo-popup-login(src='img/eEVA_LogoWhite.png')
+                button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span.glyphicon.glyphicon-remove(aria-hidden='true')
+            .modal-body
+                form(ng-submit="login()").navbarForm
+                    h2
+                        center
+                            | Login
+                    p Username:
+                    input(type='text', ng-model='credentials.username', ng-click='authToggle = false')
+                    p Password:
+                    input(type='password', ng-model='credentials.password', ng-click='authToggle = false')
+                    button.btn.btn-success(type='submit').pull-left Login
+                button.btn.btn-info(type='button', data-toggle='modal', data-target='#forgotPWModal', data-dismiss='modal').pull-right Forgot Password
+                br
+                br
+            .modal-footer
+                //button.btn.btn-secondary(type='button', data-dismiss='modal', data-toggle='modal', data-target='#forgotCredentialsModal') Forgot Username or Password
+                button.btn.btn-secondary(type='button', data-dismiss='modal') Cancel
+
+#forgotPWModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+        .modal-content
+            .modal-header
+                img.logo-popup-login(src='img/eEVA_LogoWhite.png')
+                button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span.glyphicon.glyphicon-remove(aria-hidden='true')
+            .modal-body
+                form(ng-submit="forgotPassword()").navbarForm
+                    h2
+                        center
+                            | Forgot Password?
+                    h3
+                        p Please enter your email below to retrieve.
+                        br
+                        p
+                            | Email:
+                            input(name='emailInput', type='email', ng-model='credentials.fp_email', required='required')
+                    center
+                        button.btn.btn-info(style='width:200px;', type= 'submit') Change My Password
+            .modal-footer
+                //button.btn.btn-secondary(type='button', data-dismiss='modal', data-toggle='modal', data-target='#forgotCredentialsModal') Forgot Username or Password
+                button.btn.btn-secondary(type='button', data-dismiss='modal') Cancel
+
+//#forgotCredentialsModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+        .modal-content
+            .modal-header
+                img.logo-popup-login(src='img/eEVA_LogoWhite.png')
+                button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span.glyphicon.glyphicon-remove(aria-hidden='true')
+            .modal-body
+                center
+                    h2 Forgot Username or Password
+                form(ng-submit="login()").navbarForm
+                    h3 To retrieve username:
+                    label Enter your registered email here:
+                    input(type='email', ng-model='credentials.email', ng-click='authToggle = false')
+                    label Enter your date of birth here:
+                    input(type='date', ng-model='credentials.', ng-click='authToggle = false')
+                    center
+                        button.btn.btn-primary(type='submit') Retrieve Username
+                hr
+                form(ng-submit="login()").navbarForm
+                    h3 To reset password:
+                    label Enter your registered email here:
+                    input(type='password', ng-model='credentials.password', ng-click='authToggle = false')
+                    label Enter your registered email here:
+                    input(type='password', ng-model='credentials.password', ng-click='authToggle = false')
+                    center
+                        button.btn.btn-primary(type='submit') Reset Password
+            .modal-footer
+                button.btn.btn-secondary(type='button', data-dismiss='modal') Cancel
+

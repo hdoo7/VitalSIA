@@ -1,0 +1,88 @@
+//
+   Created by slunn002 on 03/28/2017.
+
+div(id="registerPopup", style="overflow: hidden;")
+    .modal-content.register-content
+
+        .modal-header
+            span.close(ng-click="cancel()") &times;
+            //button.close(type = 'button', data-dismiss='modal', arial-label='Close')
+                //span.close(ng-click="cancel()") &times;
+                |   span &times;
+                |
+            img.logo-popup-login(src= "img/eEVA_LogoWhite.png")
+            center
+                h2 Register
+
+
+        .modal-body.register-body
+            .alert(ng-repeat="alert in alerts", ng-class="alert.style")
+                button.close(ng-click="removeElement(alerts, $index)") x
+                strong {{ alert.type }}&nbsp;
+                | {{ alert.message }}
+            div(ng-hide="hasRegistered")
+                p To register, we will need some information. This allows the counselor to track your progress so that you can pick up where you left at anytime.
+                form(name='registrationForm', ng-submit='register()')
+                    div.column3#c1
+                        p Username:
+                            input(type="text", ng-model="credentials.username")
+                        p Email:
+                            input(name='emailInput',type="email", ng-model="credentials.email", required='required')
+                        p.help-block.has-error(ng-show="registrationForm.emailInput.$error.email")
+                            | Not a valid email address.
+                        p Re-Enter Email:
+                            input(name='emailConfirm',type="email", ng-model="credentials.confirmemail", required='required')
+                        p.help-block.bot-margin-md.has-error(ng-show='registrationForm.emailConfirm.$viewValue !== registrationForm.emailInput.$viewValue && !registrationForm.emailConfirm.$pristine')
+                            | These emails do not match.
+                        p Password:
+                            input(name='passInput', type="password", ng-model="credentials.password", required='required')
+                        p Re-Enter Password:
+                            input(name='passConfirm', type="password", ng-model="credentials.confirmpassword", required='required')
+                        p.help-block.bot-margin-md.has-error(ng-show='registrationForm.passConfirm.$viewValue !== registrationForm.passInput.$viewValue && !registrationForm.passConfirm.$pristine')
+                            | These passwords do not match.
+
+                    div.column3#c2
+                        p First Name:
+                            input(type="text", ng-model="credentials.firstname")
+                        p Last Name:
+                            input(type="text", ng-model="credentials.lastname")
+                        p Gender:
+                            select(ng-model="selectedGender", placeholder="---Select---")
+                                option(ng-repeat="x in genderType") {{x}}
+                        p Age:
+                            input(type="text", ng-model="credentials.age")
+                        p Weight:
+                            input(type="text", ng-model="credentials.weight")
+
+                    div.column3#c3
+                        p Ethnicity:
+                            select(ng-model="selectedEthnicity", placeholder="---Select---")
+                                option(ng-repeat="e in ethnicityType") {{e}}
+                        p Education:
+                            select(ng-model="selectedEducation", placeholder="---Select---")
+                                option(ng-repeat="e in educationType") {{e}}
+                        p Race:
+                            md-select.multiSelect(ng-model="selectedRace", multiple="", placeholder="---Select---")
+                                md-option.multiOption(ng-repeat="r in raceType") {{r}}
+                        p Marital Status:
+                            select(ng-model="selectedMaritalStatus", placeholder="---Select---")
+                                option(ng-repeat="e in maritalType") {{e}}
+
+                    p Have you been asked to complete this check up by your primary care provider?
+                        div.radio-selection
+                            label.inline-radio Yes
+                                input.md-primary(type='radio', ng-model='selectedAnswer', value='Yes')
+                            label.inline-radio No
+                                input.md-primary(type='radio', ng-model='selectedAnswer', value='No')
+            div(ng-show="hasRegistered")
+                p Congratulations {{credentials.username}}!  You have successfully registerd for the program.  Please close the registration popup and login using the credentials that you just created.
+
+        .modal-footer
+            div(ng-hide="hasRegistered")
+                form(ng-submit='register()')
+                    center
+                        button.btn.btn-success(type="submit", style='width:100px;') Register
+            div(ng-show="hasRegistered")
+                .center
+                    button.btn.btn-warning(ng-click="cancel()" style='width:100px;') Close
+

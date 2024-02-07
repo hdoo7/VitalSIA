@@ -1,0 +1,130 @@
+style.
+  .panel {
+    margin: 0;
+  }
+
+  .auth-toggle a:hover, a:visited, a:link, a:active {
+    width: 100%;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+.panel.panel-default
+  .panel-header
+    span.close(ng-click="loginButton()") &times;
+    img.logo-popup-login(src= "img/eEVA_LogoWhite.png")
+    center
+      h2 Login
+  .panel-body
+    .alert(ng-repeat="alert in alerts", ng-class="alert.style")
+      button.close(ng-click="removeElement(alerts, $index)") x
+      strong {{ alert.type }}&nbsp;
+      | {{ alert.message }}
+    div(ng-show='auth.currentUser()')
+      h5 Welcome! &nbsp;
+      button.btn.btn-danger.btn-block(type='button', ng-click='logout()') Log Out
+      button.btn.btn-alert.btn-block(type='button', ng-click='toggleFullscreen(!fullscreen)') Toggle Fullscreen
+    div(ng-hide='auth.currentUser()')
+      div
+        h5(ng-hide="isLoggedIn") Welcome! To whom am I speaking with today?
+        h5(ng-show="isLoggedIn") Welcome &nbsp;
+          strong {{credentials.username}}!
+        form(ng-hide="isLoggedIn" ng-submit='login()')
+          .input-group.bot-margin-sm
+            span.input-group-addon
+              .glyphicon.glyphicon-user
+            input.form-control(type='text', ng-model='credentials.username', placeholder='Username')
+          .input-group.bot-margin-md
+            span.input-group-addon
+              .glyphicon.glyphicon-lock
+            input.form-control(type='password', ng-model='credentials.password', placeholder='Password')
+          button.btn.btn-default.btn-block(type='submit') Login
+          br
+        div(ng-show="isLoggedIn")
+          .input-group.bot-margin-sm
+          button.btn.btn-danger.btn-block(ng-click="logout()") Logout
+          br
+        .auth-toggle(ng-hide="isLoggedIn")
+          button.btn.btn-success.btn-block(ng-click='registerOpen()') Register
+
+
+      //
+        div(ng-show='authToggle')
+          h5
+            i Hello! It is nice to meet you!
+          form(ng-submit='register()')
+            .input-group.bot-margin-sm
+              span.input-group-addon
+                .glyphicon.glyphicon-font
+              input.form-control(type='text', ng-model='credentials.name', placeholder='Name')
+            .input-group.bot-margin-sm
+              span.input-group-addon
+                .glyphicon.glyphicon-user
+              input.form-control(type='text', ng-model='credentials.username', placeholder='Username')
+            .input-group.bot-margin-md
+              span.input-group-addon
+                .glyphicon.glyphicon-lock
+              input.form-control(type='password', ng-model='credentials.password', placeholder='Password')
+          .auth-toggle
+            a(ng-click='authToggle = false') Or Login Here
+
+//
+          .user-menu-content
+            .user-menu-header
+              div(ng-show='auth.isLoggedIn()')
+                h5 Welcome, {{ profile.name || profile.username }}!
+
+              div(ng-hide='auth.isLoggedIn()')
+                div(ng-hide='authToggle')
+                  h5
+                    i To whom am I speaking with today?
+
+                div(ng-show='authToggle')
+                  h5
+                    i Hello! It is nice to meet you!
+
+            .user-menu-body
+              .alert(ng-repeat="alert in alerts", ng-class="alert.style")
+                button.close(ng-click="removeElement(alerts, $index)") x
+                strong {{ alert.type }}&nbsp;
+                | {{ alert.message }}
+
+
+              div(ng-show='auth.isLoggedIn()')
+                button.btn.btn-danger.btn-block(type='button', ng-click='logout()') Log Out
+                button.btn.btn-alert.btn-block(type='button', ng-click='toggleFullscreen(!fullscreen)') Toggle Fullscreen
+
+
+              div(ng-hide='auth.isLoggedIn()')
+                div(ng-hide='authToggle')
+                  form(ng-submit='login()')
+                    .input-group.bot-margin-sm
+                      span.input-group-addon
+                        .glyphicon.glyphicon-user
+                      input.form-control(type='text', ng-model='credentials.username', placeholder='Username')
+                    .input-group.bot-margin-md
+                      span.input-group-addon
+                        .glyphicon.glyphicon-lock
+                      input.form-control(type='password', ng-model='credentials.password', placeholder='Password')
+                    button.btn.btn-success.btn-block(type='submit') Login
+                  .auth-toggle
+                    a(ng-click='authToggle = true') Or Register Here
+
+
+
+                div(ng-show='authToggle')
+                  form(ng-submit='register()')
+                    .input-group.bot-margin-sm
+                      span.input-group-addon
+                        .glyphicon.glyphicon-font
+                      input.form-control(type='text', ng-model='credentials.name', placeholder='Name')
+                    .input-group.bot-margin-sm
+                      span.input-group-addon
+                        .glyphicon.glyphicon-user
+                      input.form-control(type='text', ng-model='credentials.username', placeholder='Username')
+                    .input-group.bot-margin-md
+                      span.input-group-addon
+                        .glyphicon.glyphicon-lock
+                      input.form-control(type='password', ng-model='credentials.password', placeholder='Password')
+                  .auth-toggle
+                    a(ng-click='authToggle = false') Or Login Here

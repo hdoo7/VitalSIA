@@ -1,0 +1,16 @@
+//
+   Created by ejhen on 7/26/2017.
+.btn-group-vertical
+    button.btn.btn-secondary(type='button') 1
+    button.btn.btn-secondary(type='button') 2
+
+
+script.
+    Parse.Cloud.run("calculateAllScores", {}).then(function (e) {
+        console.log(e);
+        document.getElementById("totDrinks").innerHTML = e.bac.score.totDrinksPerWeek;
+        document.getElementById("totHours").innerHTML = e.bac.score.totHours;
+        document.getElementById("avgBAC").innerHTML = e.bac.score.avgBAC;
+
+    });
+

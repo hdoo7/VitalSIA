@@ -1,0 +1,73 @@
+div.mainDiv
+    hr
+    h3 Click the element you would like to add:
+    div.btn-group.btn-group-justified
+        a.btn.btn-primary(ng-click='createElement("QuestionAnswer")') Question/Answer
+        a.btn.btn-primary(ng-click='createElement("feedback")') Feedback
+        a.btn.btn-primary(ng-click='createElement("feedbackList")') Feedback List
+        a.btn.btn-primary(ng-click='createElement("Content")') Html Content
+        a.btn.btn-primary(ng-click='createElement("textArea")') Text Area
+    div.btn-group.btn-group-justified
+        a.btn.btn-primary(ng-click='createElement("QuestionAnswer-Checkbox")') Question/Answer Checkbox
+        a.btn.btn-primary(ng-click='createElement("MenuElement")') Menu Element
+        a.btn.btn-primary(ng-click='createElement("RangeSliderElement")') Range Slider Element
+        a.btn.btn-primary(ng-click='createElement("LoginRegisterElement")') Login & Register Element
+        a.btn.btn-primary(type='button', data-toggle='modal', data-target='#rowsColsPrompt')
+            span.glyphicon.glyphicon-list-alt &nbsp;TabularInput
+    div.btn-group.btn-group-justified
+        a.btn.btn-primary(ng-click='createElement("MenuWithCompletion")') Menu Element with Progress Completion
+
+
+    h3 List of available elements for {{ formSelected.name }} form:
+    h5 To reorder elements: Click on the element you would like to reorder and drag it into its new position.  Click Update Element order to save changes to the database.
+    div.container.panel-group(ui-sortable='', ui-sortable-stop='stop', ng-model='elements')
+        div.panel.panel-default(ng-repeat="element in elements track by $index")
+            div.panel-heading
+                h4 {{ element.type }} (Order: # {{ element.order }})
+            div.panel-body
+                ul(ng-if="displayElementField(element.type, 'phrase')", style="font-weight: bold")| Phrase(s)/Question Text:
+                    li(ng-repeat="phrases in element.phrase track by $index", style="font-weight: normal") &nbsp;&nbsp;&nbsp;&nbsp; {{ phrases }}
+                ul(ng-if="displayElementField(element.type, 'content')", style="font-weight: bold")| Content/Answer Selection Choices:
+                    li(ng-repeat="contents in element.content track by $index", style="font-weight: normal") &nbsp;&nbsp;&nbsp;&nbsp; {{ contents }}
+                div(ng-if="displayElementField(element.type, 'html')", style="font-weight: bold")| HTML Content:
+                    h5(id='htmlPreview', style="font-weight: normal") &nbsp;&nbsp;&nbsp;&nbsp; {{ element.html }}
+                div(ng-if="element.type === 'TabularInput'")
+                    table
+                        tr(ng-repeat="row in element.content track by $index")
+                            th(ng-repeat="col in row.content track by $index", ng-if="col.isHeader") {{col.value}}&nbsp;&nbsp;
+                            td(ng-repeat="col in row.content track by $index", ng-if="!col.isHeader")
+                                input(type="text")
+            div.panel-footer.btn-group.btn-group-justified
+                a.btn.btn-primary(ng-click='selectElement(element)')
+                    span.glyphicon.glyphicon-pencil
+                    | &nbsp;Edit
+                a.btn.btn-danger(ng-click='deleteElement(element)')
+                    span.glyphicon.glyphicon-remove
+                    | &nbsp;Delete
+
+    center
+        button.btn.btn-primary.updateBtn(ng-show='elReorder', ng-click='updateElementsOrder()') Update Element Order
+
+    hr
+    button.btn.btn-primary.mainDiv(ng-click='goBack("survey.form")') Back to form elements
+
+    #rowsColsPrompt.modal.fade(role='dialog')
+        .modal-dialog
+            // Modal content
+            .modal-content
+                .modal-header
+                    button.close(type='button', data-dismiss='modal') ×
+                    h4.modal-title Please specify the number of rows and columns for the table
+                .modal-body
+                    p Number of Rows:
+                    input(type="number" min='0' max='50' ng-model='numRows')
+                    p Number of Columns:
+                    input(type="number" min='0' max='50' ng-model='numCols')
+                    p Are there x-axis headers?&nbsp;&nbsp;
+                        input(type="checkbox" ng-model='xHeaders')
+                    p Are there y-axis headers?&nbsp;&nbsp;
+                        input(type="checkbox" ng-model='yHeaders')
+                .modal-footer
+                    button.btn.btn-default(type='button', data-dismiss='modal', ng-click='createTabularInputElement(numRows, numCols, xHeaders, yHeaders)') Create Tabular Input Element
+
+

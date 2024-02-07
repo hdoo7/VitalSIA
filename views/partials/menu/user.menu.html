@@ -1,0 +1,86 @@
+<style>.panel {
+  margin: 0;
+}
+
+.auth-toggle a:hover, a:visited, a:link, a:active {
+  width: 100%;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style><div class="panel panel-default"><div class="panel-header"><span class="close" ng-click="loginButton()">&times;</span><img class="logo-popup-login" src="img/eEVA_LogoWhite.png"/><center><h2>Login</h2></center></div><div class="panel-body"><div class="alert" ng-repeat="alert in alerts" ng-class="alert.style"><button class="close" ng-click="removeElement(alerts, $index)">x</button><strong>{{ alert.type }}&nbsp;</strong>{{ alert.message }}</div><div ng-show="auth.currentUser()"><h5>Welcome! &nbsp;</h5><button class="btn btn-danger btn-block" type="button" ng-click="logout()">Log Out</button><button class="btn btn-alert btn-block" type="button" ng-click="toggleFullscreen(!fullscreen)">Toggle Fullscreen</button></div><div ng-hide="auth.currentUser()"><div><h5 ng-hide="isLoggedIn">Welcome! To whom am I speaking with today?</h5><h5 ng-show="isLoggedIn">Welcome &nbsp;<strong>{{credentials.username}}!</strong></h5><form ng-hide="isLoggedIn" ng-submit="login()"><div class="input-group bot-margin-sm"><span class="input-group-addon"><div class="glyphicon glyphicon-user"></div></span><input class="form-control" type="text" ng-model="credentials.username" placeholder="Username"/></div><div class="input-group bot-margin-md"><span class="input-group-addon"><div class="glyphicon glyphicon-lock"></div></span><input class="form-control" type="password" ng-model="credentials.password" placeholder="Password"/></div><button class="btn btn-default btn-block" type="submit">Login</button><br/></form><div ng-show="isLoggedIn"><div class="input-group bot-margin-sm"></div><button class="btn btn-danger btn-block" ng-click="logout()">Logout</button><br/></div><div class="auth-toggle" ng-hide="isLoggedIn"><button class="btn btn-success btn-block" ng-click="registerOpen()">Register</button></div></div><!--div(ng-show='authToggle')
+  h5
+    i Hello! It is nice to meet you!
+  form(ng-submit='register()')
+    .input-group.bot-margin-sm
+      span.input-group-addon
+        .glyphicon.glyphicon-font
+      input.form-control(type='text', ng-model='credentials.name', placeholder='Name')
+    .input-group.bot-margin-sm
+      span.input-group-addon
+        .glyphicon.glyphicon-user
+      input.form-control(type='text', ng-model='credentials.username', placeholder='Username')
+    .input-group.bot-margin-md
+      span.input-group-addon
+        .glyphicon.glyphicon-lock
+      input.form-control(type='password', ng-model='credentials.password', placeholder='Password')
+  .auth-toggle
+    a(ng-click='authToggle = false') Or Login Here
+--></div></div></div><!--.user-menu-content
+  .user-menu-header
+    div(ng-show='auth.isLoggedIn()')
+      h5 Welcome, {{ profile.name || profile.username }}!
+
+    div(ng-hide='auth.isLoggedIn()')
+      div(ng-hide='authToggle')
+        h5
+          i To whom am I speaking with today?
+
+      div(ng-show='authToggle')
+        h5
+          i Hello! It is nice to meet you!
+
+  .user-menu-body
+    .alert(ng-repeat="alert in alerts", ng-class="alert.style")
+      button.close(ng-click="removeElement(alerts, $index)") x
+      strong {{ alert.type }}&nbsp;
+      | {{ alert.message }}
+
+
+    div(ng-show='auth.isLoggedIn()')
+      button.btn.btn-danger.btn-block(type='button', ng-click='logout()') Log Out
+      button.btn.btn-alert.btn-block(type='button', ng-click='toggleFullscreen(!fullscreen)') Toggle Fullscreen
+
+
+    div(ng-hide='auth.isLoggedIn()')
+      div(ng-hide='authToggle')
+        form(ng-submit='login()')
+          .input-group.bot-margin-sm
+            span.input-group-addon
+              .glyphicon.glyphicon-user
+            input.form-control(type='text', ng-model='credentials.username', placeholder='Username')
+          .input-group.bot-margin-md
+            span.input-group-addon
+              .glyphicon.glyphicon-lock
+            input.form-control(type='password', ng-model='credentials.password', placeholder='Password')
+          button.btn.btn-success.btn-block(type='submit') Login
+        .auth-toggle
+          a(ng-click='authToggle = true') Or Register Here
+
+
+
+      div(ng-show='authToggle')
+        form(ng-submit='register()')
+          .input-group.bot-margin-sm
+            span.input-group-addon
+              .glyphicon.glyphicon-font
+            input.form-control(type='text', ng-model='credentials.name', placeholder='Name')
+          .input-group.bot-margin-sm
+            span.input-group-addon
+              .glyphicon.glyphicon-user
+            input.form-control(type='text', ng-model='credentials.username', placeholder='Username')
+          .input-group.bot-margin-md
+            span.input-group-addon
+              .glyphicon.glyphicon-lock
+            input.form-control(type='password', ng-model='credentials.password', placeholder='Password')
+        .auth-toggle
+          a(ng-click='authToggle = false') Or Login Here-->

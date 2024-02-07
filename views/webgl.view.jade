@@ -1,0 +1,5 @@
+link(rel='stylesheet', href='/css/widget-styles.css')
+
+div(ng-repeat="html in widget.htmls track by $index", ng-if="widget.htmlUsed(html.id)", id="{{ html.id }}", class="{{ html.id }}", ng-hide="html.hidden", ng-class="html.classes", bind-html-compile="html.content", ng-click="htmlClick(html)")
+//for some weird reason the profile gets inserted into the last div... check this later...
+#userContext

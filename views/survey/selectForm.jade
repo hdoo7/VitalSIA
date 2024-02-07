@@ -1,0 +1,42 @@
+
+div.mainDiv
+    hr
+    div.container
+        div.panel.panel-default
+            div.panel-heading
+                h4 Create new form:
+            div.panel-body
+                | Enter name of form to be created:&nbsp;&nbsp;
+                input(ng-model="newForm.name", required='true')
+                button.btn.btnMargin.btn-success(ng-click='createForm()')
+                    span.glyphicon.glyphicon-plus-sign
+                    | &nbsp;Create
+    br
+    hr
+    h3 List of available forms for {{ interventionSelected.name }} intervention:
+    div.container.panel-group
+        div.panel.panel-default(ng-repeat="form in forms")
+            div.panel-heading
+                h4 {{ form.name }}
+                    button.btn.btn-warning.pull-right(type='button', data-toggle='modal', data-target='#renameModal{{$index}}')
+                        span.glyphicon.glyphicon-pencil
+                        | &nbsp;Rename
+            .modal.fade(id='renameModal{{$index}}', role='dialog')
+                .modal-dialog
+                    // Modal content
+                    .modal-content
+                        .modal-header
+                            button.close(type='button', data-dismiss='modal') ×
+                            h4.modal-title Rename Form
+                        .modal-body
+                            p Enter new name here
+                            input(ng-model='form.name')
+                        .modal-footer
+                            button.btn.btn-block.btn-success(type='button', data-dismiss='modal', ng-click='renameForm(form)') Save
+            div.panel-footer
+                button.btn.btn-primary.btn-block(ng-click='selectForm(form)') Select
+
+
+
+    hr
+    button.btn.btn-primary.mainDiv(ng-click='goBack("survey.intervention")') Back to interventions

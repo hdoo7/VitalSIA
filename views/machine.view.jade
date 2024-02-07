@@ -1,0 +1,140 @@
+style.
+  .primitive {
+    color: green;
+  }
+  .state {}
+
+navadmin
+.jtk-demo-main
+  .container-fluid
+    .alert(ng-show="alert", ng-class="alert.alertClass")
+      button.close(ng-click="alert = null") x
+      strong {{ alert.alertType }}&nbsp;
+      | {{ alert.alertText }}
+    div(ng-hide="manager.showLoad")
+      .page-header
+        h2.inline.pointer(ng-click="manager.showSettings = !manager.showSettings") {{ manager.sm.name }}
+        span.inline#editStateBtn(type="button", ng-class="{'glyphicon glyphicon-menu-down': manager.showSettings, 'glyphicon glyphicon-menu-up': !manager.showSettings}", ng-click="manager.showSettings = !manager.showSettings", bs-collapse-toggle)
+        button.btn.btn-secondary.alert-default.right-margin-sm.inline.pull-right(ng-click="manager.sm.primitive = !manager.sm.primitive") {{ manager.sm.primitive && "Primitive" || !manager.sm.primitive && "Machine"  }}
+        button.btn.btn-secondary.alert-danger.right-margin-sm.inline.pull-right(type="button", uib-popover-template="dynamicPopover.templateUrl", popover-title="{{ dynamicPopover.title }}", popover-placement="{{ dynamicPopover.placement }}", ng-disabled="!manager.sm.object.id") Delete
+        button.btn.btn-secondary.alert-info.right-margin-sm.inline.pull-right(ng-click="manager.showLoad = true") New/Load
+        button.btn.btn-secondary.alert-success.right-margin-sm.inline.pull-right(ng-click="save()") Save
+        .clearfix
+      .row(ng-show="manager.showSettings")
+        .col-lg-6.on-top-300
+          .list-group
+            .list-group-item Name:&nbsp;
+              span.glyphicon.glyphicon-plus.pull-right(ng-click="manager.sm.init.params.push('')")
+              a(href="#", editable-text="manager.sm.name") {{ manager.sm.name || 'Enter state name...' }}
+              .clearfix
+            .list-group-item(ng-repeat="param in manager.sm.init.params track by $index") Parameter {{ $index }}:&nbsp;
+              span.glyphicon.glyphicon-minus.pull-right(ng-click="manager.sm.init.params.splice($index, 1)")
+              a(href="#", editable-text="manager.sm.init.params[$index]") {{ param || 'Enter parameter name...' }}
+              .clearfix
+            .list-group-item Description:
+              br
+              textarea.form-control.vertical-resize(rows="3", ng-model="manager.sm.desc")
+            .list-group-item Initialization Extra Code:
+              br
+              a(href="#", editable-textarea="manager.sm.init.during", e-rows="5")
+                pre.json {{ manager.sm.init.during || 'Currently empty...' }}
+            .list-group-item Before Extra Code:
+              br
+              a(href="#", editable-textarea="manager.sm.before", e-rows="5")
+                pre.json {{ manager.sm.before || 'Currently empty...' }}
+            .list-group-item(ng-show="manager.sm.primitive") Execution Code:
+              br
+              a(href="#", editable-textarea="manager.sm.execute", e-rows="5")
+                pre.json {{ manager.sm.execute || 'Currently empty...' }}
+        .col-lg-6
+          pre {{ manager.sm | parseFilter | json }}
+      .row(ng-show="!manager.showSettings && manager.sm.primitive")
+        .col-lg-12
+          .alert.alert-warning Primitive State Machines do not have states nor transitions.
+      .row(ng-show="!manager.showSettings && !manager.sm.primitive")
+        .col-lg-9
+          .jtk-demo-canvas.canvas-wide.statemachine-demo.jtk-surface.jtk-surface-nopan#canvas
+            div(ng-repeat="state in manager.sm.init.states track by $index")
+              .w(id="{{ state.id }}", style="left: {{ state.plumbleft }}; top: {{ state.plumbtop }}", data-toggle="tooltip", data-placement="top", title="{{ state.class | friendlyClass }}", ng-class="state == manager.selected ? 'blue' : ''", ng-click="manager.selected = state;") {{ state.name }}
+                .ep(action="{{ state.id }}")
+                //.del(ng-click="removeNode(state)") &nbsp;x
+                //.ed(ng-click="manager.selected = state;") &nbsp;>
+          //h3 Information
+        .col-lg-3
+          .row
+            .col-lg-12
+              .panel.panel-default(ng-show="manager.selected && !manager.selected.from")
+                .panel-heading
+                  .input-group
+                    | {{ manager.selected.id }}
+                    span.input-group-btn
+                      button.btn.btn-xs.alert-danger(type="button", ng-click="removeNode(manager.selected)")
+                        span.glyphicon.glyphicon-erase
+                .panel-body
+                  input.form-control.bot-margin-sm(type="text", ng-model="manager.selected.name", ng-change="updateConnection(manager.selected.id)")
+                  a.btn.btn-block.btn-default(type="text", ui-sref="machine({ edit: manager.selected.class })") {{ manager.selected.class | friendlyClass }}
+                  hr(ng-show="manager.selected.params.length")
+                  div(ng-repeat="param in manager.selected.params track by $index")
+                    //TODO: Change this from a function call to a filter by passing necessary index
+                    p.top-margin.bot-margin-none {{ manager.getParameterById(manager.selected.class, $index) }}
+                    .input-group.next-items
+                      input.form-control(type="text", ng-model="manager.selected.params[$index]")
+                      span.input-group-btn.dropup(uib-dropdown="")
+                        button.btn.alert-info.dropdown-toggle(type="button", uib-dropdown-toggle="", ng-disabled="disabled")
+                          span.glyphicon.glyphicon-chevron-up
+                        ul.dropdown-menu(uib-dropdown-menu="", role="menu")
+                          li(role="menuitem", ng-repeat="param in manager.sm.init.params track by $index", ng-click="manager.selected.params[$index] = param")
+                            a(href="") {{ param }}
+              .panel.panel-default(ng-show="manager.selected && manager.selected.from")
+                .panel-heading
+                  .input-group
+                    | {{ manager.selected.id }}
+                    span.input-group-btn
+                      button.btn.btn-xs.alert-danger(type="button", ng-click="removeTransition(manager.selected)")
+                        span.glyphicon.glyphicon-erase
+                .panel-body
+                  .input-group
+                    input.form-control(type="text", ng-model="manager.selected.guard.type", disabled, placeholder="Select guard type...")
+                    span.input-group-btn.dropup(uib-dropdown="")
+                      button.btn.alert-info.dropdown-toggle(type="button", uib-dropdown-toggle="", ng-disabled="disabled")
+                        span.glyphicon.glyphicon-chevron-up
+                      ul.dropdown-menu(uib-dropdown-menu="", role="menu")
+                        li(role="menuitem", ng-repeat="type in manager.guardTypes", ng-click="manager.selected.guard.type = type")
+                          a(href="") {{ type }}
+                  .top-margin(ng-show="manager.selected.guard.type")
+                    p Expression:
+                    input.form-control(style="margin-bottom: 10px;", type="text", ng-model="manager.selected.guard.expression", ng-change="expressionBox = manager.selected.guard.expression" placeholder="return m[\"foo\"] > 1;")
+                    p On Transition:
+                    input.form-control(style="margin-top: 4px;", type="text", ng-model="manager.selected.guard.onTransition", placeholder="m[\"bar\"]++;")
+              div(ng-controller="treeViewController")
+                .panel.panel-default
+                  .panel-heading(ng-click="showTree = !showTree")
+                    .pointer Tree View
+                  .panel-body(ng-show="showTree")
+                    .panel.panel-default(ng-show="myTree.currentNode.roleId")
+                      .panel-body.panel-slim
+                        button.btn.btn-block.btn-clipboard(data-toggle="tooltip", data-placement="top", title="Copy to clipboard!", ngclipboard data-clipboard-text="{{myTree.currentNode.roleId}}") {{myTree.currentNode.roleName}}
+                    div(data-angular-treeview="true", data-tree-id="myTree", data-tree-model="roleList", data-node-id="roleId", data-node-label="roleName.substring(0,17)", data-node-children="children")
+              .panel.panel-default
+                .panel-heading(ng-click="manager.showAdded = !manager.showAdded")
+                  .pointer Machine Inventory
+                .panel-body.panel-slim(ng-show="manager.showAdded", style="max-height:400px;overflow-y:scroll;")
+                  .alert.alert-warning(style="margin: 0", ng-show="!manager.added.length") No saved machines found.
+                  button.btn.btn-block.sm-button.blue-hover(type="button", ng-repeat="class in manager.added track by $index", ng-if="class.object.id != manager.sm.object.id", ng-click="addNode(class.object.id)") {{ class.name }}
+    div(ng-show="manager.showLoad")
+      .container-fluid
+        .row.select-mode
+          .col-lg-6.col-lg-offset-3
+            .alert.alert-warning(ng-show="manager.added.length == 0") There are no state machines currently saved on the server.
+            .panel.panel-default
+              .panel-body.panel-slim
+                button#newSMBtn.btn-block.sm-button(ng-click="new()") Create a new state
+                .btn-group.btn-group-justified.blue-hover(style="border-radius: 0 !important;", ng-repeat="add in manager.added track by $index")
+                  .btn-group(style="width:90%")
+                    button.btn.sm-button(ng-class="add.primitive ? 'primitive' : 'state'" ng-click="load(add)") {{ add.name }}
+                  .btn-group(style="width:10%")
+                    button.btn.sm-button.green-hover(ng-click="copy(add)")
+                      .glyphicon.glyphicon-copy
+            a.pointer(ng-click="manager.showLoad = false") Return to Previous Page
+            br
+            br

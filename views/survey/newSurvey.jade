@@ -1,0 +1,7 @@
+link(rel='stylesheet', type='text/css', href='/../../css/editor.css')
+h1.center Welcome to the survey editor!
+.alert(ng-show="alert", ng-class="alert.alertClass")
+    button.close(ng-click="alert = null") x
+    strong {{ alert.alertType }}&nbsp;
+    | {{ alert.alertText }}
+ui-view

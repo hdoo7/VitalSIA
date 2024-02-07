@@ -1,0 +1,10 @@
+//
+   Created by ejhen on 7/26/2017.
+
+h3 Select a Form:
+    div.container.panel-group
+        div.panel.panel-default(ng-repeat="form in scoredForms")
+            div.panel-heading
+                h4 {{ form.name }}
+            div.panel-footer
+                button.btn.btn-primary.btn-block(ng-click='calculateScoreByFormObj(form)') See Score

@@ -1,0 +1,39 @@
+link(rel='stylesheet', href='/css/counseling.css')
+div(id="counselorSelection").counselor-selection-background
+    div.container-fluid.counselor-selection-menu
+        div.row
+            .selection-menu-header.text-center
+                img.eEVA-logo(ng-src='img/eEVA_LogoWhite.png', alt='logo')
+                h1 Counselor Selection Menu
+        div.row
+            div.col-lg-6
+                h3 Preview currently selected counselor
+                div
+                    img.preview-img(ng-src = '{{selectedCounselor.img}}')
+                    h2.text-center {{selectedCounselor.name}}
+                    | {{selectedCounselor.description}}
+            div.col-lg-6
+                h3 Please choose your counselor from the available counselors below
+                    div.row.container-fluid
+                        div.customScrollbar
+                            a.btn.btn-default.btn-circle.btn-lg(type='button' ng-repeat='x in counselors track by $index' ng-click='setCounselor($index)')
+                                img.btn-img.img-responsive(ng-src='{{x.img}}')
+                    button.btn.btn-info.pull-right(type='button', data-toggle='modal', data-target='#loadingTimeModal' style="float: left;") Continue
+
+
+// Modal
+#loadingTimeModal.modal(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+        .modal-content
+            .modal-header
+                img.logo-popup-login(src='img/eEVA_LogoWhite.png')
+                button.close(type='button', data-dismiss='modal', aria-label='Close')
+                    span.glyphicon.glyphicon-remove(aria-hidden='true')
+            .modal-body
+                div
+                    h2
+                        center
+                            | Just to let you know:
+                    p Starting the system might take up to 2 minutes, so please wait while the system loads. If you do not see your selected virtual health counselor after this time, or if your selected virtual health counselor loads and does not begin to speak after an additional 30 seconds, please refresh the webpage. Thank you for your understanding and patience!
+                    .modal-footer
+                        button.btn.btn-info(type='button', ui-sref="webgl", data-dismiss='modal') Continue to Counseling

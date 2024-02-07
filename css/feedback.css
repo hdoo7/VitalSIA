@@ -1,0 +1,227 @@
+::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+    color: grey;
+    font-style: italic;
+}
+::-moz-placeholder { /* Firefox 19+ */
+    color: grey;
+    font-style: italic;
+}
+:-ms-input-placeholder { /* IE 10+ */
+    color: grey;
+    font-style: italic;
+}
+:-moz-placeholder { /* Firefox 18- */
+    color: grey;
+    font-style: italic;
+}
+
+/*BAC Table styling*/
+.title-header{
+    border-radius: 10px 10px 0 0;
+}
+.vertical-title-header{
+    border-radius: 0px 0px 0px 10px;
+}
+/*to rotate vertical heading*/
+th.box-rotate {
+    /* Something you can count on */
+    height: 140px;
+    white-space: nowrap;
+}
+
+th.box-rotate > div {
+    transform:
+        /* Magic Numbers */
+            translate(2px, 95px)
+            rotate(90deg);
+    width: 30px;
+}
+th.box-rotate > div > span {
+
+    padding: 5px 10px;
+    margin-left: -620%;
+}
+
+
+.personalBACInput{
+    border: none;
+    border-bottom: 2px solid #5cb85c;
+    outline:none;
+    width: 40%;
+}
+
+table {
+
+    border-collapse: separate;
+    border-bottom: 2.5px solid #5CB85C;
+    box-shadow: 10px 10px 5px gray;
+    margin:auto 6% 10px;
+    border-radius:16px;
+    -moz-border-radius:10px;
+}
+table tr:last-child td:first-child {
+    border-bottom-left-radius: 10px;
+}
+
+table tr:last-child td:last-child {
+    border-bottom-right-radius: 10px;
+}
+tr:nth-child(even) {background: #a9dba9}
+tr:nth-child(odd) {background: #FFF}
+th{
+    border-top: none!important;
+    color: white;
+    background-color: #5cb85c;
+}
+
+.table{
+    width: 88%;
+    max-width: 88%;
+}
+#reactionBAC{
+    font-style: italic;
+    color: #5CB85C;
+}
+.hiddenPara{
+    display: none;
+}
+
+/*scroll bar styling*/
+.contentHolder-consequences{
+    max-height: 440px;
+    overflow-y: scroll;
+}
+.contentHolder{
+    max-height: 500px;
+    overflow-y: scroll;
+
+}
+.customScrollbar::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+}
+
+.customScrollbar::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+.customScrollbar::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    /*background-color: #5CB85C;*/
+    background-color: #5bc0de;
+}
+
+
+.bacEstimateTable{
+    width: 85%;
+}
+.title-header-left{
+    border-top-left-radius: 10px;
+    padding-left: 5px;
+}
+.title-header-right{
+    border-top-right-radius: 10px;
+}
+
+.center{
+    text-align: center !important;
+}
+a {
+    text-decoration: underline;
+}
+
+.contentStyle {
+    margin-top: 3%;
+    height: 100%;
+}
+
+#leftForCounselor {
+    height: 100%;
+}
+
+.section_title {
+    color: black;
+    padding-top: 50px;
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    font-size: 200%;
+}
+
+.drop-shadow {
+    box-shadow: 10px 10px 5px grey;
+}
+
+/*Styling for the Consequences survey of the DCU*/
+.usrQoD{
+    float: left;
+    margin-left: 2%;
+}
+.QoD-img{
+    float: left;
+    border:none;
+    margin-left: 2%;
+    padding: 10px;
+    border-radius: 5px;
+}
+.avg-drinks-chart > img{
+    max-width:99%;
+
+}
+
+/*BDP Feedback Summary*/
+.high {
+    color: red;
+}
+
+.medium {
+    color: brown;
+}
+
+.topRound-table-heading{
+    -moz-border-radius-topleft: 10px;
+    -moz-border-radius-topright: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+
+}
+td, th{
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+/*styling for Consequences feedback*/
+#consequences{
+    width:85%;
+}
+
+#consequences2{
+    width:85%;
+}
+
+/*Styling for dependence feedback*/
+.two {
+    color: green;
+}
+
+.three {
+    color: orange;
+}
+
+#dependence{
+    width:85%;
+}
+
+.highlight_cell{
+    background-color: yellow;
+}
+
+.usrBAC{
+    background-color: yellow;
+    border: 1px solid black !important;
+}

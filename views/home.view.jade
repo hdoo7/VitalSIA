@@ -1,0 +1,105 @@
+//navadmin
+link(rel='stylesheet', type='text/css', href='/css/home.css')
+div.admin-login-background
+  div.alert(ng-show="alert", ng-class="alert.alertClass")
+    a.close.pull-right(ng-click="alert = null") x
+    strong {{ alert.alertType }}&nbsp;
+    | {{ alert.alertText }}
+  div.container-fluid.admin-login-menu
+    div
+      div.text-center
+        img.eEVA-logo(ng-src='img/eEVA_LogoWhite.png', alt='logo')
+        h1.admin-heading Administration Portal
+      div.prompt(ng-show="currentUser.object && mode !='addAdminUser'")
+        h3 You are currently logged in as an administrator
+        button.btn.btn-success(ng-click="logout()") Logout
+        br
+        br
+        h2 Links
+        .btn-group-vertical.mr-2(role='group')
+          button.btngrp.btn.btn-primary(type='button' ui-sref="machine") State Machine&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            span.glyphicon.glyphicon-cog
+          button.btn.btn-primary(type='button' ui-sref="survey.intervention") Survey Editor&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp
+            span.glyphicon.glyphicon-pencil
+          button.btn.btn-primary(type='button' ng-click="getAvailableUsers()") Add New Admin User&nbsp&nbsp
+            span.glyphicon.glyphicon-user
+          button.btn.btn-primary(type='button' ui-sref="counseling") Counseling Home&nbsp&nbsp
+            span.glyphicon.glyphicon-heart-empty
+    div.loginPrompt.prompt(ng-show="!currentUser.object && mode == 'login'")
+      h2 Please sign in below
+      form(ng-submit="login()")
+        label Username:&nbsp;
+        br
+        input(type="text", ng-model="credentials.username", placeholder="Username")
+        br
+        label Password:&nbsp;&nbsp;
+        br
+        input(type="password", ng-model="credentials.password", placeholder="password")
+        br
+        button.btn.btn-success(type="submit") Login
+      //a(ng-click="changeMode('forgot')") Forgot password?
+      br
+      a(ng-click="changeMode('register')") Register new user.
+
+    div.registerPrompt.prompt(ng-show="!currentUser.object && mode == 'register'")
+      h2 New User Registration
+      form(ng-submit="register()")
+        label Enter your new username:&nbsp;
+        br
+        input(type="text", ng-model="credentials.username", placeholder="Username")
+        br
+        label Enter your password:&nbsp;&nbsp;
+        br
+        input(type="password", ng-model="credentials.password", placeholder="password")
+        br
+        button.btn.btn-success(type="submit") Register
+
+    div.registerAdminPrompt.prompt(ng-show="currentUser.object && mode == 'addAdminUser'")
+      h5
+        i To add a new user to the administrator group, select an available user from the list of active users. If the
+          | user is not in the list, click add new button below.
+      div.mainBody_newAdmin
+        h2 List of active users:
+        div.container.activeUserscontentHolder.customScrollbar
+          div.row.userRow(ng-repeat="user in activeUsers")
+              div.col-md-12
+                button.btn.btn-warning.btn-block.btn-sm(type='button', data-toggle='modal', data-target='#addAdminVerification', ng-click="selectUserForAdmin(user)")
+                  span.glyphicon.glyphicon-plus
+                  | &nbsp;{{ user }}
+        div.newAdminRegistration
+          button.btn.btn-success(type="submit", ng-click="") Register New Administrator
+
+
+    div.adminRegistrationPrompt.prompt(ng-show="currentUser.object && mode == 'addNewAdmin'")
+      h2 New Admin Registration
+      form(ng-submit="")
+        label Enter your new username:&nbsp;
+        br
+        input(type="text", ng-model="credentials.username", placeholder="Username")
+        br
+        label Enter your password:&nbsp;&nbsp;
+        br
+        input(type="password", ng-model="credentials.password", placeholder="password")
+        br
+        button.btn.btn-success(type="submit") Register
+
+    div.forgetPassPrompt.prompt(ng-show="!currentUser.object && mode === 'forgot'")
+      h2 Please enter your email address
+      form(ng-submit="forgot()")
+        input(type="text", ng-model="credentials.email", placeholder="Email")
+        br
+        button.btn.btn-success(type="submit") Request Password Change
+      a(ng-click="changeMode('login')") Go back to login
+
+div.modal.fade(id='addAdminVerification', role='dialog')
+  .modal-dialog
+    // Modal content
+    .modal-content
+      .modal-header
+        a.close.pull-right(type='button', data-dismiss='modal') ×
+        h4.modal-title Verification
+      .modal-body
+        p Are you sure you will like to add user {{ newAdmin }} to the administrator group?
+      .modal-footer
+        button.btn.btn-block.btn-success(type='button', data-dismiss='modal', ng-click='addUserToAdminGroup()') Add User
+        button.btn.btn-block.btn-success(type='button', data-dismiss='modal') Cancel

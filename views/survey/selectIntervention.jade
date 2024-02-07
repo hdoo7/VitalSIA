@@ -1,0 +1,43 @@
+
+div.mainDiv
+    hr
+    div.container
+        div.panel.panel-default
+            div.panel-heading
+                h4 Create new intervention:
+            div.panel-body
+                | Enter name of intervention to be created:&nbsp;&nbsp;
+                input(ng-model="newIntervention.name", required='true')
+                button.btn.btnMargin.btn-success(type='submit', ng-click='createIntervention()')
+                    span.glyphicon.glyphicon-plus-sign
+                    | &nbsp;Create
+
+    br
+    hr
+
+    h3 Or please select an intervention below:
+    div.container.panel-group
+        div.panel.panel-default(ng-repeat="intervention in interventions")
+            div.panel-heading
+                h4 {{ intervention.name }}
+                    button.btn.btn-warning.pull-right(type='button', data-toggle='modal', data-target='#renameModal{{$index}}')
+                        span.glyphicon.glyphicon-pencil
+                        | &nbsp;Rename
+            .modal.fade(id='renameModal{{$index}}', role='dialog')
+                .modal-dialog
+                    .modal-content
+                        .modal-header
+                            button.close(type='button', data-dismiss='modal') ×
+                            h4.modal-title Rename Intervention
+                        .modal-body
+                            p Enter the new name:
+                            input(ng-model='intervention.name')
+                        .modal-footer
+                            button.btn.btn-block.btn-success(type='button', data-dismiss='modal', ng-click='renameIntervention(intervention)') Save
+            div.panel-footer
+                button.btn.btn-primary.btn-block(ng-click='selectIntervention(intervention)') Select: {{ intervention.name }}
+
+
+
+
+

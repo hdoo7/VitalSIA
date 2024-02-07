@@ -1,0 +1,43 @@
+//
+   Created by Cerberus on 28/03/2017.
+div(id="loginPopup").login-div
+    .modal-content.login-content
+        .modal-header
+            span.close(ng-click="cancel()") &times;
+            img.logo-popup-login(src= "img/eEVA_LogoWhite.png")
+            center
+                h2 Returning User Login
+
+        .modal-body.login-body
+            .alert(ng-repeat="alert in alerts", ng-class="alert.style")
+                button.close(ng-click="removeElement(alerts, $index)") x
+                strong {{ alert.type }}&nbsp;
+                | {{ alert.message }}
+            form(ng-hide="isLoggedIn" ng-submit="login()")
+                p Username:
+                input(type="text", ng-model="credentials.username", ng-click="authToggle = false")
+                p Password:
+                input(type="password", ng-model="credentials.password", ng-click='authToggle = false')
+            form(ng-show="isLoggedIn")
+                h4 You are currently logged in as: &nbsp;
+                    strong {{credentials.username}}
+                //center
+                //    a(ui-sref="notYetMapped") Forgot your username?
+                //    br
+                //    a(ui-sref="notYetMapped") Forgot your password?
+
+        .modal-footer
+            form(ng-submit="login()" ng-hide="isLoggedIn")
+                center
+                    button.btn.btn-success(type="submit", style='width:100px;') Login
+            form(ng-submit="logout()" ng-show="isLoggedIn")
+                center
+                    button.btn.btn-danger(type="submit", style='width:100px;') Logout
+            //
+                div.
+                h1 Welcome!
+                    p Please sign in
+                    form(ng-submit="login()")
+                        input(type="text", ng-model="credentials.username", placeholder="Username")
+                        input(type="password", ng-model="credentials.password", placeholder="password")
+                        button.btn.btn-succes(type="submit") Login

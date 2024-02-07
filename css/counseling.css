@@ -1,0 +1,117 @@
+.preview-img{
+    padding-left: 20%;
+}
+.counselor-name{
+    padding-left: 20%;
+}
+.eEVA-logo{
+    width: 25%;
+}
+.counselor-selection-background{
+    position: fixed;
+    padding: 0;
+    margin: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /*background: url(../img/Backgrounds/ocean.jpg);*/
+    background: linear-gradient(180deg,#e1ebed 0,#91bcc1);
+    background-size: cover;
+    min-width: 700px;
+    color: #fff;
+    overflow-y: scroll;
+}
+.container-fluid.counselor-selection-menu{
+    margin-top: 5%;
+    padding-bottom: 2%;
+    padding-right: 10%;
+    padding-left: 10%;
+    padding-top: 5px;
+    text-shadow: none;
+    background: -webkit-linear-gradient(left,rgba(0, 0, 0, 0.0) 0%,rgba(0, 0, 0, 0.75) 25%,rgba(0, 0, 0, 0.75) 75%,rgba(0, 0, 0, 0.0) 100%);
+    background: -moz-linear-gradient(left,rgba(0, 0, 0, 0.0) 0%,rgba(0, 0, 0, 0.75) 25%,rgba(0, 0, 0, 0.75) 75%,rgba(0, 0, 0, 0.0) 100%);
+    background: linear-gradient(to right,rgba(0, 0, 0, 0.0) 0%,rgba(0, 0, 0, 0.75) 25%,rgba(0, 0, 0, 0.75) 75%,rgba(0, 0, 0, 0.0) 100%);
+}
+.btn-circle {
+    width: 19%;
+    height: 19%;
+    text-align: center;
+    padding: 0px 0 !important;
+    font-size: 12px;
+    line-height: 0;
+    border-radius: 100%;
+    margin: 7px;
+    border:none;
+}
+
+.btn-circle:hover{
+   /* box-shadow: 10px 10px 5px rgba(92,184,92, .3);*/
+    box-shadow: 0px 5px 50px rgb(91,192,222);
+}
+.btn-circle.btn-lg {
+    width: 19%;
+    height: 19%;
+    padding-top: 20px;
+    font-size: 18px;
+    line-height: 0;
+    border-radius: 200px;
+    border:none;
+    margin: 5%;
+    background-color: transparent;
+}
+.btn-circle.btn-xl {
+    width: 19%;
+    height: 19%;
+    padding: 10px 16px;
+    font-size: 24px;
+    line-height: 0;
+    border-radius: 100%;
+    border:none;
+}
+
+.btn-img{
+    -webkit-border-radius:100%;
+    -moz-border-radius:100%;
+    border-radius:100%;
+    margin-top: -14px;
+
+}
+
+/*scroll bar styling*/
+.customScrollbar
+{
+    margin-left: 30px;
+    float: left;
+    height: 335px;
+    overflow-y: scroll;
+    margin-bottom: 25px;
+}
+.customScrollbar::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: transparent;
+}
+
+.customScrollbar::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: transparent;
+}
+
+.customScrollbar::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    background-color: #5bc0de;
+}
+button.pull-right{
+    margin-right: 97px;
+    margin-top: 5px;
+}
+
+.navbarForm{
+    padding-left: 15px;
+    padding-right: 8px;
+}

@@ -1,0 +1,69 @@
+//
+   Created by ejhen on 7/7/2017.
+hr
+div.mainDiv
+    div.panel.panel-default
+        div.panel-heading
+            h3 Editing {{ elementSelected.type }}
+        div.panel-body
+            form
+
+                div| Order:
+                    br
+                    input(type='number', name='order',min='0', max='{{ totElements }}', ng-model='elementSelected.order')
+                    br
+                    br
+                div(ng-if="editorMode.moreOptions")
+                    div| Should users response for this element be recorded?
+
+                        input(type='radio', ng-model='elementSelected.isRecorded', name='yesRecord', value='true')
+                        |  &nbsp; Yes &nbsp;
+                        input(type='radio', ng-model='elementSelected.isRecorded', name='noRecord', value='false')
+                        |  No
+                    div| Display go back button on this element?
+
+                        input(type='radio', ng-model='elementSelected.displayBackBtn', name='yesBackBtn', value='true')
+                        |  &nbsp; Yes &nbsp;
+                        input(type='radio', ng-model='elementSelected.displayBackBtn', name='noBackBtn', value='false')
+                        |  No
+                    div| Display progress bar on this element?
+
+                        input(type='radio', ng-model='elementSelected.displayProgress', name='yesProgress', value='true')
+                        |  &nbsp; Yes &nbsp;
+                        input(type='radio', ng-model='elementSelected.displayProgress', name='noProgress', value='false')
+                        |  No
+                div(ng-if="editorMode.phrase")
+                    h4 Phrase(s)/Question Text:
+                    #phraseInput(ng-repeat="phrases in workingElement.phrase track by $index")
+                        br
+                        input.surveyFormInput(type='text', ng-model='phrases.text')
+                        button.btnMargin.btn.btn-primary(ng-if="editorMode.morePhrases", ng-click="deleteInput('phrase', $index)") Remove
+                        br
+                    button.btn-block.btn.btn-primary(ng-if="editorMode.morePhrases", ng-click="addInput('phrase')") Add more phrases
+                div(ng-if="editorMode.content")
+                    h4 Content/Answer Selection Choices
+                    #contentInput(ng-repeat="contents in workingElement.content track by $index")
+                        br
+                        input.surveyFormInput(type='text', ng-model='contents.text')
+                        button.btnMargin.btn.btn-primary(ng-if="editorMode.content", ng-click="deleteInput('content', $index)") Remove
+                    br
+                    button.btn-block.btn.btn-primary(ng-click="addInput('content')") Add more content/answer selection choices
+                div(ng-if="editorMode.html")| HTML
+                    br
+                    textarea.htmlContent(type='text', name='html', ng-model='elementSelected.html')
+                    br
+                div(ng-if="editorMode.table")
+                    h4 Table
+
+                    table
+                        tr(ng-repeat="row in elementSelected.content track by $index")
+                            th(ng-repeat="col in row.content track by $index", ng-if="col.isHeader")
+                                input(type="text" ng-model='col.value')
+                            td(ng-repeat="col in row.content track by $index", ng-if="!col.isHeader") userInput &nbsp;&nbsp;
+                    br
+                    br
+
+        div.panel-footer
+            button.btn.btn-block.btn-success(ng-click='updateElement()') Save
+
+button.btnMargin.btn.btn-primary(ng-click='goBack("survey.element")') Back to form elements

@@ -1,0 +1,124 @@
+.container-fluid.admin-login-menu{
+    height: 50%;
+    width: 50%;
+    margin-top: 10%;
+    padding-bottom: 2%;
+    padding-right: 10%;
+    padding-left: 10%;
+    padding-top: 5px;
+    text-shadow: none;
+    background: -webkit-linear-gradient(left,rgba(0, 0, 0, 0.0) 0%,rgba(0, 0, 0, 0.75) 25%,rgba(0, 0, 0, 0.75) 75%,rgba(0, 0, 0, 0.0) 100%);
+    background: -moz-linear-gradient(left,rgba(0, 0, 0, 0.0) 0%,rgba(0, 0, 0, 0.75) 25%,rgba(0, 0, 0, 0.75) 75%,rgba(0, 0, 0, 0.0) 100%);
+    background: linear-gradient(to right,rgba(0, 0, 0, 0.0) 0%,rgba(0, 0, 0, 0.75) 25%,rgba(0, 0, 0, 0.75) 75%,rgba(0, 0, 0, 0.0) 100%);
+}
+.eEVA-logo{
+    width: 50%;
+}
+.admin-heading{
+    margin-top: 0px;
+}
+.admin-login-background{
+    position: fixed;
+    padding: 0;
+    margin: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /*background: url(../img/Backgrounds/ocean.jpg);*/
+    background: linear-gradient(180deg,#e1ebed 0,#91bcc1);
+    background-size: cover;
+}
+
+.admin-login-background h1, h2, h3, h4, h5, h6, label {
+    color: white;
+}
+
+input, button {
+    width : 80%;
+    margin: 5px;
+
+    -webkit-box-sizing: border-box; /* For legacy WebKit based browsers */
+    -moz-box-sizing: border-box; /* For legacy (Firefox <29) Gecko based browsers */
+    box-sizing: border-box;
+}
+/* Change the white to any color ;) */
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 50px white inset;
+}
+button.btngrp{
+    margin: 0px !important;
+}
+
+.btn-group-vertical{
+    width: 80%;
+    margin: 5px;
+}
+
+input {
+    border: 0px;
+    border-radius: 4px;
+    height: 36px;
+    padding: 10px;
+}
+
+.prompt{
+    margin-right: -15%;
+    margin-left: 9%;
+}
+
+label{
+    font-weight:500;
+}
+
+
+.activeUsers{
+    max-width: 90%;
+}
+
+.userRow{
+   /* background-color: white;
+    color: black;*/
+    color: white;
+    margin-top: 1%;
+    margin-bottom: 1%;
+    padding-top: 1%;
+}
+
+
+/*scroll bar styling*/
+.activeUserscontentHolder{
+    max-height: 185px;
+    max-width: 500px;
+    overflow-y: scroll;
+
+
+}
+
+.activeUserscontentHolder{
+    margin-left: 1%;
+}
+.customScrollbar::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    border-radius: 10px;
+    background-color: #F5F5F5;
+}
+
+.customScrollbar::-webkit-scrollbar
+{
+    width: 12px;
+    background-color: #F5F5F5;
+}
+
+.customScrollbar::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+    /*background-color: #5CB85C;*/
+    background-color: #5bc0de;
+}
+
+a.close{
+    color: black;
+}

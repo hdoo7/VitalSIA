@@ -1,0 +1,10 @@
+//
+   Created by ejhen on 7/26/2017.
+
+h3 Select an intervention:
+    div.container.panel-group
+        div.panel.panel-default(ng-repeat="intervention in scoredInterventions")
+            div.panel-heading
+                h4 {{ intervention.name }}
+            div.panel-footer
+                button.btn.btn-primary.btn-block(ng-click='selectScoredIntervention(intervention)') See Score

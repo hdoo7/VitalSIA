@@ -1,0 +1,5 @@
+p Enter below the name of the state machine you want to delete.
+.input-group
+  input.form-control(type="text", placeholder="Name", ng-model="dynamicPopover.nameToDelete")
+  .input-group-btn
+    button.btn.btn-default.alert-danger(ng-click="delete()", ng-disabled="dynamicPopover.nameToDelete != manager.sm.name") Delete

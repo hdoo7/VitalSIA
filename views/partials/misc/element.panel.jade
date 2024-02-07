@@ -1,0 +1,280 @@
+link(rel='stylesheet', type='text/css', href='/../../css/elementPanel.css')
+.panel.panel-default("$root.elementData.type == undefined")
+    .panel-body
+        md-button(style="float:right;", ng-if='closedCaptionsEnabled', ng-click='toggleClosedCaptions()', class="cc")
+            img(img id="closedCaptioningButton" src="/img/closed-captioning-icon3.png" class="icon")
+            span  On
+        md-button(style="float:right;", ng-if='!closedCaptionsEnabled', ng-click='toggleClosedCaptions()', class="cc2")
+            img(img id="closedCaptioningButton" src="/img/closed-captioning-icon3.png" class="icon")
+            span  Off
+        div#inputPanel
+            // ----- Progress Bar ----- //
+            //| Your progress in this section:
+            div.progress(style='width:{{90}}%;')
+                .progress-bar(role='progressbar', style='width: {{currentPercentComplete}}%;', aria-valuenow="{{currentPercentComplete}}", aria-valuemin='0', aria-valuemax='100') {{currentPercentComplete}}% Complete
+                h8(style='color: gray') {{currentPercentComplete==0?'Your progress will be shown here as soon as you start!':''}}
+
+            // ----- Feedback Element ----- //
+            div(ng-if="$root.elementData.type == 'feedback'", ng-hide='closedCaptionsHidden()')
+                h4 {{$root.elementData.phrase[0]}}
+
+            // ----- FeedbackList Element ----- //
+            div(ng-if="$root.elementData.type == 'feedbackList'", ng-hide='closedCaptionsHidden()')
+                h4 {{$root.elementData.phrase[$root.elementIteration]}}
+
+            // ----- Question Answer Element ----- //
+            div(ng-if="isQA($root.elementData.id, $root.elementData.type)")
+                div(ng-hide='closedCaptionsHidden()')
+                    h4 {{$root.elementData.phrase[0]}}
+                    //hr
+                div(ng-if="$root.elementData.content.length > 1", ng-hide='userReplyHidden()')
+                    md-radio-group(layout='row', ng-model='$root.userResponse', style="margin-bottom: 16px;")
+                        md-radio-button.md-primary.overlayClickable(ng-repeat='answer in $root.elementData.content', ng-value="{{ $index }}", ng-click='handleQuestionAnswer($root.elementData.id, $index, -1)')
+                            | {{answer}}
+                button.btn.btn-lg(style="width: 100%;height:50px;background-color:whitesmoke;border:1px solid lightgray;outline:none;", ng-if="$root.elementData.content.length == 1", ng-click='handleQuestionAnswer($root.elementData.id, 0, -1)')
+                    | {{ $root.elementData.content[0] }}
+
+            // ----- Question Checkbox Element ----- //
+            div(ng-if="$root.elementData.type == 'QuestionAnswer-Checkbox'")
+                div(ng-hide='closedCaptionsHidden()')
+                    h4 {{$root.elementData.phrase[0]}}
+                    //hr
+                div(ng-hide='userReplyHidden()')
+                    md-checkbox(ng-repeat='answer in $root.elementData.content', ng-checked="checkboxExists($index)", ng-click='handleCheckbox($root.elementData.id, $index)')
+                        | {{answer}}
+                br
+                button.btn.btn-xs(ng-if="$root.elementData.type == 'QuestionAnswer-Checkbox'", ng-click="next()") Continue
+
+
+            // ----- Text Area Element ----- //
+            div(ng-if="$root.elementData.type == 'textArea'")
+                div(ng-hide='closedCaptionsHidden()')
+                    h4 {{$root.elementData.phrase[0]}}
+                    //hr
+                div(ng-hide='userReplyHidden()')
+                    md-input-container.md-block(style="margin-bottom: 0px;")
+                        label Write your answer here...
+                        textarea(ng-model="$root.userResponse" md-select-on-focus md-maxlength="150")
+                button.btn.btn-xs(ng-if="$root.elementData.type == 'textArea'", ng-click="next()") Continue
+                    //button.btn.btn-xs(ng-if="$root.elementData.type == 'textArea'", ng-click="handleQuestionAnswer($root.elementData.id, $root.userResponse, -1)") Continue
+
+            // ----- Tabular Input Element ----- //
+            div(ng-if="$root.elementData.type == 'TabularInput'")
+                div(ng-hide='closedCaptionsHidden()')
+                    h4 {{$root.elementData.phrase[0]}}
+                    //hr
+                div(ng-hide='userReplyHidden()')
+                    div
+                        table
+                            tr(ng-repeat="row in $root.elementData.content track by $index")
+                                th(ng-repeat="col in row.content track by $index", ng-if="col.isHeader") {{col.value}}&nbsp;&nbsp;
+                                td(ng-repeat="col in row.content track by $index", ng-if="!col.isHeader")
+                                    input(type="text" ng-model="$root.userResponse[row.row][$index]" md-select-on-focus)
+                br
+                button.btn.btn-xs(ng-if="$root.elementData.type == 'TabularInput'", ng-click="next()") Continue
+
+
+            // ----- Menu Element ----- //
+            div(ng-if="isMenu($root.elementData.id)")
+                div(ng-hide='closedCaptionsHidden()')
+                    h4.text-center {{$root.elementData.phrase[0]}}
+                    //hr
+                div(ng-hide='userReplyHidden()')
+                    .btn-group-vertical.text-center(style="width: 50%; margin-left:25%;", data-toggle='buttons')
+                        label.btn.btn-secondary.menuElement-item(ng-repeat='menuItem in $root.elementData.content', ng-click='handleQuestionAnswer($root.elementData.id, $index, $root.elementData.content.length)',ng-class="checkVisited($root.elementData.id, $index)")
+                            input#option1(type='radio', name='options', autocomplete='off', ng-model='$root.userResponse', ng-value='{{ $index }}')
+                            |  {{menuItem}}
+                    //button.btn.btn-lg(style="width: 100%;height:50px;background-color:whitesmoke;border:1px solid lightgray;outline:none;", ng-if="$root.elementData.content.length == 1", ng-click='handleQuestionAnswer($root.elementData.id, 0)')
+                        | {{ $root.elementData.content[0] }} 3
+
+            // -----Range Slider Element ----- //
+            div(ng-if="$root.elementData.type == 'RangeSliderElement'")
+                div(ng-hide='closedCaptionsHidden()')
+                    h4.text-center {{$root.elementData.phrase[0]}}
+                    //hr
+                div(ng-hide='userReplyHidden()')
+                    h5.text-center
+                        strong Your current thinking:
+                        | &nbsp; &nbsp; {{ rangeLabel }}
+                    br
+                    #myRangeSlider.slidecontainer
+                        input#myRange.slider(type='range', min='0', max='{{ $root.elementData.content.length-1 }}', step='1', ng-model='$root.userResponse', ng-change='getRangeLabel($root.userResponse)', value='0')
+                        label#leftLabel.pull-left {{$root.elementData.content[0]}}
+                        label#rightLabel.pull-right {{$root.elementData.content[$root.elementData.content.length-1]}}
+
+                br
+                button.btn.btn-xs(ng-if="$root.elementData.type == 'RangeSliderElement'", ng-click="handleRangeSliderElement($root.elementData.id)") Continue
+
+
+            // -----Login Register Element ----- //
+            div(ng-if="$root.elementData.type == 'LoginRegisterElement'")
+                div(ng-hide='closedCaptionsHidden()')
+                    h4.text-center {{$root.elementData.phrase[0]}}
+                    //hr
+                div(ng-hide='userReplyHidden()')
+                    div#loginRegisterElement.tex-center(ng-show='!mode.loggingIn && !mode.register && !mode.isLoggedIn')
+                        button.btn.btn-success(ng-click='loginLoad()', style='width:40%;') Login
+                        button.btn.btn-info.pull-right(ng-click='registrationLoad()', style='width:40%;') Register
+                    div(ng-show='mode.isLoggedIn').text-center
+                        h5 Congratulations {{ userGivenName }}! You are now logged in. When you are ready to get started, please click the "Continue" button.
+                        br
+                        button.btn.btn-xs(ng-if="$root.elementData.type == 'LoginRegisterElement'", ng-click="handleLRE()") Continue
+                    #loggingInScreen.div(ng-show='mode.loggingIn')
+                        form#loginLRE(ng-submit="login()").navbarForm
+                            h2
+                                center
+                                    | Login
+                            h3
+                                center
+                                    p Username:
+                                    input(type='text', ng-model='credentials.username', ng-click='authToggle = false')
+                                    p Password:
+                                    input(type='password', ng-model='credentials.password', ng-click='authToggle = false')
+                            hr
+                            center
+                                button.btn.btn-success(ng-submit='login()', style='width:200px; margin-right: 15px;') Login
+                        br
+                        button.btn.btn-info(ng-click='forgotPWLoad()', style='width:200px;').center-block Forgot Password
+                    #registrationForm.div(ng-show='mode.register')
+                        form(ng-submit="testRegistration()").navbarForm
+                            h2
+                                center
+                                    | Register
+                            p
+                                | To register, we will need some information. This allows the counselor to track your progress so that you can pick up where you left at anytime.
+                            #registrationLRE.form(name='registrationForm')
+                                #c1.column3
+                                    p
+                                        label Username:
+                                        input.lre.pull-right(type='text', ng-model='credentials.username')
+                                    p
+                                        label Email:
+                                        input.lre.pull-right(name='emailInput', type='email', ng-model='credentials.email', required='required')
+                                    p.help-block.has-error(ng-show='registrationForm.emailInput.$error.email') Not a valid email address.
+                                    p
+                                        label Re-Enter Email:
+                                        input.lre.pull-right(name='emailConfirm', type='email', ng-model='credentials.confirmemail', required='required')
+                                    p.help-block.bot-margin-md.has-error(ng-show='registrationForm.emailConfirm.$viewValue !== registrationForm.emailInput.$viewValue && !registrationForm.emailConfirm.$pristine') These emails do not match.
+                                    p
+                                        label Password:
+                                        input.lre.pull-right(name='passInput', type='password', ng-model='credentials.password', required='required')
+                                    p
+                                        label Re-Enter Password:
+                                        input.lre.pull-right(name='passConfirm', type='password', ng-model='credentials.confirmpassword', required='required')
+                                    p.help-block.bot-margin-md.has-error(ng-show='registrationForm.passConfirm.$viewValue !== registrationForm.passInput.$viewValue && !registrationForm.passConfirm.$pristine') These passwords do not match.
+                                    p
+                                        label Have you been asked to complete this check up by your primary care provider? {{selectedAnswer}}
+                                        .radio-selection
+                                            label.inline-radio
+                                                | Yes
+                                                input.md-primary(type='radio', ng-model='selectedAnswer', value='Yes')
+                                            label.inline-radio
+                                                | No
+                                                input.md-primary(type='radio', ng-model='selectedAnswer', value='No')
+                                #c2.column3
+                                    p
+                                        label First Name:
+                                        input.lre.pull-right(type='text', ng-model='credentials.firstname', required='required')
+                                    //p
+                                    //  label Last Name:
+                                    //  input.lre.pull-right(type='text', ng-model='credentials.lastname')
+                                    p
+                                        label Gender:
+                                        select.lre.pull-right(ng-model='gender', ng-change='changeGender(gender)', data-ng-options='g as g for g in genderType', required='required')
+                                            option(value='') ---Please Select---
+                                    p
+                                        label Date of Birth:
+                                        input.lre.pull-right(type='date', ng-model='credentials.dateOfBirth', required='required')
+                                    p
+                                        label Weight in Pounds (lbs):
+                                        input.lre.pull-right(type='text', ng-model='credentials.weight', required='required')
+                                    p
+                                        label Height:
+                                        #c4.column4
+                                            p
+                                                label Feet
+                                                input(type='text', ng-model='credentials.height.feet', required='required')
+                                        #c5.column4
+                                        #c6.column4
+                                            p
+                                                label Inches
+                                                input(type='text', ng-model='credentials.height.inches', required='required')
+                                #c3.column3
+                                    p
+                                        label Race:
+                                        //md-select.multiSelect(ng-model='selectedRace', multiple='', placeholder='---Select---')
+                                            md-option.multiOption(ng-repeat='r in raceType') {{r}}
+                                        .checkbox(ng-repeat='r in raceType')
+                                            label
+                                                input(type='checkbox',ng-model='r.checked', value='')
+                                                | {{r.name}}
+                                    p
+                                        label Ethnicity:
+                                        select.lre.pull-right(ng-model='ethnicity', ng-change='changeEthnicity(ethnicity)', data-ng-options='e as e for e in ethnicityType', required='required')
+                                            option(value='') ---Please Select---
+                                    p
+                                        label Marital Status:
+                                        select.lre.pull-right(ng-model='maritalStatus', ng-change='changeMaritalStatus(maritalStatus)', data-ng-options='y as y for y in maritalType', required='required')
+                                            option(value='') ---Please Select---
+                                    p
+                                        label Education:
+                                        select.lre.pull-right(ng-model='education', ng-change='changeEducation(education)', data-ng-options='x as x for x in educationType', required='required')
+                                            option(value='') ---Please Select---
+                                hr
+                                center
+                                    button.btn.btn-success(style='width:100px;') Register
+
+
+                    div(ng-show='mode.forgotPW')
+                        form(ng-submit='forgotPassword()').navbarForm
+                            h2
+                                center
+                                    | Forgot Password?
+
+                            center
+                                h3
+                                    p Please enter your email below to retrieve.
+                                        br
+                                        p
+                                            | Email:
+                                            input(name='emailInput', type='email', ng-model='credentials.fp_email', required='required')
+                                        br
+                            center
+                                button.btn.btn-info(style='width:200px;', type= 'submit') Change My Password
+
+
+
+            // -----Menu Element With Completion----- //
+            div(ng-if="isMenuCheck($root.elementData.id)")
+                div(ng-hide='closedCaptionsHidden()')
+                    h4.text-center {{$root.elementData.phrase[0]}}
+                    //hr
+                div(ng-hide='userReplyHidden()')
+                    .btn-group-vertical.text-center(style="width: 50%; margin-left:25%;", data-toggle='buttons')
+                        label.btn.btn-secondary.menuElement-item(ng-repeat='menuItem in $root.elementData.content', ng-click='handleQuestionAnswer($root.elementData.id, $index, $root.elementData.content.length)', ng-class= "checkVisited($root.elementData.id, $index)")
+                            input#option2(type='radio', name='options', autocomplete='off', ng-model='$root.userResponse', ng-value='{{ $index }}')
+                            strong
+                                span(class="glyphicon glyphicon-ok pull-left", style="color: #083a08", ng-show="surveyCompleted(menuItem)") &nbsp;&nbsp;&nbsp;
+                                span(class="glyphicon glyphicon-remove pull-left", style="color: red", ng-hide="surveyCompleted(menuItem)") &nbsp;&nbsp;&nbsp;
+                            | {{menuItem}}
+
+
+                    //button.btn.btn-lg(style="width: 100%;height:50px;background-color:whitesmoke;border:1px solid lightgray;outline:none;", ng-if="$root.elementData.content.length == 1", ng-click='handleQuestionAnswer($root.elementData.id, 0)')
+                        | {{ $root.elementData.content[0] }} 3
+
+            //----- Back Button ------- //
+            //div.backButton(ng-show="displayBackBtn($root.elementData.id)")
+                img.backButtonImg(src="/img/backbutton_v2.svg" ng-click="goBackButton()")
+                span &nbsp;Back to previous question
+
+
+            // ---------Tabular Input Element ---------- //
+    //div(ng-if="$root.elementData.type =='TabularInput'")
+    //        h4 {{$root.elementData.phrase[0]}}
+    //        hr
+    //        div(ng-if="$root.elementData.content.length > 1")
+    //          md-radio-group(layout='row', ng-model='$root.userResponse', style="margin-bottom: 16px;")
+    //            md-radio-button.md-primary.overlayClickable(ng-repeat='answer in $root.elementData.content', ng-value="{{ $index }}", ng-click='handleQuestionAnswer($root.elementData.id, $index)')
+    //              | {{answer}}
+    //        button.btn.btn-lg(style="width: 100%;height:50px;background-color:whitesmoke;border:1px solid lightgray;outline:none;", ng-if="$root.elementData.content.length == 1", ng-click='handleQuestionAnswer($root.elementData.id, 0)')
+    //          | {{ $root.elementData.content[0] }}

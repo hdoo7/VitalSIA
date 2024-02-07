@@ -1,0 +1,130 @@
+.slidecontainer {
+    width: 100%;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 25px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    background: #5bc0de;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    background: #5bc0de;
+    cursor: pointer;
+}
+
+#myRangeSlider{
+    margin-bottom: 35px;
+}
+
+#loginRegisterElement{
+    width: 40%;
+    margin: auto;
+}
+/*    */
+#registrationLRE{
+    max-height: 150px;
+    overflow-y: scroll;
+    overflow-x:hidden;
+    margin-bottom: 15px;
+}
+
+
+#c1{
+    /*background-color: #00AA00;*/
+    background-color: transparent;
+}
+
+#c2{
+    /*background-color: #aa0094;*/
+    background-color: transparent;
+}
+
+#c3 {
+    /*background-color: #aa8200;*/
+    background-color: transparent;
+}
+
+#c4 {
+    /*background-color: #aa8200;*/
+    background-color: transparent;
+}
+
+#c5 {
+    /*background-color: #aa8200;*/
+    background-color: transparent;
+}
+
+#c6 {
+    /*background-color: #aa8200;*/
+    background-color: transparent;
+}
+
+#c7 {
+    /*background-color: #aa8200;*/
+    background-color: transparent;
+}
+
+.column3{
+    width: 33.33%; /* as @passatgt mentioned in the comment, for the older browsers fallback */
+    width: calc(100% / 3);
+    display: inline-block;
+    height: auto;
+    padding: 0px 20px;
+    top: 0px;
+    vertical-align: top;
+}
+
+.column4{
+    width: 25.00%; /* as @passatgt mentioned in the comment, for the older browsers fallback */
+    width: calc(100% / 4);
+    display: inline-block;
+    height: auto;
+    padding: 0px 20px;
+    top: 0px;
+    vertical-align: top;
+}
+
+
+/* scroll bars throughout elements if needed*/
+::-webkit-scrollbar {
+    width: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    background: rgba(91,192,222,1);
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+::-webkit-scrollbar-thumb:window-inactive {
+    background: rgba(91,192,222,0.4);
+}

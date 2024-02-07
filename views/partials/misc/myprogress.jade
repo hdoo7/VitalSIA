@@ -1,0 +1,26 @@
+//
+   Created by vchha001 on 9/1/2016.
+
+div.myProgress.BackgroundImage
+    table.table.table-striped.table-condensed.progressTable(cellpadding=0 cellspacing=0)
+        thead
+            tr
+                th(colspan='2') {{userGivenName}}'s Progress
+            tr(bgcolor="#e0e0eb")
+                th Questionnaire
+                th Progress
+
+        tbody
+            tr(ng-repeat="progressItems in progressBarValue" bgcolor="#e0e0eb" valign="middle")
+                td(style="left:10px; text-align: left") {{progressItems.questionnaire}}
+                td(ng-if="progressItems.progressBar!='100%'" )
+                    div.progress.progress-striped.active(style="display:block; height:80%")
+                        span.progress-bar.myProgressBar(role="progressbar" aria-valuemin="0" aria-valuemax="100" ng-style="{'width':progressItems.progressBar}" ) {{progressItems.progressBar}}
+                td(ng-if="progressItems.progressBar=='100%'" )
+                    img(src="../img/tick.png" style="height:35px;width:40px")
+            //tr(bgcolor="#e0e0eb" valign="middle")
+            //    td(colspan="2")
+            //        a(href="https://www.google.com" ) View Results
+
+
+

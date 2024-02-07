@@ -1,0 +1,216 @@
+link(rel='stylesheet', href='/bower_components/bootstrap/dist/css/bootstrap-theme.min.css')
+link(rel='stylesheet', href='/css/angular.treeview.css')
+
+.container.main-content()
+  #interviewContainer.row
+    .row
+      .text-left
+        a.btn.btn-default.btn-sm.glyphicon.glyphicon-arrow-left(href="/#/survey")
+      .col-md-12.text-center
+        h1 {{ store.formName }}
+    // Container for each element in the interview
+    form(name='interviewForm')
+      // Container for each element inside interview
+      .elementContainer.row.form-group(ng-repeat="element in interview | orderBy:'order'")
+
+        div(ng-if='element.deleted == false')
+          div(ng-if="element.type == 'QuestionAnswer'")
+            // code to render a QuestionAnswer element
+            .panel.panel-default
+              .panel-heading
+                a.pull-right(style='text-decoration: none; color: #d14', href='', ng-click='deleteElement($index)') Delete
+                .pull-right(style='padding-right: 10px;', uib-dropdown='')
+                  a(href='', uib-dropdown-toggle='', ng-disabled='disabled')
+                    | Order
+                    b.caret
+                  ul.dropdown-menu(uib-dropdown-menu='', role='menu')
+                    li(role='menuitem', ng-repeat="id in interview | orderBy: 'order'", ng-click='reorderElement($parent.$index,  $index)')
+                      a(href='') {{id.order}}
+                h3.panel-title  Element {{element.order}} ({{element.type}})
+              .panel-body
+                // Row containing question Text and user input
+                .questionText.row
+                  .col-md-12
+                    input.form-control(placeholder='Question Text', type='text', name='radio', ng-model='element.text', required='')
+                    br
+                // Container for each element inside the answer
+                .answerContainer.row(ng-repeat='answer in element.content')
+                  .col-md-12
+                    .input-group
+                      input.answerDivInput.form-control(placeholder='Answer Text', type='text', name='radioAns', ng-model='answer.answer_text', required='')
+                      span.input-group-btn
+                        button.btn.btn-danger(type='button', ng-click='qaRadio_deleteAnswer(element._id, element.order, $index)') Remove
+                // Row containing formatting for button to add answers
+                .answerButton.row
+                  // Div element for button
+                  .answerButtonDiv.col-md-12.text-center
+                    button.btn.btn-default.btn-block(type='button', ng-click='qaRadio_addAnswer($index)') Add Answers
+          div(ng-if="element.type == 'QuestionAnswer-Checkbox'")
+            // code to render a QuestionAnswer element
+            .panel.panel-default
+              .panel-heading
+                a.pull-right(style='text-decoration: none; color: #d14', href='', ng-click='deleteElement($index)') Delete
+                .pull-right(style='padding-right: 10px;', uib-dropdown='')
+                  a(href='', uib-dropdown-toggle='', ng-disabled='disabled')
+                    | Order
+                    b.caret
+                  ul.dropdown-menu(uib-dropdown-menu='', role='menu')
+                    li(role='menuitem', ng-repeat="id in interview | orderBy: 'order'", ng-click='reorderElement($parent.$index,  $index)')
+                      a(href='') {{id.order}}
+                h3.panel-title  Element {{element.order}} ({{element.type}})
+              .panel-body
+                // Row containing question Text and user input
+                .questionText.row
+                  .col-md-12
+                    input.form-control(placeholder='Question Text', type='text', name='checkbox', ng-model='element.text', required='')
+                    br
+                // Container for each element inside the answer
+                .answerContainer.row(ng-repeat='answer in element.content')
+                  .col-md-12
+                    .input-group
+                      input.answerDivInput.form-control(placeholder='Answer Text', type='text', name='checkboxAns', ng-model='answer.answer_text', required='')
+                      span.input-group-btn
+                        button.btn.btn-danger(type='button', ng-click='qaCheckbox_deleteAnswer(element._id, element.order, $index)') Remove
+                // Row containing formatting for button to add answers
+                .answerButton.row
+                  // Div element for button
+                  .answerButtonDiv.col-md-12.text-center
+                    button.btn.btn-default.btn-block(type='button', ng-click='qaCheckbox_addAnswer($index)') Add Answers
+          div(ng-if="element.type == 'textArea'")
+            // code to render a QuestionAnswer element
+            .panel.panel-default
+              .panel-heading
+                a.pull-right(style='text-decoration: none; color: #d14', href='', ng-click='deleteElement($index)') Delete
+                .pull-right(style='padding-right: 10px;', uib-dropdown='')
+                  a(href='', uib-dropdown-toggle='', ng-disabled='disabled')
+                    | Order
+                    b.caret
+                  ul.dropdown-menu(uib-dropdown-menu='', role='menu')
+                    li(role='menuitem', ng-repeat="id in interview | orderBy: 'order'", ng-click='reorderElement($parent.$index,  $index)')
+                      a(href='') {{id.order}}
+                h3.panel-title  Element {{element.order}} ({{element.type}})
+              .panel-body
+                // Row containing question Text and user input
+                .questionText.row
+                  .col-md-12
+                    input.form-control(placeholder='Question Text', type='text', name='textArea', ng-model='element.text', required='')
+                    br
+          div(ng-if="element.type == 'feedback'")
+            // code to render a QuestionAnswer element
+            .panel.panel-default
+              .panel-heading
+                a.pull-right(style='text-decoration: none; color: #d14', href='', ng-click='deleteElement($index)') Delete
+                .pull-right(style='padding-right: 10px;', uib-dropdown='')
+                  a(href='', uib-dropdown-toggle='', ng-disabled='disabled')
+                    | Order
+                    b.caret
+                  ul.dropdown-menu(uib-dropdown-menu='', role='menu')
+                    li(role='menuitem', ng-repeat="id in interview | orderBy: 'order'", ng-click='reorderElement($parent.$index,  $index)')
+                      a(href='') {{id.order}}
+                h3.panel-title  Element {{element.order}} ({{element.type}})
+              .panel-body
+                // Row containing question Text and user input
+                .questionText.row
+                  .col-md-12
+                    input.form-control(placeholder='Feedback Text', type='text', name='feedback', ng-model='element.text', required='')
+                    br
+          div(ng-if="element.type == 'feedbackList'")
+            // code to render a QuestionAnswer element
+            .panel.panel-default
+              .panel-heading
+                a.pull-right(style='text-decoration: none; color: #d14', href='', ng-click='deleteElement($index)') Delete
+                .pull-right(style='padding-right: 10px;', uib-dropdown='')
+                  a(href='', uib-dropdown-toggle='', ng-disabled='disabled')
+                    | Order
+                    b.caret
+                  ul.dropdown-menu(uib-dropdown-menu='', role='menu')
+                    li(role='menuitem', ng-repeat="id in interview | orderBy: 'order'", ng-click='reorderElement($parent.$index,  $index)')
+                      a(href='') {{id.order}}
+                h3.panel-title  Element {{element.order}} ({{element.type}})
+              .panel-body
+                // Row containing question Text and user input
+                //.questionText.row
+                //  .col-md-12
+                //    input.form-control(placeholder='Question Text', type='text', name='radio', ng-model='element.text', required='')
+                //    br
+                // Container for each element inside the answer
+                .answerContainer.row(ng-repeat='feedback in element.text')
+                  .col-md-12
+                    .input-group
+                      input.answerDivInput.form-control(placeholder='Feedback Text...', type='text', name='feedbackText', ng-model='feedback.feedback_text', required='')
+                      span.input-group-btn
+                        button.btn.btn-danger(type='button', ng-click='feedbackList_deleteFeedback(element._id, element.order, $index)') Remove
+                // Row containing formatting for button to add answers
+                .answerButton.row
+                  // Div element for button
+                  .answerButtonDiv.col-md-12.text-center
+                    button.btn.btn-default.btn-block(type='button', ng-click='feedbackList_addFeedback($index)') Add Feedback
+
+
+
+
+
+
+
+
+
+          div(ng-if="element.type == 'Content'")
+            // code to render a QuestionAnswer element
+            .panel.panel-default
+              .panel-heading
+                a.pull-right(style='text-decoration: none; color: #d14', href='', ng-click='deleteElement($index)') Delete
+                .pull-right(style='padding-right: 10px;', uib-dropdown='')
+                  a(href='', uib-dropdown-toggle='', ng-disabled='disabled')
+                    | Order
+                    b.caret
+                  ul.dropdown-menu(uib-dropdown-menu='', role='menu')
+                    li(role='menuitem', ng-repeat="id in interview | orderBy: 'order'", ng-click='reorderElement($parent.$index,  $index)')
+                      a(href='') {{id.order}}
+                h3.panel-title  Element {{element.order}} ({{element.type}})
+              .panel-body
+                // Row containing question Text and user input
+                .questionText.row
+                  .col-md-12
+                    .input-group
+                      input.form-control(placeholder='Content Text', type='text', name='textArea', ng-model='element.html')
+                      .input-group-btn
+                        button.btn.btn-default(ng-click="openDesigner(element)") Toggle Editor
+                    //.full-container-shade(ng-show="isLoading")
+                    //.full-container(ng-show="isLoading")
+                    //  .container
+                    //    .des-load
+                    //      .panel.panel-default
+                    //        .panel-body
+                    //          button.btn.btn-sm.alert-default.des-btns.pull-right#des-loadclose(ng-click="isLoading = false") X
+                    //          h3 Load an HTML View
+                    //          ul.list-group.des-load-list
+                    //            li.list-group-item#des-loadbtn(ng-click="load(null)") Create a new view from scratch...
+                    //            li.list-group-item(ng-repeat="view in htmlViews", ng-click="load($index)") {{ view.name }}
+
+                    //.full-container-shade(ng-show="showHTMLEditor" ng-click="edit(false)")
+                    //.des-edit#des-edit(data-editable data-name="main-content" ng-click="edit(true)")
+    // Row containing formatting for button to add questions
+    .questionButton.row
+      // Div element for button
+      .questionButtonDiv.col-md-12.text-center.btn-group.btn-group-justified(role="group")
+        .btn-group(role="group")
+          button.btn.btn-default(type='button', ng-click='qaRadio_create(formID)') Add Question/Answer
+        .btn-group(role="group")
+          button.btn.btn-default(type='button',ng-click='qaCheckbox_create(formID)') Add Checkbox
+        .btn-group(role="group")
+          button.btn.btn-default(type='button', ng-click='textArea_create(formID)') Add TextArea
+        .btn-group(role="group")
+          button.btn.btn-default(type='button', ng-click='feedback_create(formID)') Add Feedback
+        .btn-group(role="group")
+          button.btn.btn-default(type='button', ng-click='feedbackList_create(formID)') Add FeedbackList
+        .btn-group(role="group")
+          button.btn.btn-default(type='button', ng-click='content_create(formID)') Add Content
+    // Row containing formatting for button to submit to server
+    .submitButton.row
+      // Div element for button
+      .submitButtonDiv.col-md-12.text-center
+        button.btn.btn-warning.btn-block(type='button', ng-disabled='interviewForm.$invalid', ng-click='submit()') Update
+
+    .full-container(ng-show="showHTMLEditor", ng-click="designerEdit(false)")
+    .des-edit(ng-show="showHTMLEditor", ng-click="designerEdit(true)")
+      #main-content(data-editable data-name="main-content")
