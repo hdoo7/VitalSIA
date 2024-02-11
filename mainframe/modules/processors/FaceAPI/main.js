@@ -6,7 +6,7 @@
 
 /*****************************************************************\
  ** Face-api emotion recognition module
- \*****************************************************************/
+\*****************************************************************/
 
 var FaceAPI_base = Class.create(AbstractModule,
     {
@@ -130,30 +130,26 @@ var FaceAPI_base = Class.create(AbstractModule,
                             }
         
                             /* Display detected face bounding boxes */
+                            /* Display detected face bounding boxes and log assumed nose position */
                             async function detect(input) {
-                                const results = await self.faceapi.detectAllFaces(input, new faceapi.TinyFaceDetectorOptions()).withFaceExpressions().withAgeAndGender();
+                                const results = await self.faceapi.detectAllFaces(input, new faceapi.TinyFaceDetectorOptions())
+                                    .withFaceExpressions()
+                                    .withAgeAndGender();
                                 if (results) {
-                                    // console.log('Results 0:', results[0])
                                     if (results[0]){
-                                        self.providedResources[self.resourceNames.P_USERFACEPOSITION].container.posX = results[0].detection._box._x + results[0].detection._box._width/2;
-                                        self.providedResources[self.resourceNames.P_USERFACEPOSITION].container.posY = results[0].detection._box._y + results[0].detection._box._height/2;
-                                        
-                                        // Get expression values
-                                        //console.log(results[0].expressions.angry);
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Anger] = results[0].expressions.angry;
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Contempt] = results[0].expressions.neutral;
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Disgust] = results[0].expressions.disgusted;
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Surprise] = results[0].expressions.surprised;
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Fear] = results[0].expressions.fearful;
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Happiness] = results[0].expressions.happy;
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Sadness] = results[0].expressions.sad;
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Pride] = 0.0; // does not exist in FaceAPI
-                                        self.providedResources[self.resourceNames.P_USERFACIALEXPRESSION].container.data[Emotion.Embarrassment] = 0.0; //does not exist in FaceAPI
+                                        // Calculate the middle of the face detection box
+                                        const box = results[0].detection.box;
+                                        const noseX = box.x + box.width / 2;
+                                        const noseY = box.y + box.height / 2;
+                                        console.log(`Assumed Nose Position - X: ${noseX.toFixed(2)}, Y: ${noseY.toFixed(2)}`);
+
+                                        self.providedResources[self.resourceNames.P_USERFACEPOSITION].container.posX = noseX;
+                                        self.providedResources[self.resourceNames.P_USERFACEPOSITION].container.posY = noseY;
                                     }
                                     return results;
                                 }
-                                
                             }
+
         
                             // resize the detected boxes in case your displayed image has a different size than the original
                             async function resize(detections, displaySize) {

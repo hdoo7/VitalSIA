@@ -381,7 +381,7 @@ var GPTSuper = Class.create(AbstractModule,
             // console.log('openai_ref:', self.openai_ref)
 
             // UM OpenAI Key
-            self.openai_key = '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'
+            self.openai_key = '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'
             // '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'
 
             self.openai_model = 'gpt-3.5-turbo-instruct'
