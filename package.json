@@ -1,0 +1,16 @@
+{
+  "name": "EVA-libre",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/meekmachine/EVA-libre.git",
+  "author": "Jonathan Fields <jonathanfields@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "parcel": "^2.11.0",
+    "save-dev": "^0.0.1-security"
+  },
+  "scripts": {
+    "start": "npx parcel src/index.html",
+    "build": "npx parcel build src/index.html && npm run copy-unity"
+  }
+}
