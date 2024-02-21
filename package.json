@@ -6,6 +6,7 @@
   "author": "Jonathan Fields <jonathanfields@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "jquery": "^3.7.1",
     "parcel": "^2.11.0",
     "save-dev": "^0.0.1-security"
   },

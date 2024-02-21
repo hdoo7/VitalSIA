@@ -1,7 +1,8 @@
+import { Engine3D } from './engine3d.js';
+let gameInstance;
 function EngineWebGL_u3d() {
 	//appel au constructeur de la class parent
 	Engine3D.call(this);
-
     this.unityBlendshapes = 
 	[
         { index : 0, name : 'Face_[01]'   , AUid : "1" },
@@ -360,3 +361,4 @@ function localEyeTargetPosition(x,y,z) {
 	localEyeTargetPositionY = y;
 	localEyeTargetPositionZ = z;
 }
+export { EngineWebGL_u3d };

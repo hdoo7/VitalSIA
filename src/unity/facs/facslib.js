@@ -1,3 +1,4 @@
+import { Engine3D } from './engine3d.js';
 function FacsLib(engine) {
 	this.defaultIntensity = 'C';
     if (engine instanceof  Engine3D) {
@@ -358,3 +359,4 @@ FacsLib.prototype = {
 			return this.engine.getAUintensity(stringAU); 
 		}
 }; 
+export { FacsLib };

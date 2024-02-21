@@ -5,3 +5,4 @@ function Engine3D() {
 Engine3D.prototype = {
     setTargets : function(targetWeights, smoothTimes){},
 };
+export { Engine3D };
