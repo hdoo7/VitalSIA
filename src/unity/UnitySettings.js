@@ -23,10 +23,7 @@ window.U3_startSceneLoaded = () => {
         facslib.load('scene_environment_simple', character.scene);
         unityWebGLContentLoaded = true;
 
-        // var scope = angular.element($("#content")).scope();
-        // scope.$apply(function() {
-        //     scope.unityLoaded();
-        // });
+
     }
 }
 
