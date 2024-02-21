@@ -5,74 +5,71 @@
  ** specific attention to the timing and intensity of Action Units.
 \*****************************************************************/
 
-var VisFACSSchererFearFields = Class.create(AbstractModule, {
-    initialize: function($super, params) {
-        var self = this;
+class Fear {
+    constructor(facslib) {
 
-        $super(params);
-
-        self.name = "VisFACSSchererFearFields";
-        self.type = ModuleType.Processor;
-        self.mandatory = false;
+        this.facslib = facslib;
+        this.name = "VisFACSSchererFearFields";
+        // this.type = ModuleType.Processor;
+        this.mandatory = false;
 
         // Initialize an array to keep track of timeout IDs for cleanup
-        self.timeouts = [];
-    },
+        this.timeouts = [];
+    }
 
     // Helper function to apply an AU change and ensure rendering
-    applyAUChange: function(AU, intensity, side, smoothTime) {
-        facslib.setTargetAU(AU, intensity, side, smoothTime);
-        facslib.updateEngine(); // Call render function here to apply changes
-    },
+    applyAUChange(AU, intensity, side, smoothTime) {
+        this.facslib.setTargetAU(AU, intensity, side, smoothTime);
+        this.facslib.updateEngine(); // Call render function here to apply changes
+    }
 
     // Main run function for the module
-    run: function() {
-        var self = this;
+    run() {
+      
 
         // Immediate mouth opening at the start to indicate shock
-        self.applyAUChange("26", 100, "", 0.1); // Quick mouth opening with high intensity
+        this.applyAUChange("26", 100, "", 0.1); // Quick mouth opening with high intensity
 
         // Close mouth after 0.8 seconds
-        self.timeouts.push(setTimeout(() => {
-            self.applyAUChange("26", 0, "", 0.1); // Quick mouth closing
+        this.timeouts.push(setTimeout(() => {
+            this.applyAUChange("26", 0, "", 0.1); // Quick mouth closing
         }, 800));
 
         // Eyebrow raise to indicate start of fear response
-        self.timeouts.push(setTimeout(() => {
-            self.applyAUChange("1", 100, "", 0.5); // Moderate intensity for AU1
-            self.applyAUChange("2", 100, "", 0.5); // Moderate intensity for AU2
+        this.timeouts.push(setTimeout(() => {
+            this.applyAUChange("1", 100, "", 0.5); // Moderate intensity for AU1
+            this.applyAUChange("2", 100, "", 0.5); // Moderate intensity for AU2
         }, 800)); // Start raising eyebrows after mouth starts to close
 
         // Eyebrow bounce cycles
         var bounceDelay = 800; // Start after mouth starts to close
         for (let i = 1; i <= 3; i++) {
             // Increase intensity for bounce
-            self.timeouts.push(setTimeout(() => {
-                self.applyAUChange("1", 150, "", 0.2); // Increase intensity for AU1
-                self.applyAUChange("2", 150, "", 0.2); // Increase intensity for AU2
+            this.timeouts.push(setTimeout(() => {
+                this.applyAUChange("1", 150, "", 0.2); // Increase intensity for AU1
+                this.applyAUChange("2", 150, "", 0.2); // Increase intensity for AU2
             }, bounceDelay + i * 400));
 
             // Return to moderate intensity
-            self.timeouts.push(setTimeout(() => {
-                self.applyAUChange("1", 100, "", 0.2); // Decrease intensity for AU1
-                self.applyAUChange("2", 100, "", 0.2); // Decrease intensity for AU2
+            this.timeouts.push(setTimeout(() => {
+                this.applyAUChange("1", 100, "", 0.2); // Decrease intensity for AU1
+                this.applyAUChange("2", 100, "", 0.2); // Decrease intensity for AU2
             }, bounceDelay + i * 400 + 200));
         }
 
         // Return face to normal after the last bounce
-        self.timeouts.push(setTimeout(() => {
-            self.applyAUChange("1", 0, "", 0.5); // Reset AU1
-            self.applyAUChange("2", 0, "", 0.5); // Reset AU2
-            self.applyAUChange("26", 0, "", 0.5); // Ensure mouth is closed
+        this.timeouts.push(setTimeout(() => {
+            this.applyAUChange("1", 0, "", 0.5); // Reset AU1
+            this.applyAUChange("2", 0, "", 0.5); // Reset AU2
+            this.applyAUChange("26", 0, "", 0.5); // Ensure mouth is closed
         }, bounceDelay + 3 * 400 + 200));
-    },
+    }
 
     // Cleanup function to clear all timeouts
-    clearAllTimeouts: function() {
-        var self = this;
-        self.timeouts.forEach(clearTimeout);
-        self.timeouts = []; // Reset the timeouts array
+    clearAllTimeouts() {
+        this.timeouts.forEach(clearTimeout);
+        this.timeouts = []; // Reset the timeouts array
     }
-});
-
+}
+export {Fear}
 // Ensure to instantiate and register the module where appropriate in your system

@@ -1,7 +1,8 @@
 import { loadUnityScript } from './unityScriptLoader.js';
 import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js';
 import { FacsLib } from './facs/facslib.js';
-import { Mainframe } from '../mainframe/js/mainframe.classes.js';
+// import { MainFrame } from '../mainframe/js/mainframe.classes.js';
+import { Fear } from '../mainframe/modules/processors/VisFACSSchererFearFields/main'
 let engine;
 let facslib;
 let unityWebGLContentLoaded = false;
@@ -25,10 +26,11 @@ window.U3_startSceneLoaded = () => {
     if (!unityWebGLContentLoaded) {
         facslib.load('scene_environment_simple', character.scene);
         unityWebGLContentLoaded = true;
-
-            console.log("Prototype loaded");
-            mainframe = new Mainframe('../mianframe/configs/eEvaConfig.xml');
-            mainframe.run();
+        let fear = new Fear(facslib)
+        fear.run()
+            // console.log("Prototype loaded");
+            // mainframe = new MainFrame('../mianframe/configs/eEvaConfig.xml');
+            // mainframe.run();
         
     }
 }
@@ -46,3 +48,4 @@ function initializeUnityGame() {
 
 // Load the Unity loader script and initialize the Unity game instance once the script is loaded
 loadUnityScript(character.path+"UnityLoader.js", initializeUnityGame);
+export {facslib}
