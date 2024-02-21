@@ -1,6 +1,7 @@
 import { loadUnityScript } from './unityScriptLoader.js';
 import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js';
 import { FacsLib } from './facs/facslib.js';
+import { Mainframe } from '../mainframe/js/mainframe.classes.js';
 let engine;
 let facslib;
 let unityWebGLContentLoaded = false;
@@ -25,7 +26,10 @@ window.U3_startSceneLoaded = () => {
         facslib.load('scene_environment_simple', character.scene);
         unityWebGLContentLoaded = true;
 
-
+            console.log("Prototype loaded");
+            mainframe = new Mainframe('../mianframe/configs/eEvaConfig.xml');
+            mainframe.run();
+        
     }
 }
 

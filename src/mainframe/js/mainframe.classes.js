@@ -10,7 +10,8 @@
 ** Enumerations
 ** Thou shalt use these throughout the application.
 \*****************************************************************/
-
+import jQuery from "jquery";
+import PrototypeClass from "./prototype-class";
 /*
 ** Emotion enumeration
 */
@@ -133,7 +134,7 @@ function loadScript(url, callback)
     document.body.appendChild(script);
 }
 
-var ModuleDependency = Class.create
+var ModuleDependency = PrototypeClass.create
 ({
     initialize: function(scriptDir, scriptName, clientModule)
     {
@@ -159,10 +160,10 @@ var ModuleDependency = Class.create
 
 /**
  * Configures and manages module creation and use
- * @class
+ * @PrototypeClass
  */
-var Mainframe = Class.create
-({
+class MainFrame
+{
     /**
      * Initialize THREE.js load manager and module storage variables
      * @param  {String} configURL file containing the modules to be loaded by the mainframe
@@ -170,7 +171,7 @@ var Mainframe = Class.create
      * 
      * @memberof Mainframe#
      */
-    initialize: function(configURL)
+    initialize(configURL)
     {
         var self = this; //cute trick to call prototype method from jquery block, because "this" is overridden
         
@@ -224,7 +225,7 @@ var Mainframe = Class.create
                 });
             });
         });
-    },
+    }
     
     /**
      * Callback for each item loaded by the THREE.js load manager
@@ -303,7 +304,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    registerModule: function(moduleName, uri, params)
+    registerModule(moduleName, uri, params)
     {
         var self = this; //cute trick to call prototype method from jquery block, because "this" is overridden
         
@@ -351,7 +352,7 @@ var Mainframe = Class.create
                 console.log("Module "+moduleName+" provides at least one duplicate resource: "+duplicateResource);
             }
         }
-    },
+    }
     
     /**
      * Registers a module that had dependencies which were not previously loaded
@@ -363,7 +364,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    registerModule_lazy: function(self, moduleName, uri, params) //called by registerModule -- DO NOT CALL DIRECTLY !
+    registerModule_lazy()  //called by registerModule -- DO NOT CALL DIRECTLY !
     {
         //fast check, we'll need to check again later though, due to asynchronous module loading
         if (self.moduleRegistered(moduleName) > -1)
@@ -428,7 +429,7 @@ var Mainframe = Class.create
                 });
             });
         }
-    },
+    }
     
     /**
      * Removes a module from the application
@@ -437,7 +438,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    unregisterModule: function(moduleName)
+    unregisterModule()
     {
         var self = this;
         
@@ -463,7 +464,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    verifyDuplicateResourceInModuleRegistration: function(newModule)
+    verifyDuplicateResourceInModuleRegistration(newModule)
     {
         var self = this;
         
@@ -483,7 +484,7 @@ var Mainframe = Class.create
         }
         
         return duplicateResource;
-    },
+    }
     
     /**
      * Performs global module configuration check
@@ -491,15 +492,14 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    verifyModuleCompatibility: function()
-    {
-        var self = this;
+    verifyModuleCompatibility()
+    {   
         
-        self.configurationCompatible = false; //stop mainframe run activity while checking compatibility
+        configurationCompatible = false; //stop mainframe run activity while checking compatibility
         
-        var compatible = true;
+        compatible = true;
         
-        for (var i=0; i<self.registeredModules.length; ++i)
+        for (leti=0; i<self.registeredModules.length; ++i)
         {
             for (var j=0; j<self.registeredModules[i].requiredResources.length; ++j)
             {
@@ -547,7 +547,7 @@ var Mainframe = Class.create
             console.log("Incompatible module configuration !");
         }
         self.configurationCompatible = compatible;
-    },
+    }
     
     /**
      * Infer and set execution order of modules, based on resources that are provided and required. Do not call directly.
@@ -555,7 +555,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    updateModuleExecutionOrder: function() //called by verifyModuleCompatibility, if everything is ok - DO NOT CALL DIRECTLY !
+    updateModuleExecutionOrder: //called by verifyModuleCompatibility, if everything is ok - DO NOT CALL DIRECTLY !
     {
         var self = this;
         
@@ -649,7 +649,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    moduleLoaded: function(moduleName)
+    moduleLoaded(moduleName)
     {
         var self = this;
         
@@ -667,7 +667,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    moduleRegistered: function(moduleName)
+    moduleRegistered(moduleName)
     {
         var self = this;
         
@@ -685,7 +685,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    providedResourceRegistered: function(resource)
+    providedResourceRegistered(resource)
     {
         var self = this;
         
@@ -703,8 +703,8 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    addModuleDependency: function(dep)
-    {
+    addModuleDependency(dep)
+{
         var self = this;
         
         var alreadyLoaded = false;
@@ -736,7 +736,7 @@ var Mainframe = Class.create
      *
      * @memberof Mainframe#
      */
-    run: function()
+    run: 
     {
         var self = this;
         
@@ -778,13 +778,13 @@ var Mainframe = Class.create
 \*****************************************************************/
 
 /**
- * All modules inherit from this (treated as abstract class)
- * @class
+ * All modules inherit from this (treated as abstract PrototypeClass)
+ * @PrototypeClass
  */
-var AbstractModule = Class.create
+var AbstractModule = PrototypeClass.create
 ({
     /**
-     * AbstractModule class constructor
+     * AbstractModule PrototypeClass constructor
      * @params {Dict}  Parameters for this module
      * @return {void}
      *
@@ -794,15 +794,15 @@ var AbstractModule = Class.create
     {
         var self = this;
         
-        self.name = "unknown"; //unknown name, to be overridden by subclasses
+        self.name = "unknown"; //unknown name, to be overridden by subPrototypeClasses
         self.type = ModuleType.Unknown; //unknown type, to be overridden
         self.mandatory = false; //is this module mandatory ? to be overridden
         self.active = false;
 
         self.parameters = params;
         
-        self.requiredResources = []; //to be filled by subclasses
-        self.providedResources = []; //to be filled by subclasses
+        self.requiredResources = []; //to be filled by subPrototypeClasses
+        self.providedResources = []; //to be filled by subPrototypeClasses
         
         self.optionalResources = []; //nice to have, but not necessary
     },
@@ -845,7 +845,7 @@ var AbstractModule = Class.create
      */
     cleanup: function()
     {
-        //do module-specific cleanup (in subclasses)
+        //do module-specific cleanup (in subPrototypeClasses)
     },
     
     /**
@@ -856,20 +856,20 @@ var AbstractModule = Class.create
      */
     run: function()
     {
-        //to be overridden by subclasses
+        //to be overridden by subPrototypeClasses
         console.log("WARNING: Default run method used !");
     }
-});
+}
 
 /*****************************************************************\
 ** Resources
 \*****************************************************************/
 
 /**
- * All resources inherit from this (treated as abstract class)
+ * All resources inherit from this (treated as abstract PrototypeClass)
  * @class
  */
-var Resource = Class.create
+var Resource = PrototypeClass.create
 ({
     /**
      * Resource constructor
@@ -891,7 +891,7 @@ var Resource = Class.create
  * @class
  * @augments Resource
  */
-var FacialExpression = Class.create(Resource,
+var FacialExpression = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -918,7 +918,7 @@ var FacialExpression = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var UserFacePosition = Class.create(Resource,
+var UserFacePosition = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -953,7 +953,7 @@ var UserFacePosition = Class.create(Resource,
  * @class
  * @augments FacialExpression
  */
-var UserFacialExpression = Class.create(FacialExpression,
+var UserFacialExpression = PrototypeClass.create(FacialExpression,
 {
     initialize: function($super)
     {
@@ -970,7 +970,7 @@ var UserFacialExpression = Class.create(FacialExpression,
  * @class
  * @augments FacialExpression
  */
-var CharacterFacialExpression = Class.create(FacialExpression,
+var CharacterFacialExpression = PrototypeClass.create(FacialExpression,
 {
     initialize: function($super)
     {
@@ -987,7 +987,7 @@ var CharacterFacialExpression = Class.create(FacialExpression,
  * @class
  * @augments Resource
  */
-var Text = Class.create(Resource,
+var Text = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1006,7 +1006,7 @@ var Text = Class.create(Resource,
  * @class
  * @augments Text
  */
-var UserText = Class.create(Text,
+var UserText = PrototypeClass.create(Text,
 {
     initialize: function($super)
     {
@@ -1023,7 +1023,7 @@ var UserText = Class.create(Text,
  * @class
  * @augments Text
  */
-var IsNodding = Class.create(Resource,
+var IsNodding = PrototypeClass.create(Resource,
     {
         initialize: function($super)
         {
@@ -1041,7 +1041,7 @@ var IsNodding = Class.create(Resource,
  * @class
  * @augments Text
  */
-var InterimUserText = Class.create(Text,
+var InterimUserText = PrototypeClass.create(Text,
 {
     initialize: function($super)
     {
@@ -1053,7 +1053,7 @@ var InterimUserText = Class.create(Text,
     }
 });
 
-var MongoElementJSON = Class.create(Resource,
+var MongoElementJSON = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1067,7 +1067,7 @@ var MongoElementJSON = Class.create(Resource,
     }
 });
 
-var MongoElementIteration = Class.create(Resource,
+var MongoElementIteration = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1085,7 +1085,7 @@ var MongoElementIteration = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var PosText = Class.create(Resource,
+var PosText = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1105,7 +1105,7 @@ var PosText = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var SentimentText = Class.create(Resource,
+var SentimentText = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1124,7 +1124,7 @@ var SentimentText = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CharacterText = Class.create(Text,
+var CharacterText = PrototypeClass.create(Text,
 {
     initialize: function($super)
     {
@@ -1141,7 +1141,7 @@ var CharacterText = Class.create(Text,
  * @class
  * @augments Resource
  */
-var VideoStream = Class.create(Resource,
+var VideoStream = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1159,7 +1159,7 @@ var VideoStream = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var Mesh3D = Class.create(Resource,
+var Mesh3D = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1183,7 +1183,7 @@ var Mesh3D = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CharacterAudioStream = Class.create(Resource,
+var CharacterAudioStream = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1204,7 +1204,7 @@ var CharacterAudioStream = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var InterviewQA = Class.create(Resource,
+var InterviewQA = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1226,7 +1226,7 @@ var InterviewQA = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var UserInterviewChoice = Class.create(Resource,
+var UserInterviewChoice = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1249,7 +1249,7 @@ var UserInterviewChoice = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CharacterIsSpeaking = Class.create(Resource,
+var CharacterIsSpeaking = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1268,7 +1268,7 @@ var CharacterIsSpeaking = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CharacterIsListening = Class.create(Resource, 
+var CharacterIsListening = PrototypeClass.create(Resource, 
 {
     initialize: function($super)
     {
@@ -1287,7 +1287,7 @@ var CharacterIsListening = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var TreeValence = Class.create(Resource,
+var TreeValence = PrototypeClass.create(Resource,
 {
     initialize : function($super)
     {
@@ -1316,7 +1316,7 @@ var TreeValence = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var DecisionTree = Class.create(Resource,
+var DecisionTree = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1335,7 +1335,7 @@ var DecisionTree = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var InterviewRiskScore = Class.create(Resource,
+var InterviewRiskScore = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1358,7 +1358,7 @@ var InterviewRiskScore = Class.create(Resource,
  * @class
  * @memberof CharacterActions
  */
-var CharacterAction = Class.create //helper class for CharacterActions resource
+var CharacterAction = PrototypeClass.create //helper class for CharacterActions resource
 ({
     initialize: function()
     {
@@ -1372,7 +1372,7 @@ var CharacterAction = Class.create //helper class for CharacterActions resource
  * @class
  * @augments Resource
  */
-var CharacterActions = Class.create(Resource,
+var CharacterActions = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1396,7 +1396,7 @@ var CharacterActions = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CharacterEyeGaze = Class.create(Resource,
+var CharacterEyeGaze = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1436,7 +1436,7 @@ var CharacterEyeGaze = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CharacterVoice = Class.create(Resource,
+var CharacterVoice = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1455,7 +1455,7 @@ var CharacterVoice = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var SelectedCharacterInfo = Class.create(Resource,
+var SelectedCharacterInfo = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1477,7 +1477,7 @@ var SelectedCharacterInfo = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CharacterLoaded = Class.create(Resource,
+var CharacterLoaded = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1496,7 +1496,7 @@ var CharacterLoaded = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var LoadManagerReference = Class.create(Resource,
+var LoadManagerReference = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1514,7 +1514,7 @@ var LoadManagerReference = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var MicrophoneState = Class.create(Resource,
+var MicrophoneState = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1532,7 +1532,7 @@ var MicrophoneState = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var UserCommand = Class.create(Resource,
+var UserCommand = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1551,7 +1551,7 @@ var UserCommand = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var ReferralSourceUIStatus = Class.create(Resource,
+var ReferralSourceUIStatus = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1570,7 +1570,7 @@ var ReferralSourceUIStatus = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CurrentQuestionInfo = Class.create(Resource,
+var CurrentQuestionInfo = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1591,7 +1591,7 @@ var CurrentQuestionInfo = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CurrentAnswerInfo = Class.create(Resource,
+var CurrentAnswerInfo = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1611,7 +1611,7 @@ var CurrentAnswerInfo = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var CharacterUserFriendlyName = Class.create(Resource,
+var CharacterUserFriendlyName = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1629,7 +1629,7 @@ var CharacterUserFriendlyName = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var UserSettings = Class.create(Resource,
+var UserSettings = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1648,7 +1648,7 @@ var UserSettings = Class.create(Resource,
  * @class
  * @augments Resource
  */
-var AUValues = Class.create(Resource,
+var AUValues = PrototypeClass.create(Resource,
 {
     initialize: function($super)
     {
@@ -1670,7 +1670,7 @@ var AUValues = Class.create(Resource,
  * @class
  * @augments AUValues
  */
-var CharacterAUValues = Class.create(AUValues,
+var CharacterAUValues = PrototypeClass.create(AUValues,
 {
     initialize: function($super)
     {
@@ -1681,3 +1681,4 @@ var CharacterAUValues = Class.create(AUValues,
         self.name = "CharacterAUValues";
     }
 });
+export { Mainframe }
