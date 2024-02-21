@@ -1,8 +1,10 @@
 import { loadUnityScript } from './unityScriptLoader.js';
 import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js';
 import { FacsLib } from './facs/facslib.js';
-var unityWebGLContentLoaded = false;
-var character = {
+let engine;
+let facslib;
+let unityWebGLContentLoaded = false;
+let character = {
     id: "001_FEMALE_CAU",
     name: "Amy",
     img: "unity/img/001_FEMALE_CAU.PNG",
@@ -30,8 +32,8 @@ window.U3_startSceneLoaded = () => {
 
 // Function to initialize Unity game instance and related settings
 function initializeUnityGame() {
-    window.gameInstance = UnityLoader.instantiate("gameContainer", character.path + "webgl.json");
-    engine = new EngineWebGL_u3d();
+    let gameInstance = UnityLoader.instantiate("gameContainer", character.path + "webgl.json");
+    engine = new EngineWebGL_u3d(gameInstance);
     facslib = new FacsLib(engine);
     engine.FacsLib = facslib;
 }

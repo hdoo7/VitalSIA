@@ -1,8 +1,9 @@
 import { Engine3D } from './engine3d.js';
-let gameInstance;
-function EngineWebGL_u3d() {
+
+function EngineWebGL_u3d(gameInstance) {
 	//appel au constructeur de la class parent
-	Engine3D.call(this);
+	Engine3D.call(this); 
+    this.gameInstance = gameInstance;
     this.unityBlendshapes = 
 	[
         { index : 0, name : 'Face_[01]'   , AUid : "1" },
@@ -133,13 +134,13 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
 
 	load : {
         value : function (environmentSceneName, characterSceneName) {	
-            gameInstance.SendMessage('SceneLoader', 'Load', environmentSceneName + ";" + characterSceneName);
+            this.gameInstance.SendMessage('SceneLoader', 'Load', environmentSceneName + ";" + characterSceneName);
         }
 	},
 
     setAU : {
         value : function (auNumber, intensity, lorR) {	
-            gameInstance.SendMessage('FAC_controller', 'change', auNumber + ':' + intensity);
+            this.gameInstance.SendMessage('FAC_controller', 'change', auNumber + ':' + intensity);
         }
     },
     
@@ -171,7 +172,7 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
                 param = param + this.weights[i].toFixed(1) + ";" + this.smoothTimes[i].toFixed(1) + ";";
             }
             
-            gameInstance.SendMessage('FACcontroler', 'SetAllTargetWeights', param);
+            this.gameInstance.SendMessage('FACcontroler', 'SetAllTargetWeights', param);
             
 			
 			
@@ -194,7 +195,7 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
                 param = param + this.boneWeights[i].toFixed(1) + ";" + this.boneSmoothTimes[i].toFixed(1) + ";";
             }			
 			
-			gameInstance.SendMessage('FACcontroler', 'SetAllTargetBoneWeights', param);
+			this.gameInstance.SendMessage('FACcontroler', 'SetAllTargetBoneWeights', param);
 		
         }
     },
@@ -206,7 +207,7 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
             param = param + y.toFixed(2) + ";";
             param = param + z.toFixed(2) + ";";
 
-            gameInstance.SendMessage('FACcontroler', 'SetEyeTargetViewport', param);
+            this.gameInstance.SendMessage('FACcontroler', 'SetEyeTargetViewport', param);
         }
     },
 
@@ -222,13 +223,13 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
 			param = param + headSmoothTime.toFixed(2) + ";";
 			param = param + debugVisible.toFixed(2) + ";";
 			
-			gameInstance.SendMessage('FACcontroler', 'SetEyeTarget', param);
+			this.gameInstance.SendMessage('FACcontroler', 'SetEyeTarget', param);
 		}
 	},
 	
 	getEyeTargetPosition : {
 		value : function(){
-			gameInstance.SendMessage('FACcontroler', 'GetEyeTargetPosition', '');
+			this.gameInstance.SendMessage('FACcontroler', 'GetEyeTargetPosition', '');
 		}
 	},
 	
@@ -244,7 +245,7 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
 			param = param + headSmoothTime.toFixed(2) + ";";
 			param = param + debugVisible.toFixed(2) + ";";
 			
-			gameInstance.SendMessage('FACcontroler', 'SetLocalEyeTarget', param);
+			this.gameInstance.SendMessage('FACcontroler', 'SetLocalEyeTarget', param);
 		}
 	},
 	
@@ -258,19 +259,19 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
 			engine.viewportLookPoint[1] = y;
 			engine.viewportLookPoint[2] = z;
 			//console.log(x,y,z);
-			gameInstance.SendMessage('FACcontroler', 'SetEyeTargetViewport', param);
+			this.gameInstance.SendMessage('FACcontroler', 'SetEyeTargetViewport', param);
 		}
 	},
 
 	getLocalEyeTargetPosition : {
 		value : function(){
-			gameInstance.SendMessage('FACcontroler', 'GetLocalEyeTargetPosition', '');
+			this.gameInstance.SendMessage('FACcontroler', 'GetLocalEyeTargetPosition', '');
 		}
 	},
 	
 	getEyeTargetPosition : {
 		value : function(){
-			gameInstance.SendMessage('FACcontroler', 'GetEyeTargetPosition', '');
+			this.gameInstance.SendMessage('FACcontroler', 'GetEyeTargetPosition', '');
 		}
 	},
 	
@@ -284,7 +285,7 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
 			param = param + ry.toFixed(2) + ";";
 			param = param + rz.toFixed(2) + ";";
 			
-			gameInstance.SendMessage('FACcontroler', 'SetCameraPosition', param);	
+			this.gameInstance.SendMessage('FACcontroler', 'SetCameraPosition', param);	
 		}
 	},
 	
@@ -298,13 +299,13 @@ EngineWebGL_u3d.prototype = Object.create(Engine3D.prototype, {
 			param = param + ry.toFixed(2) + ";";
 			param = param + rz.toFixed(2) + ";";
 			
-			gameInstance.SendMessage('FACcontroler', 'SetLocalCameraPosition', param);	
+			this.gameInstance.SendMessage('FACcontroler', 'SetLocalCameraPosition', param);	
 		}
 	},
 	
 	getLocalCameraPosition : {
 		value : function(){
-			gameInstance.SendMessage('FACcontroler', 'GetLocalCameraPosition', '');	
+			this.gameInstance.SendMessage('FACcontroler', 'GetLocalCameraPosition', '');	
 		}
 	}
 	
