@@ -34,6 +34,7 @@ window.U3_startSceneLoaded = () => {
 function initializeUnityGame() {
     let gameInstance = UnityLoader.instantiate("gameContainer", character.path + "webgl.json");
     engine = new EngineWebGL_u3d(gameInstance);
+    window.engine = engine;
     facslib = new FacsLib(engine);
     engine.FacsLib = facslib;
 }

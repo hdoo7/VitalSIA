@@ -2,7 +2,7 @@ import { Engine3D } from './engine3d.js';
 
 function EngineWebGL_u3d(gameInstance) {
 	//appel au constructeur de la class parent
-	Engine3D.call(this); 
+	this.engine = new Engine3D();
     this.gameInstance = gameInstance;
     this.unityBlendshapes = 
 	[
@@ -324,20 +324,20 @@ function cameraPosition(x,y,z) {
 	cameraPositionY = y;
 	cameraPositionZ = z;
 	// This is to access the camera position from within modules
-	engine.cameraPosition[0] = x;
-	engine.cameraPosition[1] = y;
-	engine.cameraPosition[2] = z;
+	this.engine.cameraPosition[0] = x;
+	this.engine.cameraPosition[1] = y;
+	this.engine.cameraPosition[2] = z;
 	//console.log("Call from Unity:"+x+", "+y+", "+z);
 }
 
 function centerHeadPosition(x,y,z) {
 	// This is to access the center of the head position of the character
-	engine.centerHeadPosition[0] = x;
-	engine.centerHeadPosition[1] = y;
-	engine.centerHeadPosition[2] = z;
+	this.engine.centerHeadPosition[0] = x;
+	this.engine.centerHeadPosition[1] = y;
+	this,engine.centerHeadPosition[2] = z;
 	//console.log("Call from Unity:"+x+", "+y+", "+z);
 }
-
+window.centerHeadPosition = centerHeadPosition;
 function localCameraPosition(x,y,z) {
 	localCameraPositionX = x;
 	localCameraPositionY = y;
