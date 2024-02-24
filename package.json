@@ -5,8 +5,11 @@
   "repository": "https://github.com/meekmachine/EVA-libre.git",
   "author": "Jonathan Fields <jonathanfields@gmail.com>",
   "license": "MIT",
+  "type":"module",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "jquery": "^3.7.1",
+    "microsoft-cognitiveservices-speech-sdk": "^1.35.0",
     "parcel": "^2.11.0",
     "save-dev": "^0.0.1-security"
   },
@@ -14,7 +17,14 @@
     "start": "npx parcel src/index.html",
     "build": "npx parcel build src/index.html && npm run copy-unity"
   },
-  "alias": {
-    "$modules": "./src/mainframe/modules"
+  
+  "devDependencies": {
+    "buffer": "^5.5.0||^6.0.0",
+    "crypto-browserify": "^3.12.0",
+    "events": "^3.1.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.0",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0"
   }
 }

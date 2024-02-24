@@ -1,10 +1,11 @@
-import { loadUnityScript } from './unityScriptLoader'
-import { EngineWebGL_u3d } from './facs/engineWebGL_u3d'
+import { loadUnityScript } from './unityScriptLoader.js'
+import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js'
 import { FacsLib } from './facs/facslib.js';
 // import { MainFrame } from '../mainframe/js/mainframe.classes.js';
 
 import  AnimationManager  from '../VISOS/effectors/visualizers/AnimationManager.js'
-import { loadUnityScript } from './unityScriptLoader'
+import SpeachManager from '../VISOS/effectors/verbalizers/SpeachManager.js'
+import { loadUnityScript } from './unityScriptLoader.js'
 import { loopSmileAndFrown, smile } from '../VISOS/effectors/visualizers/facialExpressions.js'
 
 window.engine;
@@ -20,13 +21,16 @@ let character = {
     scene: "scene_001_FEMALE_CAU",
     voiceIndex: 5
 };
+window.requestAnimationFrame;
 window.U3_sceneLoaded = ()=>{
     if (!unityWebGLContentLoaded) {
         console.log("Starting fear animation sequence...")    
         setTimeout(() => {
-      
-            loopSmileAndFrown(animationManager)
-          
+            const speachManager = new SpeachManager(animationManager);
+            speachManager.enqueueText("Hello, how are you today?");
+            window.speachManager = speachManager;
+            // loopSmileAndFrown(animationManager)
+            document.getElementById("videoOverlay").classList.add("fade-out")
         }, 500) 
         window.unityWebGLContentLoaded = true;
     }

@@ -23,9 +23,35 @@
         left: 0;
         right: 0;
       }
+            /* Cover the entire screen */
+      #videoOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        object-fit: cover; /* Cover the screen without losing aspect ratio */
+        z-index: 10; /* Ensure it overlays Unity and other content */
+      }
+
+      /* Fade out animation */
+      .fade-out {
+        animation: fadeOutAnimation 2s forwards; /* Adjust duration as needed */
+      }
+
+      @keyframes fadeOutAnimation {
+        to {
+            opacity: 0;
+            visibility: hidden;
+        }
+      }
     </style>
   </head>
   <body>
+  <video id="videoOverlay" autoplay loop muted>
+      <source src="./video.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+  </video>
     <div id="content" ui-view>
         <div id="gameContainer"></div>
       </div>
