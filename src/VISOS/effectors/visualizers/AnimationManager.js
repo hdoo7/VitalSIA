@@ -33,7 +33,6 @@ class AnimationManager {
             return;
         }
 
-        console.log(`Applying AU Change: AU=${AU}, intensity=${intensityNumber}, side=${side}, smoothTime=${smoothTimeNumber}`);
         this.facsLib.setTargetAU(AU, intensityNumber, side, smoothTimeNumber);
         this.facsLib.updateEngine(); // Call render function here to apply changes
     }
