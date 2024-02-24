@@ -9,7 +9,7 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
-import  './unity/unitySettings'
+import  './unity/UnitySettings'
 
 // import { loopSmileAndFrown } from './VISOS/effectors/facialExpressions'; // Adjust the path as necessary
 
