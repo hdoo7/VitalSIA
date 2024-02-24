@@ -6,7 +6,7 @@ import { FacsLib } from './facs/facslib.js';
 import  AnimationManager  from '../VISOS/effectors/visualizers/AnimationManager.js'
 import SpeachManager from '../VISOS/effectors/verbalizers/SpeachManager.js'
 import { loadUnityScript } from './unityScriptLoader.js'
-import { loopSmileAndFrown, smile } from '../VISOS/effectors/visualizers/facialExpressions.js'
+import { loopSmileAndFrown, smile, stickTongueOut, loopSmileAndStickTongueOut } from '../VISOS/effectors/visualizers/facialExpressions.js'
 
 window.engine;
 window.facslib;
@@ -27,7 +27,7 @@ window.U3_sceneLoaded = ()=>{
         console.log("Starting fear animation sequence...")    
         setTimeout(() => {
             const speachManager = new SpeachManager(animationManager);
-            speachManager.enqueueText("Hello, how are you today?");
+            loopSmileAndStickTongueOut(animationManager);
             window.speachManager = speachManager;
             // loopSmileAndFrown(animationManager)
             document.getElementById("videoOverlay").classList.add("fade-out")
