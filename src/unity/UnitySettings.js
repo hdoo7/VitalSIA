@@ -7,6 +7,7 @@ import  AnimationManager  from '../VISOS/effectors/visualizers/AnimationManager.
 import SpeachManager from '../VISOS/effectors/verbalizers/SpeachManager.js'
 import { loadUnityScript } from './unityScriptLoader.js'
 import { loopSmileAndFrown, smile, stickTongueOut, loopSmileAndStickTongueOut } from '../VISOS/effectors/visualizers/facialExpressions.js'
+import { zoomCameraOnLoad } from '../VISOS/effectors/visualizers/zoomIn.js'
 
 window.engine;
 window.facslib;
@@ -28,6 +29,7 @@ window.U3_sceneLoaded = ()=>{
         setTimeout(() => {
             const speachManager = new SpeachManager(animationManager);
             loopSmileAndStickTongueOut(animationManager);
+            zoomCameraOnLoad(engine);
             window.speachManager = speachManager;
             // loopSmileAndFrown(animationManager)
             document.getElementById("videoOverlay").classList.add("fade-out")
