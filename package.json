@@ -1,7 +1,6 @@
 {
   "name": "EVA-libre",
   "version": "1.0.0",
-  "main": "index.html",
   "repository": "https://github.com/meekmachine/EVA-libre.git",
   "author": "Jonathan Fields <jonathanfields@gmail.com>",
   "license": "MIT",
