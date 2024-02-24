@@ -1,8 +1,11 @@
-import { loadUnityScript } from './unityScriptLoader.js';
-import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js';
+import { loadUnityScript } from './unityScriptLoader'
+import { EngineWebGL_u3d } from './facs/engineWebGL_u3d'
 import { FacsLib } from './facs/facslib.js';
 // import { MainFrame } from '../mainframe/js/mainframe.classes.js';
-import { Fear } from '../mainframe/modules/processors/VisFACSSchererFearFields/main'
+import { Fear } from './fool'
+import { AnimationManager } from '../VISOS/effectors/AnimationManager.js'
+import { loadUnityScript } from './unityScriptLoader'
+
 window.engine;
 window.facslib;
 window.unityWebGLContentLoaded = false;
@@ -16,7 +19,13 @@ let character = {
 };
 window.U3_sceneLoaded = ()=>{
     if (!unityWebGLContentLoaded) {
-        fear.run()
+        console.log("Starting fear animation sequence...")    
+        setTimeout(() => {
+            setInterval(() => {
+                fear.run()
+            }, 10000)
+        }, 5000) 
+        window.unityWebGLContentLoaded = true;
     }
 }
 
@@ -25,33 +34,33 @@ window.U3_startSceneLoaded = () => {
 
     if (!window.unityWebGLContentLoaded) {
 
-        console.log("Unity WebGL content loaded!!!");
-        facslib.load('scene_environment_simple', character.scene);
+        console.log("Unity WebGL content loaded!!!")
+        facslib.load('scene_environment_simple', character.scene)
         
-        window.unityWebGLContentLoaded = true;
-        engine.getLocalCameraPosition();
-        engine.getLocalEyeTargetPosition();
-        facslib.updateEngine();
-        let fear = new Fear(facslib)
         
-        window.fear = fear
-            console.log("Prototype loaded");
+        
+    
+       
+        console.log("Prototype loaded");
             // mainframe = new MainFrame('../mianframe/configs/eEvaConfig.xml');
             // mainframe.run();
-        
     }
 }
 
 
 // Function to initialize Unity game instance and related settings
 function initializeUnityGame() {
-    window.gameInstance = UnityLoader.instantiate("gameContainer", character.path + "webgl.json");
-    engine = new EngineWebGL_u3d(window.gameInstance);
-    facslib = new FacsLib(engine);
-    engine.FacsLib = facslib;
+    window.gameInstance = UnityLoader.instantiate("gameContainer", character.path + "webgl.json")
+    engine = new EngineWebGL_u3d(window.gameInstance)
+    facslib = new FacsLib(engine)
+    engine.FacsLib = facslib
+    const fear = new Fear(facslib)
+    window.fear = fear
+       
+     
 }
 
 
 // Load the Unity loader script and initialize the Unity game instance once the script is loaded
-loadUnityScript(character.path+"UnityLoader.js", initializeUnityGame);
+loadUnityScript(character.path+"UnityLoader.js", initializeUnityGame)
 export {facslib}
