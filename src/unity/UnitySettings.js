@@ -3,9 +3,9 @@ import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js';
 import { FacsLib } from './facs/facslib.js';
 // import { MainFrame } from '../mainframe/js/mainframe.classes.js';
 import { Fear } from '../mainframe/modules/processors/VisFACSSchererFearFields/main'
-let engine;
-let facslib;
-let unityWebGLContentLoaded = false;
+window.engine;
+window.facslib;
+window.unityWebGLContentLoaded = false;
 let character = {
     id: "001_FEMALE_CAU",
     name: "Amy",
@@ -16,19 +16,26 @@ let character = {
 };
 window.U3_sceneLoaded = ()=>{
     if (!unityWebGLContentLoaded) {
-        engine.getLocalCameraPosition();
-        engine.getLocalEyeTargetPosition();
-        facslib.updateEngine();
+        fear.run()
     }
 }
 
 window.U3_startSceneLoaded = () => {
-    if (!unityWebGLContentLoaded) {
+    console.log("Unity WebGL content loaded");
+
+    if (!window.unityWebGLContentLoaded) {
+
+        console.log("Unity WebGL content loaded!!!");
         facslib.load('scene_environment_simple', character.scene);
-        unityWebGLContentLoaded = true;
+        
+        window.unityWebGLContentLoaded = true;
+        engine.getLocalCameraPosition();
+        engine.getLocalEyeTargetPosition();
+        facslib.updateEngine();
         let fear = new Fear(facslib)
-        fear.run()
-            // console.log("Prototype loaded");
+        
+        window.fear = fear
+            console.log("Prototype loaded");
             // mainframe = new MainFrame('../mianframe/configs/eEvaConfig.xml');
             // mainframe.run();
         
@@ -38,9 +45,8 @@ window.U3_startSceneLoaded = () => {
 
 // Function to initialize Unity game instance and related settings
 function initializeUnityGame() {
-    let gameInstance = UnityLoader.instantiate("gameContainer", character.path + "webgl.json");
-    engine = new EngineWebGL_u3d(gameInstance);
-    window.engine = engine;
+    window.gameInstance = UnityLoader.instantiate("gameContainer", character.path + "webgl.json");
+    engine = new EngineWebGL_u3d(window.gameInstance);
     facslib = new FacsLib(engine);
     engine.FacsLib = facslib;
 }
