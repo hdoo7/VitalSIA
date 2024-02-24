@@ -2,12 +2,15 @@ import { loadUnityScript } from './unityScriptLoader'
 import { EngineWebGL_u3d } from './facs/engineWebGL_u3d'
 import { FacsLib } from './facs/facslib.js';
 // import { MainFrame } from '../mainframe/js/mainframe.classes.js';
-import { Fear } from './fool'
-import { AnimationManager } from '../VISOS/effectors/AnimationManager.js'
+
+import  AnimationManager  from '../VISOS/effectors/visualizers/AnimationManager.js'
 import { loadUnityScript } from './unityScriptLoader'
+import { loopSmileAndFrown, smile } from '../VISOS/effectors/visualizers/facialExpressions.js'
 
 window.engine;
 window.facslib;
+window.animationManager;
+
 window.unityWebGLContentLoaded = false;
 let character = {
     id: "001_FEMALE_CAU",
@@ -21,10 +24,10 @@ window.U3_sceneLoaded = ()=>{
     if (!unityWebGLContentLoaded) {
         console.log("Starting fear animation sequence...")    
         setTimeout(() => {
-            setInterval(() => {
-                fear.run()
-            }, 10000)
-        }, 5000) 
+      
+            loopSmileAndFrown(animationManager)
+          
+        }, 500) 
         window.unityWebGLContentLoaded = true;
     }
 }
@@ -54,8 +57,8 @@ function initializeUnityGame() {
     engine = new EngineWebGL_u3d(window.gameInstance)
     facslib = new FacsLib(engine)
     engine.FacsLib = facslib
-    const fear = new Fear(facslib)
-    window.fear = fear
+    animationManager = new AnimationManager(facslib)
+    
        
      
 }
@@ -63,4 +66,4 @@ function initializeUnityGame() {
 
 // Load the Unity loader script and initialize the Unity game instance once the script is loaded
 loadUnityScript(character.path+"UnityLoader.js", initializeUnityGame)
-export {facslib}
+
