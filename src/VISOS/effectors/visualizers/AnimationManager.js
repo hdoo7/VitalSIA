@@ -29,7 +29,6 @@ class AnimationManager {
 
         // Check for valid number conversion
         if (isNaN(intensityNumber) || isNaN(smoothTimeNumber)) {
-            console.error('Intensity or smoothTime is not a valid number.', { AU, intensity, side, smoothTime });
             return;
         }
 

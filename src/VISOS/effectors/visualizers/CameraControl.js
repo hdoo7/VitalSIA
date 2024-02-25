@@ -1,13 +1,23 @@
 class CameraControl {
-    constructor(engine) {
+    constructor(engine, startX = 0, startY = 0, startZ = 10, startAngleX = 0, startAngleY = 0) {
         this.engine = engine;
-        this.target = { x: 0, y: 0, z: 0 }; // Target point to rotate around
-        this.distance = 10; // Distance from the target point
-        this.angleX = 0; // Rotation angle around the X-axis
-        this.angleY = 0; // Rotation angle around the Y-axis
+        this.target = { x: startX, y: startY, z: 0 }; // Initial target point to rotate around
+        this.distance = startZ; // Initial distance from the target point
+        this.angleX = startAngleX; // Initial rotation angle around the X-axis
+        this.angleY = startAngleY; // Initial rotation angle around the Y-axis
+        this.observers = []; // Add an array to hold observers
+
+        this.updateCameraPosition();
     }
 
-    // Sets the camera's target point
+    addObserver(observer) {
+        this.observers.push(observer);
+    }
+
+    notifyObservers() {
+        this.observers.forEach(observer => observer.update());
+    }
+
     setTarget(x, y, z) {
         this.target.x = x;
         this.target.y = y;
@@ -15,40 +25,67 @@ class CameraControl {
         this.updateCameraPosition();
     }
 
-    // Zooms the camera in or out
     zoom(delta) {
         this.distance += delta;
         this.updateCameraPosition();
     }
 
-    // Pans the camera horizontally and vertically
     pan(deltaX, deltaY) {
         this.target.x += deltaX;
         this.target.y += deltaY;
         this.updateCameraPosition();
     }
 
-    // Rotates the camera around the target point
     rotate(deltaX, deltaY) {
         this.angleX += deltaX;
         this.angleY += deltaY;
         this.updateCameraPosition();
     }
 
-    // Calculates and updates the camera's position based on current parameters
+    animateTo(targetPosition, targetRotation, targetDistance, duration = 1000) {
+        const startTime = performance.now();
+        const startTarget = { ...this.target };
+        const startDistance = this.distance;
+        const startRotation = { x: this.angleX, y: this.angleY };
+
+        const update = (currentTime) => {
+            const elapsedTime = currentTime - startTime;
+            const fraction = Math.min(elapsedTime / duration, 1); // Ensure fraction doesn't exceed 1
+
+            this.target.x = startTarget.x + (targetPosition.x - startTarget.x) * fraction;
+            this.target.y = startTarget.y + (targetPosition.y - startTarget.y) * fraction;
+            this.target.z = startTarget.z + (targetPosition.z - startTarget.z) * fraction;
+            this.distance = startDistance + (targetDistance - startDistance) * fraction;
+            this.angleX = startRotation.x + (targetRotation.x - startRotation.x) * fraction;
+            this.angleY = startRotation.y + (targetRotation.y - startRotation.y) * fraction;
+
+            this.updateCameraPosition();
+
+            if (fraction < 1) {
+                requestAnimationFrame(update);
+            } else {
+                console.log("Camera animation complete.");
+            }
+        };
+
+        requestAnimationFrame(update);
+    }
+
     updateCameraPosition() {
-        // Convert angles from degrees to radians for calculations
         let radX = this.angleX * (Math.PI / 180);
         let radY = this.angleY * (Math.PI / 180);
 
-        // Calculate the camera's position using spherical coordinates
         let posX = this.target.x + this.distance * Math.sin(radY) * Math.cos(radX);
         let posY = this.target.y + this.distance * Math.sin(radX);
         let posZ = this.target.z + this.distance * Math.cos(radY) * Math.cos(radX);
 
-        // Assuming the engine's setCameraPosition method takes position (x, y, z) and rotation (rx, ry, rz)
-        // Here, we're not modifying the camera's rotation based on the control inputs
-        this.engine.setCameraPosition(posX, posY, posZ, 0, 0, 0);
+        this.engine.setCameraPosition(posX, posY, posZ, this.angleX, this.angleY, 0);
+
+        // console.log(`Camera Position: (${posX.toFixed(2)}, ${posY.toFixed(2)}, ${posZ.toFixed(2)})`);
+        // console.log(`Camera Rotation: (${this.angleX.toFixed(2)}, ${this.angleY.toFixed(2)})`);
+
+        // Notify observers after updating the camera position
+        this.notifyObservers();
     }
 }
 

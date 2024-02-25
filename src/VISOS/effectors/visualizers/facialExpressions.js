@@ -21,8 +21,8 @@ export function loopSmileAndFrown(animationManager) {
 // facialExpressions.js
 export function stickTongueOut(animationManager) {
     // Schedule tongue show and bulge with appropriate AUs and intensities
-    animationManager.scheduleChange("36", 80, 250, 0); // Tongue show
-    animationManager.scheduleChange("19", 80, 250, 250); // Tongue bulge
+    animationManager.scheduleChange("36", 180, 250, 0); // Tongue show
+    animationManager.scheduleChange("19", 180, 250, 250); // Tongue bulge
     // Assume start() now returns a promise that resolves when all scheduled animations are done
 }
 
