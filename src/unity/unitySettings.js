@@ -2,19 +2,12 @@ import { loadUnityScript } from './unityScriptLoader.js'
 import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js'
 import { FacsLib } from './facs/facslib.js';
 // import { MainFrame } from '../mainframe/js/mainframe.classes.js';
+import app from '../app.js'
 
-import  AnimationManager  from '../VISOS/effectors/visualizers/AnimationManager.js'
-import SpeachManager from '../VISOS/effectors/verbalizers/SpeachManager.js'
-import { loadUnityScript } from './unityScriptLoader.js'
-import { loopSmileAndFrown, smile, stickTongueOut } from '../VISOS/effectors/visualizers/facialExpressions.js'
-import { zoomCameraOnLoad } from '../VISOS/effectors/visualizers/zoomIn.js'
-import CameraInputControl from '../VISOS/effectors/visualizers/CameraInputControl.js';
-import { startComplexEmotion } from '../VISOS/effectors/visualizers/complexEmotion.js';
 
 window.engine;
 window.facslib;
-window.animationManager;
-window.speachManager;
+
 window.unityWebGLContentLoaded = false;
 let character = {
     id: "001_FEMALE_CAU",
@@ -29,15 +22,9 @@ window.U3_sceneLoaded = ()=>{
     if (!unityWebGLContentLoaded) {
         console.log("Starting fear animation sequence...")    
         setTimeout(() => { 
-            // zoomCameraOnLoad(engine);
-            // loopSmileAndFrown(animationManager)
-            
-            // speachManager.enqueueText(`Welcome to Our 3D World!
-            // I'm here to guide you through navigating our beautiful scene. Let's get you moving around with ease. Here's how you can control the camera to explore:
-            // `)
-            // const cameraInputControl = new CameraInputControl(engine);
+            app(engine, facslib)
             document.getElementById("videoOverlay").classList.add("fade-out")
-        }, 500) 
+        }, 50) 
         window.unityWebGLContentLoaded = true;
     }
 }
@@ -67,8 +54,7 @@ function initializeUnityGame() {
     engine = new EngineWebGL_u3d(window.gameInstance)
     facslib = new FacsLib(engine)
     engine.FacsLib = facslib
-    animationManager = new AnimationManager(facslib)
-    speachManager = new SpeachManager(animationManager);
+
        
      
 }

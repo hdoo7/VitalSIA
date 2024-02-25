@@ -1,5 +1,4 @@
 
-import  Engine3D  from './unity/facs/engine3d'
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register(new URL('./unityCacheServiceWorker.js', import.meta.url)).then(registration => {
@@ -14,4 +13,4 @@ import  './unity/unitySettings'
 // import { loopSmileAndFrown } from './VISOS/effectors/facialExpressions'; // Adjust the path as necessary
 
 // // Start the loop of smile and frown animations
-// loopSmileAndFrown();
+// loopSmileAndFrown();git add *
