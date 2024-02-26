@@ -1,14 +1,15 @@
 // File: BaseStreamManager.js
 import 'webrtc-adapter';
 
-class BaseStreamManager {
+export default class BaseStreamManager {
     constructor() {
+        console.log("BaseStreamManager constructor called");
         this.stream = null;
         this.initUI();
     }
 
     initUI() {
-        // Create UI element to indicate recording
+        console.log("Initializing UI for BaseStreamManager");
         this.recordingIndicator = document.createElement('div');
         this.recordingIndicator.innerText = '🔴 Recording...';
         this.recordingIndicator.style.position = 'fixed';
@@ -19,14 +20,24 @@ class BaseStreamManager {
         this.recordingIndicator.style.padding = '10px';
         this.recordingIndicator.style.borderRadius = '5px';
         this.recordingIndicator.style.display = 'none'; // Hidden by default
-        document.body.appendChild(this.recordingIndicator);
+
+        if (document.readyState === 'complete') {
+            document.body.appendChild(this.recordingIndicator);
+        } else {
+            window.addEventListener('load', () => {
+                document.body.appendChild(this.recordingIndicator);
+            });
+        }
     }
 
     toggleRecordingIndicator(show) {
-        this.recordingIndicator.style.display = show ? 'block' : 'none';
+        if (this.recordingIndicator) {
+            this.recordingIndicator.style.display = show ? 'block' : 'none';
+        }
     }
 
     async getAudioStream() {
+        console.log("Attempting to get audio stream");
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             console.error("MediaDevices API or getUserMedia not supported.");
             return null;
@@ -52,4 +63,3 @@ class BaseStreamManager {
         }
     }
 }
-export default BaseStreamManager;

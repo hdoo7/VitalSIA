@@ -1,0 +1,15 @@
+// TextToListenerStream.js
+export default class TextToListenerStream {
+    constructor(keyphrase) {
+        this.keyphrase = keyphrase.toLowerCase();
+    }
+
+    listen(transcribedText) {
+        return new Promise((resolve, reject) => {
+            if (transcribedText.toLowerCase().includes(this.keyphrase)) {
+                console.log(`Keyphrase "${this.keyphrase}" detected.`);
+                resolve(true);
+            }
+        });
+    }
+}
