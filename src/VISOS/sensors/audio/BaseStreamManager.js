@@ -1,7 +1,7 @@
 // File: BaseStreamManager.js
 import 'webrtc-adapter';
 
-export class BaseStreamManager {
+class BaseStreamManager {
     constructor() {
         this.stream = null;
         this.initUI();
@@ -52,3 +52,4 @@ export class BaseStreamManager {
         }
     }
 }
+export default BaseStreamManager;
