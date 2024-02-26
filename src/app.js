@@ -11,7 +11,7 @@ export default app = (engine, faclib) => {
     const animationManager = new AnimationManager(facslib)
     const speachManager = new SpeachManager(animationManager);
             // zoomCameraOnLoad(engine);
-            // loopSmileAndStickTongueOut(animationManager)
+            loopSmileAndStickTongueOut(animationManager)
             const cameraControl = new CameraControl(engine, 0.27, 1.59, -0.20, 0.07, 0);
 
             const targetPosition = { x: 0.27, y: 1.59, z: -8.88 };

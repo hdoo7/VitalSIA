@@ -1,11 +1,8 @@
 import { Engine3D } from './engine3d.js';
 function FacsLib(engine) {
 	this.defaultIntensity = 'C';
-    if (engine instanceof  Engine3D) {
       this.engine = engine;  
-    } else {
-      throw Error("Bad engine");  
-    }
+
     
     this.ActionUnitsList = [
 		{ id : "0"   , name : "neutralFace"},          //Main Codes
