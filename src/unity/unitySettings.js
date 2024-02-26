@@ -17,7 +17,7 @@ let character = {
     scene: "scene_001_FEMALE_CAU",
     voiceIndex: 5
 };
-window.requestAnimationFrame;
+
 window.U3_sceneLoaded = ()=>{
     if (!unityWebGLContentLoaded) {
         console.log("Starting fear animation sequence...")    
@@ -52,7 +52,6 @@ window.U3_startSceneLoaded = () => {
 function initializeUnityGame() {
     window.gameInstance = UnityLoader.instantiate("gameContainer", character.path + "webgl.json")
     engine = new EngineWebGL_u3d(window.gameInstance);
-    window.centerHeadPosition = engine.centerHeadPosition;
     facslib = new FacsLib(engine);
     engine.FacsLib = facslib;
 

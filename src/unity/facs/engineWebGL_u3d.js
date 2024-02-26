@@ -13,7 +13,7 @@ class EngineWebGL_u3d  {
 
         this.boneWeights = new Array(this.unityBoneshapes.length).fill(0);
         this.boneSmoothTimes = new Array(this.unityBoneshapes.length).fill(0);
-
+		this.centerHeadPosition;
         this.cameraPosition = new Array(3).fill(0);
         this.viewportLookPoint = new Array(2).fill(0);
 		
@@ -77,15 +77,13 @@ class EngineWebGL_u3d  {
         const params = `${x.toFixed(2)};${y.toFixed(2)};${z.toFixed(2)};${rx.toFixed(2)};${ry.toFixed(2)};${rz.toFixed(2)};`;
         this.gameInstance.SendMessage('FACcontroler', 'SetCameraPosition', params);
     }
-	
-	centerHeadPosition(x,y,z) {
-		// This is to access the center of the head position of the character
-		this.engine.centerHeadPosition[0] = x;
-		this.engine.centerHeadPosition[1] = y;
-		this,engine.centerHeadPosition[2] = z;
-		//console.log("Call from Unity:"+x+", "+y+", "+z);
-	}
+
 }
 
+window.centerHeadPosition = (x,y,z) => {
+	if (!engine.centerHeadPosition){
+		engine.centerHeadPosition = [x,y,z];
+	}
+}
 // Export the class for use in other modules
 export { EngineWebGL_u3d };
