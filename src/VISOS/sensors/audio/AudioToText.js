@@ -2,11 +2,11 @@
 import * as SpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
 import BaseStreamManager from './BaseStreamManager';
 
-export default class StreamAudioToTextProcessor extends BaseStreamManager {
+export default class AudioToText extends BaseStreamManager {
     constructor() {
         super();
-        const apiKey = 'YOUR_API_KEY';
-        const region = 'YOUR_REGION';
+        const apiKey = '77326273c9e74b93a49efc8093c19282';
+        const region = 'eastus';
         this.speechConfig = SpeechSDK.SpeechConfig.fromSubscription(apiKey, region);
         this.speechRecognizer = null;
     }

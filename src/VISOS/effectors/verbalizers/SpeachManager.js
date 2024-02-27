@@ -7,7 +7,6 @@ class SpeechManager {
         this.isSpeaking = false; // Flag to indicate if speech synthesis is currently happening
 
         const apiKey = '77326273c9e74b93a49efc8093c19282';
-        console.log("API Key: ", apiKey);
         const region = 'eastus';
         this.speechConfig = SpeechConfig.fromSubscription(apiKey, region);
         this.speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural"; // Use a specific voice

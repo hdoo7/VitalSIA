@@ -1,4 +1,3 @@
-import { Engine3D } from './engine3d.js';
 import { ActionUnitsList, EmotionsList, VisemesList } from './shapeDict.js';
 
 class FacsLib {
