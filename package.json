@@ -11,7 +11,7 @@
     "microsoft-cognitiveservices-speech-sdk": "^1.35.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-scripts": "4.0.3",
+    "react-scripts": "latest",
     "@chakra-ui/react": "^1.6.5",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.3.0",
@@ -32,4 +32,5 @@
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0"
   }
+}
 }
