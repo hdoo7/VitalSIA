@@ -2,13 +2,15 @@ import AudioToText from './VISOS/sensors/audio/AudioToText';
 import TextToListener from './VISOS/sensors/audio/TextToListener';
 import { loopSmileAndStickTongueOut } from './VISOS/effectors/visualizers/facialExpressions';
 import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
+import SmileControl from './VISOS/sensors/UI/SmileControl'; // Importing the newly created UI component
+
 const audioToText = new AudioToText();
 const keyPhrases = ["stick out your tongue"]; // Example keyphrase(s)
 
 // Instantiate the text listener with the key phrases
 const labialListener = new TextToListener(keyPhrases);
 const app = (engine, faclib) => {
-    const animationManager = new AnimationManager(facslib)
+    const animationManager = new AnimationManager(facslib);
     console.log("Starting audio transcription...");
     audioToText.startContinuousRecognition()
         .then(text => {
