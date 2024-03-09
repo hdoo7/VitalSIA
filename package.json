@@ -4,7 +4,6 @@
   "repository": "https://github.com/meekmachine/EVA-libre.git",
   "author": "Jonathan Fields <jonathanfields@gmail.com>",
   "license": "MIT",
-  "type": "module",
   "dependencies": {
     "dotenv": "^16.4.5",
     "jquery": "^3.7.1",
@@ -31,5 +30,17 @@
     "path-browserify": "^1.0.0",
     "process": "^0.11.10",
     "stream-browserify": "^3.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
