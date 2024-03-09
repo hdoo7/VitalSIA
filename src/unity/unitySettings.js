@@ -1,32 +1,36 @@
-import { loadUnityScript } from './unityScriptLoader.js';
-import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js';
-import { FacsLib } from './facs/facslib.js';
-// Removed direct import of app to use middleware instead
+import { UnityLoadProvider } from './unityMiddleware'; // Import UnityLoadProvider
 
-window.engine;
-window.facslib;
-
-window.unityWebGLContentLoaded = false;
-let character = {
-    id: "001_FEMALE_CAU",
-    name: "Amy",
-    img: "unity/img/001_FEMALE_CAU.PNG",
-    path: "https://evalibre.blob.core.windows.net/evalibre/001_FEMALE_CAU_2019_05_06/",
-    scene: "scene_001_FEMALE_CAU",
-    voiceIndex: 5
+// Unity game configuration
+const gameConfig = {
+  dataUrl: "Build/game.data",
+  frameworkUrl: "Build/game.framework.js",
+  codeUrl: "Build/game.wasm",
+  streamingAssetsUrl: "StreamingAssets",
+  companyName: "MyCompany",
+  productName: "MyProduct",
+  productVersion: "1.0",
 };
 
-// Updated event handling to use unityMiddleware
-window.U3_sceneLoaded = () => {
-    if (!window.unityWebGLContentLoaded) {
-        console.log("Unity WebGL content loaded");
-        window.dispatchEvent(new Event('unityLoaded'));
-        window.unityWebGLContentLoaded = true;
-    }
+// Load the Unity game
+const loadUnityGame = () => {
+  const unityInstance = UnityLoader.instantiate("unityContainer", "Build/unity.json", gameConfig);
+  unityInstance.then(instance => {
+    // Unity game instance is ready
+    window.UnityInstance = instance;
+    // Dispatch event to signal Unity game is loaded
+    window.dispatchEvent(new CustomEvent('unityGameLoaded'));
+  }).catch(error => {
+    console.error("Unity game failed to load", error);
+  });
 };
 
-window.U3_startSceneLoaded = () => {
-    console.log("Unity WebGL content started loading");
+// Listen for the Unity game loaded event and call handleUnityLoaded
+window.addEventListener('unityGameLoaded', () => {
+  UnityLoadProvider.handleUnityLoaded();
+});
+
+export { loadUnityGame };
+
     if (!window.unityWebGLContentLoaded) {
         console.log("Unity WebGL content is now fully loaded!");
         facslib.load('scene_environment_simple', character.scene);
