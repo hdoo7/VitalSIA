@@ -1,6 +1,7 @@
 import { loadUnityScript } from './unityScriptLoader.js'
 import { EngineWebGL_u3d } from './facs/engineWebGL_u3d.js'
 import { FacsLib } from './facs/facslib.js';
+
 // import { MainFrame } from '../mainframe/js/mainframe.classes.js';
 
 
@@ -19,12 +20,15 @@ let character = {
 
 window.U3_sceneLoaded = ()=>{
     if (!unityWebGLContentLoaded) {
-        console.log("Starting fear animation sequence...")    
-        setTimeout(() => { 
-            
-            window.dispatchEvent(new CustomEvent('unityGameLoaded'));
-        }, 50) 
+
         window.unityWebGLContentLoaded = true;
+
+       setTimeout(() => {
+            console.log("Unity WebGL content loaded!!!")
+        const detail = { engine: window.engine, facslib: window.facslib };
+        document.dispatchEvent(new CustomEvent('unityLoaded', { detail }));
+
+    }, 100);
     }
 }
 
@@ -36,13 +40,7 @@ window.U3_startSceneLoaded = () => {
         console.log("Unity WebGL content loaded!!!")
         facslib.load('scene_environment_simple', character.scene)
         
-        
-        
-    
-       
-        console.log("Prototype loaded");
-            // mainframe = new MainFrame('../mianframe/configs/eEvaConfig.xml');
-            // mainframe.run();
+
     }
 }
 

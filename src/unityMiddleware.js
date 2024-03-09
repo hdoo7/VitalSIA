@@ -1,30 +1,27 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Create a context for Unity load state
 const UnityLoadContext = createContext();
 
 export const UnityLoadProvider = ({ children }) => {
-  const [isUnityLoaded, setUnityLoaded] = useState(false);
+  const [unityState, setUnityState] = useState({ isLoaded: false, engine: null, facslib: null });
 
   useEffect(() => {
-    // Listen for the custom event dispatched from Unity when the scene is loaded
-    const handleUnityEvent = () => {
-      setUnityLoaded(true);
+    const handleUnityLoad = (event) => {
+      setUnityState({
+        isLoaded: true,
+        engine: event.detail.engine,
+        facslib: event.detail.facslib
+      });
     };
-    window.addEventListener('unityLoaded', handleUnityEvent);
-
-    // Cleanup the event listener when the component unmounts
-    return () => {
-      window.removeEventListener('unityLoaded', handleUnityEvent);
-    };
+    document.addEventListener('unityLoaded', handleUnityLoad);
+    return () => document.removeEventListener('unityLoaded', handleUnityLoad);
   }, []);
 
   return (
-    <UnityLoadContext.Provider value={isUnityLoaded}>
+    <UnityLoadContext.Provider value={unityState}>
       {children}
     </UnityLoadContext.Provider>
   );
 };
 
-// Custom hook to use Unity load state
-export const useUnityLoaded = () => useContext(UnityLoadContext);
+export const useUnityState = () => useContext(UnityLoadContext);
