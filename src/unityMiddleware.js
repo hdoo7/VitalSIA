@@ -6,13 +6,18 @@ const UnityLoadContext = createContext();
 export const UnityLoadProvider = ({ children }) => {
   const [isUnityLoaded, setUnityLoaded] = useState(false);
 
-  // Function to call from Unity's load event handlers
-  const handleUnityLoaded = () => {
-    setUnityLoaded(true);
-  };
+  useEffect(() => {
+    // Listen for the custom event dispatched from Unity when the scene is loaded
+    const handleUnityEvent = () => {
+      setUnityLoaded(true);
+    };
+    window.addEventListener('unityLoaded', handleUnityEvent);
 
-  // Make the handler globally accessible for Unity scripts
-  window.handleUnityLoaded = handleUnityLoaded;
+    // Cleanup the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('unityLoaded', handleUnityEvent);
+    };
+  }, []);
 
   return (
     <UnityLoadContext.Provider value={isUnityLoaded}>
