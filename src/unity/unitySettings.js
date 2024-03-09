@@ -1,3 +1,4 @@
+import './unityScriptLoader'; // Correctly import unityScriptLoader
 import { UnityLoadProvider } from './unityMiddleware'; // Import UnityLoadProvider
 
 // Unity game configuration
@@ -27,6 +28,10 @@ const loadUnityGame = () => {
 // Listen for the Unity game loaded event and call handleUnityLoaded
 window.addEventListener('unityGameLoaded', () => {
   UnityLoadProvider.handleUnityLoaded();
+});
+
+export { loadUnityGame };
+
 });
 
 export { loadUnityGame };
