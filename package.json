@@ -5,16 +5,17 @@
   "author": "Jonathan Fields <jonathanfields@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "@chakra-ui/icons": "^2.1.1",
+    "@chakra-ui/react": "^2.8.2",
+    "@emotion/react": "^11.11.4",
+    "@emotion/styled": "^11.11.0",
     "dotenv": "^16.4.5",
-    "jquery": "^3.7.1",
+    "framer-motion": "^11.0.8",
     "microsoft-cognitiveservices-speech-sdk": "^1.35.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "react-scripts": "5.0.0",
-    "@chakra-ui/react": "^1.6.5",
-    "@emotion/react": "^11.1.5",
-    "@emotion/styled": "^11.3.0",
-    "framer-motion": "^4.1.17"
+    "styled-components": "^6.1.8"
   },
   "scripts": {
     "start": "react-scripts start",
