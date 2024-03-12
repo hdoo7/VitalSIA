@@ -1,8 +1,7 @@
-// SliderDrawer.jsx
 import React, { useState } from 'react';
-import { useDisclosure, Drawer, DrawerBody, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton, IconButton, VStack } from '@chakra-ui/react';
+import { useDisclosure, Drawer, DrawerBody, DrawerHeader, DrawerContent, DrawerCloseButton, IconButton, VStack, Box } from '@chakra-ui/react';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import AUSlider from './AUSlider'; // Assuming AUSlider component is correctly implemented
+import AUSlider from './AUSlider'; // Ensure AUSlider is updated as per new requirements
 import { ActionUnitsList } from '../unity/facs/shapeDict'; // Adjust the import path accordingly
 
 const SliderDrawer = ({ animationManager }) => {
@@ -23,22 +22,22 @@ const SliderDrawer = ({ animationManager }) => {
         left="1rem"
         zIndex="overlay"
       />
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose}>
-        <DrawerOverlay />
-        <DrawerContent>
+      <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="md">
+        <DrawerContent backgroundColor="rgba(255, 255, 255, 0.5)"> {/* Adjust transparency here */}
           <DrawerCloseButton />
-          <DrawerHeader>Adjust Animation Units</DrawerHeader>
+          <DrawerHeader className="headline">Adjust Animation Units</DrawerHeader>
           <DrawerBody>
-            <VStack spacing={4}>
+            <VStack spacing={4} align="stretch">
               {ActionUnitsList.map((au) => (
-                <AUSlider
-                  key={au.id}
-                  au={au.id}
-                  name={au.name}
-                  intensity={auIntensities[au.id]}
-                  onChange={handleIntensityChange}
-                  animationManager={animationManager}
-                />
+                <Box key={au.id} w="100%">
+                  <AUSlider
+                    au={au.id}
+                    name={`${au.id} - ${au.name}`} // Include AU ID in the name
+                    intensity={auIntensities[au.id]}
+                    onChange={handleIntensityChange}
+                    animationManager={animationManager}
+                  />
+                </Box>
               ))}
             </VStack>
           </DrawerBody>
