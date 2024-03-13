@@ -14,9 +14,8 @@ function App() {
       console.log('Unity is loaded. Engine and facslib are now available for use.');
       const animationManager = new AnimationManager(facslib);
       const speachManager = new SpeachManager(animationManager);
-      speachManager.enqueueText(`Welcome to Vis FACS 2024! To get started adjusting my facial expressions, just click the hambrger menu icon on the top left.`)
+      speachManager.enqueueText(`Welcome to Vis facs 2024! To get started adjusting my facial expressions, just click the hamburger menu icon on the top left.`)
       loopRandomBlink(animationManager);
-      speachManager.enqueueText(`Welcome to Vis FACS 2024! To get started adjusting my facial expressions, just click the hambrger menu icon on the top left.`)
 
     }
   }, [isLoaded, engine, facslib]);

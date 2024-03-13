@@ -6,7 +6,7 @@ class SpeechManager {
         this.queue = []; // Queue to hold texts for speech synthesis
         this.isSpeaking = false; // Flag to indicate if speech synthesis is currently happening
 
-        const apiKey = '77326273c9e74b93a49efc8093c19282';
+        const apiKey = '035bcb3e4d914bccb05ffa9e4f38ae3e';
         const region = 'eastus';
         this.speechConfig = SpeechConfig.fromSubscription(apiKey, region);
         this.speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural"; // Use a specific voice
