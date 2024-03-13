@@ -4,6 +4,7 @@
   "repository": "https://github.com/meekmachine/EVA-libre.git",
   "author": "Jonathan Fields <jonathanfields@gmail.com>",
   "license": "MIT",
+  "homepage": "https://meekmachine.github.io/EVA-libre",
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
@@ -16,18 +17,24 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.0",
+    "react-tsparticles": "^2.9.3",
+    "tsparticles": "^2.9.3",
     "styled-components": "^6.1.8"
+
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "NODE_OPTIONS=--max-old-space-size=4096 react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d build"
   },
   "devDependencies": {
     "buffer": "^5.5.0||^6.0.0",
     "crypto-browserify": "^3.12.0",
     "events": "^3.1.0",
+    "gh-pages": "^6.1.1",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.0",
     "process": "^0.11.10",
