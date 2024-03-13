@@ -4,7 +4,7 @@ import SliderDrawer from './components/SliderDrawer'; // Import the SliderDrawer
 import { useUnityState } from './unityMiddleware';
 import { smile, loopRandomBlink, stickTongueOut, pullTongueIn } from './VISOS/effectors/visualizers/facialExpressions';
 import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
-import SpeachManager from './VISOS/effectors/verbalizers/SpeachManager.js'
+import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager.js'
 import faceMaker from './faceMaker.js' // Use faceMaker instead of labial
 
 function App() {
@@ -14,8 +14,8 @@ function App() {
     if (isLoaded) {
       console.log('Unity is loaded. Engine and facslib are now available for use.');
       const animationManager = new AnimationManager(facslib);
-      const speachManager = new SpeachManager(animationManager);
-      speachManager.enqueueText(`Welcome to Vis facs 2024! To get started adjusting my facial expressions, just click the hamburger menu icon on the top left.`)
+      const speechManager = new SpeechManager(animationManager);
+      speechManager.enqueueText(`Welcome to Vis facs 2024! To get started adjusting my facial expressions, just click the hamburger menu icon on the top left.`)
       loopRandomBlink(animationManager);
       faceMaker(engine, facslib); // Invoke faceMaker here
     }
@@ -24,7 +24,7 @@ function App() {
   return (
     <div className="App">
       <Loader isLoading={!isLoaded} />
-      {isLoaded and (
+      {isLoaded && (
         <>
           <p>Unity has loaded. You can now interact with the Unity content.</p>
           <SliderDrawer animationManager={new AnimationManager(facslib)} />
