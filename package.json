@@ -18,9 +18,9 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.0",
     "react-tsparticles": "^2.9.3",
+    "styled-components": "^6.1.8",
     "tsparticles": "^2.9.3",
-    "styled-components": "^6.1.8"
-
+    "webrtc": "^1.14.1"
   },
   "scripts": {
     "start": "react-scripts start",

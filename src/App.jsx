@@ -5,6 +5,7 @@ import { useUnityState } from './unityMiddleware';
 import { smile, loopRandomBlink, stickTongueOut, pullTongueIn } from './VISOS/effectors/visualizers/facialExpressions';
 import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
 import SpeachManager from './VISOS/effectors/verbalizers/SpeachManager.js'
+import labial from './labial.js'
 
 function App() {
   const { isLoaded, engine, facslib } = useUnityState();
@@ -16,7 +17,7 @@ function App() {
       const speachManager = new SpeachManager(animationManager);
       speachManager.enqueueText(`Welcome to Vis facs 2024! To get started adjusting my facial expressions, just click the hamburger menu icon on the top left.`)
       loopRandomBlink(animationManager);
-
+      labial();
     }
   }, [isLoaded, engine, facslib]);
 

@@ -53,14 +53,14 @@ class SpeechManager {
     scheduleVisemeApplication(visemeId, audioOffset) {
         setTimeout(() => {
             this.applyVisemeToCharacter(visemeId);
-        }, audioOffset / 10000); // Convert the offset to milliseconds if necessary
+        }, audioOffset / 10066); // Convert the offset to milliseconds if necessary
     }
 
     applyVisemeToCharacter(visemeId) {
         const facsLib = this.animationManager.facsLib; // Access facsLib from the AnimationManager instance
 
         if (visemeId === 0) {
-            facsLib.setNeutral(1.0);
+            // facsLib.setNeutral(1.0);
             facsLib.setNeutralViseme(0.0);
         } else {
             visemeId -= 1; // Adjust if your viseme IDs need alignment with your animation system

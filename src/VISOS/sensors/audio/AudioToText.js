@@ -5,7 +5,7 @@ import BaseStreamManager from './BaseStreamManager';
 export default class AudioToText extends BaseStreamManager {
     constructor() {
         super();
-        const apiKey = '77326273c9e74b93a49efc8093c19282';
+        const apiKey = '035bcb3e4d914bccb05ffa9e4f38ae3e';
         const region = 'eastus';
         this.speechConfig = SpeechSDK.SpeechConfig.fromSubscription(apiKey, region);
         this.speechRecognizer = null;
