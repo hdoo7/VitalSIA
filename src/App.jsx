@@ -4,6 +4,7 @@ import SliderDrawer from './components/SliderDrawer'; // Import the SliderDrawer
 import { useUnityState } from './unityMiddleware';
 import { smile, loopRandomBlink, stickTongueOut, pullTongueIn } from './VISOS/effectors/visualizers/facialExpressions';
 import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
+import SpeachManager from './VISOS/effectors/verbalizers/SpeachManager.js'
 
 function App() {
   const { isLoaded, engine, facslib } = useUnityState();
@@ -12,9 +13,11 @@ function App() {
     if (isLoaded) {
       console.log('Unity is loaded. Engine and facslib are now available for use.');
       const animationManager = new AnimationManager(facslib);
-      smile(animationManager);
+      const speachManager = new SpeachManager(animationManager);
+      speachManager.enqueueText(`Welcome to Vis FACS 2024! To get started adjusting my facial expressions, just click the hambrger menu icon on the top left.`)
       loopRandomBlink(animationManager);
-      pullTongueIn(animationManager);
+      speachManager.enqueueText(`Welcome to Vis FACS 2024! To get started adjusting my facial expressions, just click the hambrger menu icon on the top left.`)
+
     }
   }, [isLoaded, engine, facslib]);
 
