@@ -21,24 +21,26 @@ const faceMaker = ((engine, facslib) => {
             return textToListener.listen(text);
         })
         .then((detectedPhrase) => {
-            if (!!detectedPhrase && !!detectedPhrase.debounceText){
-                console.log(detectedPhrase.debounceText);
-                return gptReconciler.processText(detectedPhrase.debounceText, "Answer in a serious way:");
+            setTimeout(()=>loop(), 3000)
+            console.log(detectedPhrase);
+            if (!detectedPhrase.debounceText){
+                return;
             }
-
+            return gptReconciler.processText(detectedPhrase.debounceText, "Answer in a serious way:");
             
         })
+        .catch((e)=>console.log(e))
         .then(gptResponse => {
             if (gptResponse) {
                 console.log(`GPT Response: ${gptResponse}`);
                 speechManager.enqueueText(gptResponse);
-                loop();
+       
             }
         })
         .catch(error => {
             console.error("Error in processing:", error);
         });
     };
-    loop();
+    setTimeout(()=>loop(), 30)
 })
 export default faceMaker;

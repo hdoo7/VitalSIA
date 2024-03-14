@@ -71,13 +71,15 @@ const LoaderBar = styled.div`
   animation: ${loadAnimation} 90s linear forwards; // 90 seconds to complete
 `;
 
+const img = ['logo.png', 'visage.webp', 'lovelace.jpg', 'visfaces.webp','visfaces.webp','visfaces.webp', 'lol.webp'][Math.floor(Math.random() * 7)]
+
 const PosterImage = styled.div`
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('${process.env.PUBLIC_URL}/images/logo.png');
+  background-image: url('${process.env.PUBLIC_URL}/images/${img}');
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;

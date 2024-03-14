@@ -17,7 +17,7 @@ const AUSlider = ({ au, name, intensity, onChange, animationManager }) => {
 
   return (
     <Box width="100%">
-      <Text  fontFamily="'Amatic SC', cursive" mb="2">{`${au} - ${name}`}</Text>
+      <Text  fontFamily="'Lily Script', cursive" mb="2">{`${au} - ${name}`}</Text>
       <Slider id={au} defaultValue={intensity} min={0} max={100}
               onMouseEnter={() => setShowTooltip(true)} 
               onMouseLeave={() => setShowTooltip(false)}
