@@ -51,7 +51,6 @@ export function loopSmileAndStickTongueOut(animationManager) {
 // Add blink logic with modified doubleBlink function to include looping and randomness
 export function triggerBlink(animationManager) {
     // Triggering a blink in Unity using animationManager
-    console.log('Blink triggered in Unity.');
     animationManager.scheduleChange("45", 380, 500, 0); // Blink with AU45, intensity of 180, duration 100ms
   
     // Reset blink

@@ -1,4 +1,4 @@
-import ActionUnitsList from  '../../../unity/facs/shapeDict'
+import { ActionUnitsList } from  './../../../unity/facs/shapeDict'
 class AnimationManager {
     constructor(facsLib) {
         if (AnimationManager.instance) {
@@ -15,7 +15,7 @@ class AnimationManager {
                 this.applyAUChange(au, intensity, duration);
                 // Assume the animation takes the entire duration to complete
                 setTimeout(() => {
-                    console.log(`Animation ${au} completed.`);
+                    // console.log(`Animation ${au} completed.`);
                     resolve(); // Resolve the promise after the animation duration
                 }, duration * 1000); // Convert duration to milliseconds for setTimeout
             }, delay);
@@ -43,9 +43,8 @@ class AnimationManager {
         ActionUnitsList.forEach((AU)=>{
             this.scheduleChange(AU.id, 0, 750)
         })
-        console.log('Setting face to neutral...');
-        // Assuming there's a method in facsLib to reset all AUs
-        this.facsLib.setNeutral(750);
+        // console.log('Setting face to neutral...');
+  
         this.facsLib.updateEngine();
     }
 
@@ -54,14 +53,14 @@ class AnimationManager {
         this.setFaceToNeutral()
         const auData = JSON.parse(auJson);
          // Reset face to neutral before applying changes
-        setTimeout(
+        setTimeout(()=>
             auData.forEach(({ au, intensity, duration }) => {
                 // Introduce randomness in the delay before applying the change (e.g., 0-2 seconds)
-                const delay = Math.random() * 2000; // Random delay in milliseconds
-                this.scheduleChange(au, intensity, duration, delay).then(() => {
-                    console.log(`Change for ${au} applied after ${delay} ms delay.`);
+                // Random delay in milliseconds
+                this.scheduleChange(au.replace("AU", ""), intensity * 111, duration * 100, 0).then(() => {
+                    // console.log(`Change for ${au} applied after ${0} ms delay.`);
                 });
-            }),750)
+            }),800)
     }
 }
 
