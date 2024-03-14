@@ -3,13 +3,13 @@ import { useDisclosure, Drawer, DrawerBody, DrawerHeader, DrawerContent, DrawerC
 import { HamburgerIcon } from '@chakra-ui/icons';
 import AUSlider from './AUSlider'; // Ensure AUSlider is updated as per new requirements
 import { ActionUnitsList } from '../unity/facs/shapeDict'; // Adjust the import path accordingly
-import SpeachManager from '../VISOS/effectors/verbalizers/SpeachManager.js'
+import SpeechManager from '../VISOS/effectors/verbalizers/SpeechManager.js'
 
 const SliderDrawer = ({ animationManager }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [auIntensities, setAuIntensities] = useState(ActionUnitsList.reduce((acc, au) => ({ ...acc, [au.id]: 0 }), {}));
   const [audio] = useState(new Audio(process.env.PUBLIC_URL + '/Window.mp3'));
-  const speachManager = new SpeachManager(animationManager)
+  const speechManager = SpeechManager.getInstance(animationManager);
   const handleIntensityChange = (auId, value) => {
     setAuIntensities((prev) => ({ ...prev, [auId]: value }));
   };
@@ -19,7 +19,7 @@ const SliderDrawer = ({ animationManager }) => {
     if (isOpen) {
       // Play audio for 1800ms when the drawer opens
       playAudio(0, 1800);
-      speachManager.enqueueText(`Here you can adjust my facial action units, in order to test and validate existing theories, or to formulate new ones of your own! `)
+      speechManager.interruptSpeech(`Here you can adjust my facial action units, in order to test and validate existing theories, or to formulate new ones of your own! `)
 
     }
   }, [isOpen]);
@@ -34,8 +34,10 @@ const SliderDrawer = ({ animationManager }) => {
 
   const handleClose = () => {
     // Play audio from 2.1s with no specific end time on close
+    speechManager.stopSpeech()
     playAudio(2.1, 0);
     onClose();
+    
   };
 
 

@@ -1,3 +1,4 @@
+import ActionUnitsList from  '../../../unity/facs/shapeDict'
 class AnimationManager {
     constructor(facsLib) {
         if (AnimationManager.instance) {
@@ -29,11 +30,38 @@ class AnimationManager {
 
         // Check for valid number conversion
         if (isNaN(intensityNumber) || isNaN(smoothTimeNumber)) {
+            console.error("Invalid intensity or smooth time provided for AU change.");
             return;
         }
 
-        this.facsLib.setTargetAU(AU, intensityNumber, side, smoothTimeNumber);
+        this.facsLib.setTargetAU(AU.replace("AU", ""), intensityNumber, side, smoothTimeNumber);
         this.facsLib.updateEngine(); // Call render function here to apply changes
+    }
+
+    // New method to set the face to neutral
+    setFaceToNeutral() {
+        ActionUnitsList.forEach((AU)=>{
+            this.scheduleChange(AU.id, 0, 750)
+        })
+        console.log('Setting face to neutral...');
+        // Assuming there's a method in facsLib to reset all AUs
+        this.facsLib.setNeutral(750);
+        this.facsLib.updateEngine();
+    }
+
+    // New method to apply AU changes from a JSON object
+    applyChangesFromJson(auJson) {
+        this.setFaceToNeutral()
+        const auData = JSON.parse(auJson);
+         // Reset face to neutral before applying changes
+        setTimeout(
+            auData.forEach(({ au, intensity, duration }) => {
+                // Introduce randomness in the delay before applying the change (e.g., 0-2 seconds)
+                const delay = Math.random() * 2000; // Random delay in milliseconds
+                this.scheduleChange(au, intensity, duration, delay).then(() => {
+                    console.log(`Change for ${au} applied after ${delay} ms delay.`);
+                });
+            }),750)
     }
 }
 

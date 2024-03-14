@@ -1,26 +1,44 @@
 export default class TextToListener {
-    constructor(phrases) {
-        // Ensure phrases are both lowercased and trimmed to handle edge cases
-        this.phrases = Array.isArray(phrases) ? phrases.map(phrase => phrase.toLowerCase().trim()) : [phrases.toLowerCase().trim()];
-    }
+  constructor(phrases, debounceTime = 1000) { // Add a debounceTime parameter with a default value
+      this.phrases = Array.isArray(phrases) ? phrases.map(phrase => phrase.toLowerCase().trim()) : [phrases.toLowerCase().trim()];
+      this.debounceTime = debounceTime; // Time in milliseconds to wait for the next utterance
+      this.timeoutId = null; // To keep track of the debounce timeout
+      this.lastDetectedPhrase = null; // To store the last detected phrase
+  }
 
-    listen(text) {
-        // Return a promise that resolves if any of the phrases are detected in the text
-        return new Promise((resolve, reject) => {
-            // Lowercase and trim the incoming text to match the preprocessing of the phrases
-            const lowerText = text.toLowerCase().trim();
+  listen(text) {
+      return new Promise((resolve, reject) => {
+          const lowerText = text.toLowerCase().trim();
+          const detectedPhrase = this.phrases.find(phrase => lowerText.includes(phrase));
 
-            // Attempt to find a phrase that matches a portion of the text
-            const detectedPhrase = this.phrases.find(phrase => lowerText.includes(phrase));
+          // If a phrase is detected and we're not already waiting for a debounce
+          if (detectedPhrase && !this.timeoutId) {
+              this.lastDetectedPhrase = detectedPhrase; // Store the detected phrase
+              console.log(`Detected phrase: ${detectedPhrase}`);
 
-            if (detectedPhrase) {
-                console.log(`Detected phrase: ${detectedPhrase}`);
-                resolve(detectedPhrase);
-            } else {
-                // Instead of rejecting, resolve with null to indicate no match was found
-                // This allows for more graceful handling of continuous streams of text
-                resolve(null);
-            }
-        });
-    }
+              // Setup a debounce to wait for the next piece of text
+              this.timeoutId = setTimeout(() => {
+                  this.timeoutId = null; // Reset the debounce timer
+                  if (this.lastDetectedPhrase) {
+                      // Resolve with both the detected phrase and the debounce text
+                      resolve({ detectedPhrase: this.lastDetectedPhrase, debounceText: lowerText.replace(detectedPhrase, '').trim() });
+                      this.lastDetectedPhrase = null; // Reset the last detected phrase
+                  }
+              }, this.debounceTime);
+          } else if (this.timeoutId) {
+              // If we're in debounce mode, update the text associated with the last detected phrase
+              clearTimeout(this.timeoutId); // Clear the existing timeout
+              this.timeoutId = setTimeout(() => {
+                  this.timeoutId = null; // Reset the debounce timer
+                  if (this.lastDetectedPhrase) {
+                      resolve({ detectedPhrase: this.lastDetectedPhrase, debounceText: lowerText });
+                      this.lastDetectedPhrase = null; // Reset the last detected phrase
+                  }
+              }, this.debounceTime);
+          } else {
+              // If no phrase is detected and not in a debounce period, resolve with null
+              resolve(null);
+          }
+      });
+  }
 }
