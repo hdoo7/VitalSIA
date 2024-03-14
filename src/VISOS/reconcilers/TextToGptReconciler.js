@@ -3,7 +3,7 @@ import { OpenAI } from 'openai';
 class TextToGptReconciler {
     constructor() {
         this.openai = new OpenAI({
-            apiKey: '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',
+            apiKey: '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',
             dangerouslyAllowBrowser: true // Replace with your actual API key
         });
     }
@@ -14,7 +14,7 @@ class TextToGptReconciler {
             model: "gpt-3.5-turbo",
             messages: [{ role: 'user', content: fullPrompt }],
             temperature: 0.7,
-            max_tokens: 150,
+            max_tokens: 1500,
             top_p: 1.0,
             frequency_penalty: 0.0,
             presence_penalty: 0.0,

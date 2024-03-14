@@ -83,3 +83,10 @@ export function triggerBlink(animationManager) {
     // Start the looping blinking process
     startBlinking();
   }
+
+  export function headDown(animationManager){
+    animationManager.scheduleChange("54", 100, 90, 0);
+  }
+  export function headUp(animationManager){
+    animationManager.scheduleChange("54", 0, 90, 0);
+  }

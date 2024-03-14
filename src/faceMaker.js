@@ -4,6 +4,7 @@ import TextToGptReconciler from './VISOS/reconcilers/TextToGptReconciler';
 import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager';
 import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
 import faces from './prompts/faces'
+import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpressions'
 
 const audioToText = new AudioToText();
 const textToListener = new TextToListenerWithFollowUp(['hey amy']);
@@ -23,6 +24,7 @@ const faceMaker = ((engine, facslib) => {
         .then((detectedPhrase) => {
             setTimeout(()=>loop(), 3000)
             console.log(detectedPhrase);
+            headDown(animationManager);
             if (!detectedPhrase || !detectedPhrase.debounceText){
                 return;
             }
@@ -34,14 +36,14 @@ const faceMaker = ((engine, facslib) => {
         .then(gptResponse => {
             if (gptResponse) {
                 console.log(`GPT Response: ${gptResponse}`);
-                const parsed = JSON.parse(gptResponse + '"}');
+                const parsed = JSON.parse(gptResponse);
                 speechManager.enqueueText(parsed.explanation);
                 animationManager.applyChangesFromJson(JSON.stringify(parsed.aus))
             }
         })
         .catch(error => {
             console.error("Error in processing:", error);
-        });
+        }).finally(()=> headUp(animationManager));
     };
     setTimeout(()=>loop(), 30)
 })

@@ -7,7 +7,7 @@ Examples:
       {"au": "AU4", "intensity": 0.5, "duration": 5},
       {"au": "AU15", "intensity": 0.6, "duration": 5}
     ],
-    "explanation": "This configuration represents a person who is experiencing sadness, as indicated by AU4 (brow lowerer) showing concern, and AU15 (lip corner depressor) reflecting the downturned mouth associated with sadness. The modest intensity levels reflect the controlled emotional expression characteristic of conscientious individuals."
+    "explanation": "This configuration represents a person who is experiencing sadness, as indicated by ACTION UNIT4 (brow lowerer) showing concern, and ACTION UNIT15 (lip corner depressor) reflecting the downturned mouth associated with sadness. The modest intensity levels reflect the controlled emotional expression characteristic of conscientious individuals."
   }
 
   Example 2: Prompt and Response
@@ -24,7 +24,7 @@ Examples:
       {"au": "AU7", "intensity": 0.3, "duration": 3},
       {"au": "AU23", "intensity": 0.5, "duration": 4}
     ],
-    "explanation": "This JSON captures an expression of anger tempered by agreeableness. AU4 and AU23 are present to indicate frustration or anger, but at a moderated intensity, reflecting the agreeable tendency to avoid full confrontation. AU7 (lid tightener) at a low intensity suggests a restrained emotional display, consistent with an agreeable personality."
+    "explanation": "This JSON captures an expression of anger tempered by agreeableness. ACTION UNIT4 and ACTION UNIT23 are present to indicate frustration or anger, but at a moderated intensity, reflecting the agreeable tendency to avoid full confrontation. ACTION UNIT7 (lid tightener) at a low intensity suggests a restrained emotional display, consistent with an agreeable personality."
   }
 
   Prompt:
@@ -41,7 +41,7 @@ Examples:
       {"au": "AU5", "intensity": 1.0, "duration": 5},
       {"au": "AU26", "intensity": 0.4, "duration": 3}
     ],
-    "explanation": "The selected AUs reflect a strong reaction to surprise, with AU1 and AU2 indicating raised brows, and AU5 showing wide-open eyes, all at high intensities for a pronounced surprise effect. The inclusion of AU26 at a lower intensity suggests a slightly open mouth, indicative of the apprehensive and anxious response expected from someone with high neuroticism."
+    "explanation": "The selected ACTION UNITs reflect a strong reaction to surprise, with ACTION UNIT1 and ACTION UNIT2 indicating raised brows, and ACTION UNIT5 showing wide-open eyes, all at high intensities for a pronounced surprise effect. The inclusion of ACTION UNIT26 at a lower intensity suggests a slightly open mouth, indicative of the apprehensive and anxious response expected from someone with high neuroticism."
   }
 `
 export default faces
