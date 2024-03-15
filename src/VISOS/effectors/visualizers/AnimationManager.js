@@ -39,9 +39,9 @@ class AnimationManager {
     }
 
     // New method to set the face to neutral
-    setFaceToNeutral() {
+    setFaceToNeutral(duration=750) {
         ActionUnitsList.forEach((AU)=>{
-            this.scheduleChange(AU.id, 0, 750)
+            this.scheduleChange(AU.id, 0, duration)
         })
         // console.log('Setting face to neutral...');
   

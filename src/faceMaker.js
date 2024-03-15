@@ -7,7 +7,7 @@ import faces from './prompts/faces'
 import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpressions'
 
 const audioToText = new AudioToText();
-const textToListener = new TextToListenerWithFollowUp(['hey amy']);
+const textToListener = new TextToListenerWithFollowUp(['amy show me', 'set face to neutral']);
 const gptReconciler = new TextToGptReconciler();
 
 
@@ -25,6 +25,11 @@ const faceMaker = ((engine, facslib) => {
             setTimeout(()=>loop(), 3000)
             console.log(detectedPhrase);
             headDown(animationManager);
+            if (!detectedPhrase.debounceText && detectedPhrase.detectedPhrase === 'set face to neutral') {
+                console.log("xxx");
+                animationManager.setFaceToNeutral();
+                return;
+            }
             if (!detectedPhrase || !detectedPhrase.debounceText){
                 return;
             }

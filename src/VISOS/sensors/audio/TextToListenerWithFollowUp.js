@@ -1,57 +1,37 @@
-import TextToListener from './TextToListener';
+import TextToListener from './TextToListener'
 
 export default class TextToListenerWithFollowUp extends TextToListener {
-    constructor(phrases, bufferTime = 1000) {
-        super(phrases, bufferTime);
-        this.resetFollowUpState();
-    }
-
-    resetFollowUpState() {
+    constructor(phrases) {
+        super(phrases);
         this.awaitingFollowUp = false;
-        this.lastDetectedPhrase = null;
     }
 
-    processText(text) {
-        // Extended to handle text processing and manage follow-up state
+    listenForFollowUp(text) {
         return new Promise((resolve, reject) => {
-            super.processText(text).then(detectedPhrase => {
-                if (this.awaitingFollowUp) {
-                    // If already waiting for a follow-up, resolve with the phrase and follow-up text
-                    console.log(`Received follow-up: ${text}`);
-                    const result = { phrase: this.lastDetectedPhrase, followUp: text };
-                    this.resetFollowUpState();
-                    resolve(result);
-                } else if (detectedPhrase) {
-                    // Detected a new phrase, setup for awaiting follow-up
-                    console.log(`Detected phrase: ${detectedPhrase}, awaiting follow-up...`);
-                    this.awaitingFollowUp = true;
-                    this.lastDetectedPhrase = detectedPhrase;
-                    // Do not resolve here, wait for the follow-up
-                } else {
-                    // No phrase detected and not waiting for follow-up, keep listening
-                    console.log(`No key phrase detected in: ${text}`);
-                    // Do not resolve here, as we want to keep the process alive for continuous input
-                }
-            }).catch(error => {
-                reject(error);
-            });
+            if (this.awaitingFollowUp) {
+                // Reset awaitingFollowUp and resolve with both the phrase and text.
+                this.awaitingFollowUp = false;
+                resolve({ phrase: this.lastDetectedPhrase, followUp: text });
+                this.lastDetectedPhrase = null; // Clear the last detected phrase
+            } else {
+                super.listen(text).then(detectedPhrase => {
+                    if (detectedPhrase) {
+                        // Detected a key phrase, set to await the next piece of text as follow-up.
+                        this.awaitingFollowUp = true;
+                        this.lastDetectedPhrase = detectedPhrase; // Store the detected phrase
+                        console.log(`Detected phrase: ${detectedPhrase}, awaiting follow-up...`);
+                        // Resolve with null to indicate awaiting follow-up. This can be optional based on how you wish to handle flow.
+                        resolve(null); 
+                    } else {
+                        // No key phrase detected and not waiting for follow-up.
+                        // This could also resolve with null or could reject based on your error handling preference.
+                        resolve(null); 
+                    }
+                }).catch(error => {
+                    reject(error); // Propagate errors from the listen method
+                });
+            }
         });
     }
-
-    async startContinuousListening(textStreamGenerator) {
-        console.log("Starting continuous listening with follow-up...");
-        for await (const text of textStreamGenerator) {
-            try {
-                const result = await this.processText(text);
-                if (result) {
-                    console.log(`Processed phrase and follow-up:`, result);
-                    // Handle the result
-                }
-                // The loop continues listening without breaking unless an explicit break condition is met
-            } catch (error) {
-                console.error("Error during continuous listening:", error);
-                break; // Break on error, could also choose to continue depending on desired behavior
-            }
-        }
-    }
 }
+

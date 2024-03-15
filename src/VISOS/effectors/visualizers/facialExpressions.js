@@ -85,8 +85,8 @@ export function triggerBlink(animationManager) {
   }
 
   export function headDown(animationManager){
-    animationManager.scheduleChange("54", 100, 90, 0);
+    animationManager.scheduleChange("54", 100, 900, 0);
   }
   export function headUp(animationManager){
-    animationManager.scheduleChange("54", 0, 90, 0);
+    animationManager.scheduleChange("54", 0, 900, 0);
   }

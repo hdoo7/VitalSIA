@@ -3,7 +3,7 @@ import { OpenAI } from 'openai';
 class TextToGptReconciler {
     constructor() {
         this.openai = new OpenAI({
-            apiKey: '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',
+            apiKey: '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',
             dangerouslyAllowBrowser: true // Replace with your actual API key
         });
     }

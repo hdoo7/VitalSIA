@@ -6,6 +6,7 @@ import { smile, loopRandomBlink, stickTongueOut, pullTongueIn } from './VISOS/ef
 import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
 import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager.js'
 import faceMaker from './faceMaker.js' // Use faceMaker instead of labial
+import heyAmy from './heyAmy.js' // Use faceMaker instead of labial
 
 function App() {
   const { isLoaded, engine, facslib } = useUnityState();
@@ -20,32 +21,10 @@ function App() {
       faceMaker(engine, facslib); 
       window.animationManager = animationManager;
       const happyHighTraitsJson = JSON.stringify([
-        {
-            "au": "AU6",
-            "intensity": 0.7,
-            "duration": 5
-        },
-        {
-            "au": "AU12",
-            "intensity": 0.9,
-            "duration": 5
-        },
-        {
-            "au": "AU1",
-            "intensity": 0.5,
-            "duration": 5
-        },
-        {
-            "au": "AU25",
-            "intensity": 0.4,
-            "duration": 5
-        },
-        {
-            "au": "AU5",
-            "intensity": 0.3,
-            "duration": 5
-        }
-    ]);
+        {"au": "AU1", "intensity": 0.1, "duration": 3},
+        {"au": "AU12", "intensity": 0.2, "duration": 3},
+        {"au": "AU6", "intensity": 0.1, "duration": 3}
+      ]);
     
     // Applying AU changes from JSON to the AnimationManager
     animationManager.applyChangesFromJson(happyHighTraitsJson);
