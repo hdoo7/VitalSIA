@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/EVA-libre/static/js/main.4d0c1b55.js",
+    "main.js": "/EVA-libre/static/js/main.9c3b60a2.js",
     "index.html": "/EVA-libre/index.html",
-    "main.4d0c1b55.js.map": "/EVA-libre/static/js/main.4d0c1b55.js.map"
+    "main.9c3b60a2.js.map": "/EVA-libre/static/js/main.9c3b60a2.js.map"
   },
   "entrypoints": [
-    "static/js/main.4d0c1b55.js"
+    "static/js/main.9c3b60a2.js"
   ]
 }

@@ -16,7 +16,7 @@ function App() {
       console.log('Unity is loaded. Engine and facslib are now available for use.');
       const animationManager = new AnimationManager(facslib);
       const speechManager = SpeechManager.getInstance(animationManager);
-      //peechManager.enqueueText(`Hi!! I'm Amy!! an empathetic embodied virtual agents developed by Dr. Christine Lisetti at Visage laboratory. Welcome to Vis facs 2024! To get started adjusting my facial expressions, just click the hamburger menu icon on the top left.`)
+      //speechManager.enqueueText(`Hi!! I'm Amy!! an empathetic embodied virtual agents developed by Dr. Christine Lisetti at Visage laboratory. Welcome to Vis facs 2024! To get started adjusting my facial expressions, just click the hamburger menu icon on the top left.`)
       loopRandomBlink(animationManager);
       faceMaker(engine, facslib); 
       window.animationManager = animationManager;
