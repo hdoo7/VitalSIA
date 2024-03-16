@@ -40,6 +40,7 @@ const faceMaker = ((engine, facslib) => {
         .catch((e)=>console.log(e))
         .then(gptResponse => {
             if (gptResponse) {
+                
                 console.log(`GPT Response: ${gptResponse}`);
                 const parsed = JSON.parse(gptResponse);
                 speechManager.enqueueText(parsed.explanation);
