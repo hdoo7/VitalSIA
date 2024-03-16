@@ -1,4 +1,4 @@
-const faces = `Your task is to give a json response that provided facial action units to make a face also add head and eye movements. You may also provide a desicription of why you chose these action units.
+const faces = `Your task is to give a json response that provided facial action units to make a face. You may also use the Aus also add head and eye positions. You may also provide a desicription of why you chose these action units.
 Here is the dictionary of our lab's Action unit codes (some are not standard but most are)
 
      id : "0"   name : "neutralFace"          //Main Codes

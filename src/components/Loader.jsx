@@ -83,8 +83,7 @@ const PosterImage = styled.div`
   background-repeat: no-repeat;
   background-position: center;
   background-size: cover;
-  opacity: 0.5;
-  z-index: 20; // Ensures the image is above the background but below the loading bar
+  opacity: 1;
   animation: ${zoomOutAnimation} 40s ease-out infinite alternate;
 `;
 
@@ -106,12 +105,13 @@ function Loader({ isLoading }) {
           <LoaderBarContainer>
             <LoaderBar />
           </LoaderBarContainer>
-          <PosterImage />
           <Particles
             id="tsparticles"
             init={particlesInit}
             options={particleOptions("#ffffff")} // Example, adjust as needed
           />
+          <PosterImage />
+          
         </LoaderContainer>
       )}
     </>

@@ -1,46 +1,50 @@
-import React from 'react';
-import Loader from './components/Loader'; // Assuming Loader component is correctly implemented
-import SliderDrawer from './components/SliderDrawer'; // Import the SliderDrawer component
+import React, { useState, useEffect } from 'react';
+import Loader from './components/Loader';
+import SliderDrawer from './components/SliderDrawer';
 import { useUnityState } from './unityMiddleware';
-import { smile, loopRandomBlink, stickTongueOut, pullTongueIn } from './VISOS/effectors/visualizers/facialExpressions';
 import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
-import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager.js'
-import faceMaker from './faceMaker.js' // Use faceMaker instead of labial
-import heyAmy from './heyAmy.js' // Use faceMaker instead of labial
+import { loopRandomBlink } from './VISOS/effectors/visualizers/facialExpressions';
+import faceMaker from './faceMaker';
+import { ActionUnitsList } from './unity/facs/shapeDict'; // Adjust the import path as necessary
 
 function App() {
   const { isLoaded, engine, facslib } = useUnityState();
 
-  React.useEffect(() => {
+  // Initialize AU states dynamically based on ActionUnitsList
+  const initialAuStates = ActionUnitsList.reduce((acc, au) => ({
+    ...acc,
+    [au.id]: { intensity: 0, notes: "" }, // Default values for each AU
+  }), {});
+
+  const [auStates, setAuStates] = useState(initialAuStates);
+  const [setupComplete, setSetupComplete] = useState(false); // New state to track setup completion
+  let animationManager;
+  useEffect(() => {
     if (isLoaded) {
       console.log('Unity is loaded. Engine and facslib are now available for use.');
-      const animationManager = new AnimationManager(facslib);
-      const speechManager = SpeechManager.getInstance(animationManager);
-      //speechManager.enqueueText(`Hi!! I'm Amy!! an empathetic embodied virtual agents developed by Dr. Christine Lisetti at Visage laboratory. Welcome to Vis facs 2024! To get started adjusting my facial expressions, just click the hamburger menu icon on the top left.`)
+      animationManager = new AnimationManager(facslib, setAuStates);
       loopRandomBlink(animationManager);
-      faceMaker(engine, facslib); 
-      window.animationManager = animationManager;
-      const happyHighTraitsJson = JSON.stringify([
-        {"au": "AU1", "intensity": 0.1, "duration": 3},
-        {"au": "AU12", "intensity": 0.2, "duration": 3},
-        {"au": "AU6", "intensity": 0.1, "duration": 3}
-      ]);
-    
-    // Applying AU changes from JSON to the AnimationManager
-    animationManager.applyChangesFromJson(happyHighTraitsJson);
+      faceMaker(animationManager);
+      
+      // const happyHighTraitsJson = JSON.stringify([
+      //   // Your AU configurations here
+      // ]);
+      
+      // animationManager.applyChangesFromJson(happyHighTraitsJson);
 
-  // Applying AU changes from JSON to the AnimationManager
+      // Once all setup is done, set setupComplete to true
+      setSetupComplete(true);
     }
-    
-  }, [isLoaded, engine, facslib]);
+  }, [isLoaded, engine, facslib, setAuStates]); // Add setupComplete to dependency array if needed
 
   return (
     <div className="App">
-      <Loader isLoading={!isLoaded} />
-      {isLoaded && (
+      {/* Show loader until setupComplete is true */}
+      <Loader isLoading={!isLoaded || !setupComplete} />
+      {isLoaded && setupComplete && (
         <>
-          <p>Unity has loaded. You can now interact with the Unity content.</p>
-          <SliderDrawer animationManager={new AnimationManager(facslib)} />
+          <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
+          <SliderDrawer auStates={auStates} setAuStates={setAuStates} animationManager={animationManager} />
         </>
       )}
     </div>
@@ -48,4 +52,3 @@ function App() {
 }
 
 export default App;
-

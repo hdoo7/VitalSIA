@@ -1,67 +1,46 @@
-import { ActionUnitsList } from  './../../../unity/facs/shapeDict'
-class AnimationManager {
-    constructor(facsLib) {
-        if (AnimationManager.instance) {
-            return AnimationManager.instance;
-        }
-        this.facsLib = facsLib;
-        AnimationManager.instance = this;
+export default class AnimationManager {
+    constructor(facsLib, setAuStates) {
+      if (AnimationManager.instance) {
+        return AnimationManager.instance;
+      }
+      this.facsLib = facsLib;
+      this.setAuStates = setAuStates; // Function to update AU states
+      AnimationManager.instance = this;
     }
-
-    // Schedule an animation change and return a promise that resolves when the animation is done
-    scheduleChange(au, intensity, duration, delay) {
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                this.applyAUChange(au, intensity, duration);
-                // Assume the animation takes the entire duration to complete
-                setTimeout(() => {
-                    // console.log(`Animation ${au} completed.`);
-                    resolve(); // Resolve the promise after the animation duration
-                }, duration * 1000); // Convert duration to milliseconds for setTimeout
-            }, delay);
-        });
-    }
-
-    // Helper function to apply an AU change
-    applyAUChange(AU, intensity, side = 'both', smoothTime = 0.5) {
-        // Validate and convert intensity and smoothTime to numbers
-        const intensityNumber = Number(intensity);
-        const smoothTimeNumber = Number(smoothTime);
-
-        // Check for valid number conversion
-        if (isNaN(intensityNumber) || isNaN(smoothTimeNumber)) {
-            console.error("Invalid intensity or smooth time provided for AU change.");
-            return;
-        }
-
-        this.facsLib.setTargetAU(AU.replace("AU", ""), intensityNumber, side, smoothTimeNumber);
-        this.facsLib.updateEngine(); // Call render function here to apply changes
-    }
-
-    // New method to set the face to neutral
-    setFaceToNeutral(duration=750) {
-        ActionUnitsList.forEach((AU)=>{
-            this.scheduleChange(AU.id, 0, duration)
-        })
-        // console.log('Setting face to neutral...');
   
-        this.facsLib.updateEngine();
+    // Schedule a change for an AU with a specified intensity, duration, and optional delay
+    scheduleChange(au, intensity, duration, delay = 0) {
+      setTimeout(() => {
+        this.applyAUChange(au, intensity, duration);
+      }, delay);
     }
-
-    // New method to apply AU changes from a JSON object
+  
+    // Apply an AU change directly to Unity and update the state to reflect this change
+    applyAUChange(AU, targetIntensity, duration, side = 'both', smoothTime = 0.5) {
+      // Immediately apply change to Unity
+      this.facsLib.setTargetAU(AU.replace("AU", ""), targetIntensity, side, smoothTime);
+      this.facsLib.updateEngine();
+  
+      // Update React state to reflect the change
+      this.setAuStates(prevAuStates => ({
+        ...prevAuStates,
+        [AU]: { ...prevAuStates[AU], intensity: targetIntensity, side, smoothTime },
+      }));
+    }
+  
+    // Set all AUs to neutral using scheduleChange to gradually apply these changes
+    setFaceToNeutral(duration = 750) {
+      Object.keys(this.currentIntensity).forEach(AU => {
+        this.scheduleChange(AU, 0, duration);
+      });
+    }
+  
+    // Apply changes from a provided JSON object, leveraging scheduleChange for each AU
     applyChangesFromJson(auJson) {
-        this.setFaceToNeutral()
-        const auData = JSON.parse(auJson);
-         // Reset face to neutral before applying changes
-        setTimeout(()=>
-            auData.forEach(({ au, intensity, duration }) => {
-                // Introduce randomness in the delay before applying the change (e.g., 0-2 seconds)
-                // Random delay in milliseconds
-                this.scheduleChange(au.replace("AU", ""), intensity * 111, duration * 100, 0).then(() => {
-                    // console.log(`Change for ${au} applied after ${0} ms delay.`);
-                });
-            }),800)
+      const auData = JSON.parse(auJson);
+      auData.forEach(({ au, intensity, duration, delay = 0 }) => {
+        this.scheduleChange(au.replace("AU", ""), intensity, duration, delay);
+      });
     }
-}
-
-export default AnimationManager;
+  }
+  
