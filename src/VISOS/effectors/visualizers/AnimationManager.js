@@ -46,11 +46,14 @@ export default class AnimationManager {
   }
 
   applyChangesFromJson(auJson) {
+    this.setFaceToNeutral(750)
     // Parse JSON data and apply each AU change, with intensity scaling.
+    setTimeout(()=>{
     const auData = JSON.parse(auJson);
-    auData.forEach(({ id, intensity, duration, explanation = "" }) => {
-      // Intensity is scaled by 80 to adjust to the application's requirements.
-      this.scheduleChange(id, intensity * 90, duration, 0, explanation);
-    });
+      auData.forEach(({ id, intensity, duration, explanation = "" }) => {
+        // Intensity is scaled by 80 to adjust to the application's requirements.
+        this.scheduleChange(id, intensity * 90, duration, 0, explanation);
+      });
+    }, 800)
   }
 }
