@@ -1,19 +1,32 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Tooltip, Text, useColorModeValue } from '@chakra-ui/react';
 import * as d3 from 'd3';
 
-const AUSlider = ({ au, name, intensity, onChange, animationManager }) => {
+const AUSlider = ({ au, name, intensity, globalNotes, onChange, animationManager }) => {
   const [showTooltip, setShowTooltip] = React.useState(false);
+  const [localNotes, setLocalNotes] = useState(globalNotes);
+  const [lastIntensity, setLastIntensity] = useState(intensity);
 
   // Color transition from teal to magenta using d3 for dynamic color based on intensity
   const colorScale = d3.scaleLinear()
     .domain([0, 100])
     .range(["teal", "magenta"]);
 
+  useEffect(() => {
+    // Update local notes if globalNotes changes and the intensity hasn't significantly changed
+    if (Math.abs(intensity - lastIntensity) <= 10) {
+      setLocalNotes(globalNotes);
+    }
+  }, [globalNotes, intensity, lastIntensity]);
+
   const handleIntensityChange = (value) => {
     onChange(au, value); // Notify parent component about the change
-    // Directly adjust AU intensity in Unity, bypassing local state management
-    animationManager.scheduleChange(au, value, 250, 0); 
+    // Check if the change in intensity is significant
+    if (Math.abs(value - lastIntensity) > 10) {
+      // Here you could update the global state with the new notes, if necessary
+      // For example, setGlobalNotes(newNotes); if you have such a function available
+    }
+    setLastIntensity(value);
   };
 
   return (
@@ -35,6 +48,8 @@ const AUSlider = ({ au, name, intensity, onChange, animationManager }) => {
           <SliderThumb boxSize={6} />
         </Tooltip>
       </Slider>
+      {/* Display local notes if they exist */}
+      {localNotes && <Text mt="2" fontSize="sm">{localNotes}</Text>}
     </Box>
   );
 };

@@ -2,7 +2,7 @@
 export const particleOptions = (particleColor) => ({
     background: {
       color: {
-        value: "#000",
+        value: "transparent",
       },
     },
     fpsLimit: 60,

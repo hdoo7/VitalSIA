@@ -6,7 +6,7 @@ import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
 import { loopRandomBlink, smile } from './VISOS/effectors/visualizers/facialExpressions';
 import faceMaker from './faceMaker';
 import { ActionUnitsList } from './unity/facs/shapeDict';
-
+import useCamera from './useCamera'
 function App() {
   const { isLoaded, engine, facslib } = useUnityState();
 
@@ -26,14 +26,14 @@ function App() {
       const manager = new AnimationManager(facslib, setAuStates);
       setAnimationManager(manager);
       loopRandomBlink(manager);
-
+      // useCamera(engine)
       faceMaker(manager);
       // smile(manager)
       // Example to test or initialize AU changes. Adjust as necessary.
       const sampleJsonString = JSON.stringify([
-        { "au": "AU1", "intensity": 0.5, "duration": 500, "delay": 0 },
-        { "au": "AU2", "intensity": 0.7, "duration": 500, "delay": 100 },
-        { "au": "AU12", "intensity": 1.0, "duration": 1000, "delay": 200 }
+        { "id": "1", "intensity": 0.5, "duration": 500, "delay": 0 },
+        { "id": "2", "intensity": 0.7, "duration": 500, "delay": 100 },
+        { "id": "12", "intensity": 1.0, "duration": 1000, "delay": 200 }
       ]);
       
       // Wait for manager to be set up before applying changes from JSON.

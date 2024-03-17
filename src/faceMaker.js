@@ -20,12 +20,13 @@ const faceMaker = ((animationManager) => {
             return textToListener.listen(text);
         })
         .then((detectedPhrase) => {
-            setTimeout(()=>loop(), 3000)
+            
             console.log(detectedPhrase);
+            
             headDown(animationManager);
             if (!detectedPhrase.debounceText && detectedPhrase.detectedPhrase === 'set face to neutral') {
                 console.log("xxx");
-                animationManager.setFaceToNeutral();
+                animationManager.setFaceToNeutral()
                 return;
             }
             if (!detectedPhrase || !detectedPhrase.debounceText){
@@ -47,7 +48,10 @@ const faceMaker = ((animationManager) => {
         })
         .catch(error => {
             console.error("Error in processing:", error);
-        }).finally(()=> headUp(animationManager));
+        }).finally(()=> {
+          headUp(animationManager);
+          setTimeout(()=>loop(), 500)
+        });
     };
     setTimeout(()=>loop(), 30)
 })

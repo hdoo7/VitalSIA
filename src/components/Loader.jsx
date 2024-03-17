@@ -73,6 +73,16 @@ const LoaderBar = styled.div`
 
 const img = ['logo.png', 'visage.webp', 'lovelace.jpg', 'visfaces.webp','visfaces.webp','visfaces.webp', 'lol.webp'][Math.floor(Math.random() * 7)]
 
+const ParticlesContainer = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20; // Ensure this is above the PosterImage but below the LoaderBarContainer
+`;
+
+// Ensure PosterImage has an appropriate z-index to sit below the Particles
 const PosterImage = styled.div`
   position: absolute;
   top: 0;
@@ -85,6 +95,7 @@ const PosterImage = styled.div`
   background-size: cover;
   opacity: 1;
   animation: ${zoomOutAnimation} 40s ease-out infinite alternate;
+  z-index: -1; // Lower than ParticlesContainer
 `;
 
 function Loader({ isLoading }) {

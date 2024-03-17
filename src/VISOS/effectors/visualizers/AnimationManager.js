@@ -1,4 +1,5 @@
 import { ActionUnitsList } from '../../../unity/facs/shapeDict';
+
 export default class AnimationManager {
   constructor(facsLib, setAuStates) {
     if (AnimationManager.instance) {
@@ -14,39 +15,42 @@ export default class AnimationManager {
     }), {});
   }
 
-  scheduleChange(au, intensity, duration, delay=0) {
+  scheduleChange(au, intensity, duration, delay = 0, notes = "") {
     return new Promise((resolve) => {
       setTimeout(() => {
-        this.applyAUChange(au, intensity, duration);
+        // Direct application of intensity adjustment, factoring in the custom scaling.
+        this.applyAUChange(au, intensity, duration, 'both', 0.5, notes);
         setTimeout(() => resolve(), duration + delay);
       }, delay);
     });
   }
 
-  applyAUChange(AU, targetIntensity, duration, side = 'both', smoothTime = 0.5) {
-    // Directly apply change to Unity and update the state without gradual mechanism here
+  applyAUChange(AU, targetIntensity, duration, side = 'both', smoothTime = 0.5, notes = "") {
+    // Apply change directly to Unity
     this.facsLib.setTargetAU(AU.replace("AU", ""), targetIntensity, side, smoothTime);
     this.facsLib.updateEngine();
     
-    // Update the state immediately with the target intensity
+    // Update the component state with the adjusted AU information.
     this.setAuStates(prevAuStates => ({
       ...prevAuStates,
-      [AU]: { ...prevAuStates[AU], intensity: targetIntensity, side, smoothTime },
+      [AU]: { ...prevAuStates[AU], intensity: targetIntensity, side, smoothTime, notes },
     }));
   }
 
   setFaceToNeutral(duration = 750) {
-    ActionUnitsList.forEach((AU) => this.scheduleChange(AU.id, 0, duration, 0));
+    // Set all AUs to neutral positions.
+    ActionUnitsList.forEach((AU) => {
+      this.scheduleChange(AU.id, 0, duration, 0, "");
+    });
     this.facsLib.updateEngine();
   }
 
   applyChangesFromJson(auJson) {
-    // Directly call scheduleChange for each AU in the JSON, without setting to neutral first
-    // as scheduleChange will handle gradual updates.
-
+    // Parse JSON data and apply each AU change, with intensity scaling.
     const auData = JSON.parse(auJson);
-    auData.forEach(({ au, intensity, duration }) => {
-        this.scheduleChange(au.replace("AU", ""), intensity * 80, duration, 0);
+    auData.forEach(({ id, intensity, duration, explanation = "" }) => {
+      // Intensity is scaled by 80 to adjust to the application's requirements.
+      this.scheduleChange(id, intensity * 90, duration, 0, explanation);
     });
   }
 }
