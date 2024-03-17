@@ -11,18 +11,23 @@ const AUSlider = ({ au, name, intensity, onChange, animationManager }) => {
     .range(["teal", "magenta"]);
 
   const handleIntensityChange = (value) => {
-    onChange(au, value); // Update the parent component's state with AU ID and value
-    animationManager.scheduleChange(au, value, 250, 0); // Adjust AU intensity in Unity
+    onChange(au, value); // Notify parent component about the change
+    // Directly adjust AU intensity in Unity, bypassing local state management
+    animationManager.scheduleChange(au, value, 250, 0); 
   };
 
   return (
     <Box width="100%">
       <Text fontFamily="'Lily Script', cursive" mb="2">{`${au} - ${name}`}</Text>
-      <Slider id={au} defaultValue={intensity} min={0} max={100}
-              onMouseEnter={() => setShowTooltip(true)} 
-              onMouseLeave={() => setShowTooltip(false)}
-              onChangeEnd={handleIntensityChange} // Consider using onChangeEnd for final value
-              colorScheme={useColorModeValue("teal", "magenta")}>
+      <Slider 
+        id={au} 
+        value={intensity} // Controlled by parent's state
+        min={0} 
+        max={100}
+        onMouseEnter={() => setShowTooltip(true)} 
+        onMouseLeave={() => setShowTooltip(false)}
+        onChange={handleIntensityChange} // Use onChange for real-time updates
+        colorScheme={useColorModeValue("teal", "magenta")}>
         <SliderTrack>
           <SliderFilledTrack bg={colorScale(intensity)} />
         </SliderTrack>
