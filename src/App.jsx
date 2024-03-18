@@ -35,7 +35,7 @@ function App() {
             loopRandomBlink(manager);
             faceMaker(manager);
             const speechManager = new SpeechManager(manager);
-            speechManager.enqueueText("Welcome to Vis Facs 2024! To get started say 'Hey Amy show me...'. For example, you might say, 'Hey Amy, show me how you really feel!'");
+            speechManager.enqueueText("Welcome to Vis Facs 2024! To get started say 'Hey Amy show me...' and then name a facial expression. For example, you might say, 'Hey Amy, show me a look of agreeable disbelief!'");
             const sampleJsonString = JSON.stringify([
               { "id": "1", "intensity": 0.5, "duration": 500, "delay": 0 },
               { "id": "2", "intensity": 0.7, "duration": 500, "delay": 100 },
