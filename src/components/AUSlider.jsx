@@ -12,12 +12,11 @@ const AUSlider = ({ au, name, intensity, notes, onChange, animationManager }) =>
     .range(["teal", "magenta"]);
 
   const handleIntensityChange = (value) => {
-    onChange(au, value); // Notify parent component about the change
-    // Check if the change in intensity is significant
-    if (Math.abs(value - lastIntensity) > 10) {
-      // Here you could update the global state with the new notes, if necessary
-      // For example, setGlobalNotes(newNotes); if you have such a function available
-    }
+      // Notify parent component about the change
+      // Check if the change in intensity is significant
+      if (animationManager) {
+        animationManager.applyAUChange(au, value, 0);
+      }
     setLastIntensity(value);
   };
 
