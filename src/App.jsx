@@ -6,6 +6,7 @@ import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
 import { loopRandomBlink, smile } from './VISOS/effectors/visualizers/facialExpressions';
 import faceMaker from './faceMaker';
 import { ActionUnitsList } from './unity/facs/shapeDict';
+import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager'
 import useCamera from './useCamera'
 function App() {
   const { isLoaded, engine, facslib } = useUnityState();
@@ -38,6 +39,8 @@ function App() {
       
       // Wait for manager to be set up before applying changes from JSON.
       manager.applyChangesFromJson(sampleJsonString);
+      const speechManager = new SpeechManager(manager);
+      speechManager.enqueueText("Welcome to Vis Facs 2024! To get started say 'Any show me... For example you might say, hey amy show me how you really feel!")
 
       setSetupComplete(true);
     }

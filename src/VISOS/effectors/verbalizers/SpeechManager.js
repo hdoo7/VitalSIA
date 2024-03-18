@@ -1,19 +1,7 @@
 import { SpeechConfig, SpeechSynthesizer } from "microsoft-cognitiveservices-speech-sdk";
 
 class SpeechManager {
-    static instance = null;
-
-    static getInstance(animationManager) {
-        if (!SpeechManager.instance) {
-            SpeechManager.instance = new SpeechManager(animationManager);
-        }
-        return SpeechManager.instance;
-    }
-
     constructor(animationManager) {
-        if (SpeechManager.instance) {
-            throw new Error("Error: Instantiation failed: Use SpeechManager.getInstance() instead of new.");
-        }
         this.animationManager = animationManager;
         this.queue = [];
         this.isSpeaking = false;

@@ -60,7 +60,7 @@ export const particleOptions = (particleColor) => ({
           enable: true,
           area: 800,
         },
-        value: 80,
+        value: 800,
       },
       opacity: {
         value: 0.5,
