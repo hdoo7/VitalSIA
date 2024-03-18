@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled, { keyframes, css } from 'styled-components';
 import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
 import { particleOptions } from './particleOptions'; // Make sure this is correctly imported
+import YouTube from 'react-youtube';
 
 // Keyframes for the loading bar width
 const loadAnimation = keyframes`
@@ -98,15 +99,36 @@ const PosterImage = styled.div`
   z-index: -1; // Lower than ParticlesContainer
 `;
 
+
+const YoutubePlayerContainer = styled.div`
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000; // Ensure it's above everything else
+  width: 360px;
+  height: 203px; // 16:9 aspect ratio for 360px width
+`;
+
 function Loader({ isLoading }) {
   const [loading, setLoading] = useState(isLoading);
+  const youtubeRef = useRef(null);
 
   useEffect(() => {
     setLoading(isLoading);
   }, [isLoading]);
 
+
   const particlesInit = async (main) => {
     await loadFull(main);
+  };
+
+  const opts = {
+    height: '100%',
+    width: '100%',
+    playerVars: {
+      autoplay: 1,
+      start: 67, // Start at 64 seconds
+    },
   };
 
   return (
@@ -119,10 +141,12 @@ function Loader({ isLoading }) {
           <Particles
             id="tsparticles"
             init={particlesInit}
-            options={particleOptions("#ffffff")} // Example, adjust as needed
+            options={particleOptions("#ffffff")}
           />
           <PosterImage />
-          
+          <YoutubePlayerContainer>
+            <YouTube videoId="Ljlvfkb1Q4U" opts={opts} ref={youtubeRef} />
+          </YoutubePlayerContainer>
         </LoaderContainer>
       )}
     </>

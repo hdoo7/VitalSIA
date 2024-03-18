@@ -1,36 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
-  useDisclosure, Drawer, DrawerBody, DrawerHeader, DrawerContent,
-  DrawerCloseButton, IconButton, VStack, Box, Flex, Switch, Button,
-  Spacer, Text, useToast
+  Drawer, DrawerBody, DrawerHeader, DrawerContent, DrawerCloseButton, IconButton,
+  VStack, Box, Flex, Switch, Button, Text, Tooltip, useToast
 } from '@chakra-ui/react';
 import AUSlider from './AUSlider';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { ActionUnitsList } from '../unity/facs/shapeDict';
 
-const SliderDrawer = ({ auStates, setAuStates, animationManager }) => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const [showAllSliders, setShowAllSliders] = useState(false);
+const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls, setDrawerControls }) => {
   const toast = useToast();
 
-  useEffect(() => {}, [isOpen]);
-
-  const handleIntensityChange = (auId, newValue) => {
+  const handleIntensityChange = (auId, newValue, newNotes) => {
     setAuStates(prev => ({
       ...prev,
-      [auId]: { ...prev[auId], intensity: newValue }
+      [auId]: { ...prev[auId], intensity: newValue, notes: newNotes ?? prev[auId].notes }
     }));
 
     if (animationManager) {
-      animationManager.applyAUChange(auId, newValue, 0); // Immediate application
+      animationManager.applyAUChange(auId, newValue, 0);
     }
   };
 
-  const toggleShowAllSliders = () => setShowAllSliders(!showAllSliders);
-
   const setFaceToNeutral = () => {
     if (animationManager) {
-      animationManager.setFaceToNeutral(750); // Adjust duration as needed
+      animationManager.setFaceToNeutral(750);
       toast({
         title: "Face reset to neutral.",
         description: "All action units have been reset.",
@@ -38,9 +31,9 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager }) => {
         duration: 3000,
         isClosable: true,
       });
-      // Reset notes when setting face to neutral
+      // Optionally reset notes when setting face to neutral
       const resetNotes = Object.keys(auStates).reduce((acc, key) => {
-        acc[key] = { ...auStates[key], intensity: 0, notes: auStates[key].notes };
+        acc[key] = { ...auStates[key], intensity: 0 }; // Reset intensity, keep notes
         return acc;
       }, {});
       setAuStates(resetNotes);
@@ -51,41 +44,37 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager }) => {
     <>
       <IconButton
         icon={<HamburgerIcon />}
-        onClick={onOpen}
+        onClick={() => setDrawerControls({ isOpen: !drawerControls.isOpen })}
         position="fixed"
         top="1rem"
         left="1rem"
         zIndex="overlay"
       />
-      <Drawer isOpen={isOpen} placement="left" onClose={onClose} size="md">
+      <Drawer isOpen={drawerControls.isOpen} placement="left" onClose={() => setDrawerControls({ isOpen: false })} size="md">
         <DrawerContent backgroundColor="rgba(255, 255, 255, 0.5)">
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px">Adjust Animation Units</DrawerHeader>
-          {/* Control Box */}
-          <Flex bg="gray.100" p={4} boxShadow="md" justifyContent="space-between" alignItems="center" position="sticky" top={0} zIndex="sticky">
-            <Text>Show All Sliders</Text>
-            <Switch isChecked={showAllSliders} onChange={toggleShowAllSliders} colorScheme="teal" />
+          <Flex direction="column" bg="gray.100" p={4} boxShadow="base" position="sticky" top={0} zIndex="sticky">
+            <Flex justifyContent="space-between" mb={4}>
+              <Text>Show Unused Sliders</Text>
+              <Switch isChecked={drawerControls.showUnusedSliders} onChange={() => setDrawerControls({ showUnusedSliders: !drawerControls.showUnusedSliders })} colorScheme="teal" />
+            </Flex>
             <Button colorScheme="teal" onClick={setFaceToNeutral}>Set Face to Neutral</Button>
           </Flex>
           <DrawerBody>
             <VStack spacing={4}>
-              {Object.entries(auStates).map(([auId, { intensity, notes }]) => {
-                if (!showAllSliders && intensity === 0) return null;
-                return (
-                  <Box key={auId} w="100%">
-                    <AUSlider
-                      au={auId}
-                      name={ActionUnitsList.find(au => au.id === auId)?.name || auId}
-                      intensity={intensity}
-                      notes={notes}
-                      onChange={(value) => handleIntensityChange(auId, value)}
-                      animationManager={animationManager}
-                    />
-                    {/* Display notes if available */}
-                    {notes && <Text mt="2" fontSize="sm" color="gray.600">{notes}</Text>}
-                  </Box>
-                );
-              })}
+              {Object.entries(auStates).filter(([_, au]) => drawerControls.showUnusedSliders || au.intensity !== 0).map(([auId, au]) => (
+                <Box key={auId} w="100%">
+                  <AUSlider
+                    au={auId}
+                    name={ActionUnitsList.find(item => item.id === auId)?.name || "Unknown"}
+                    intensity={au.intensity}
+                    notes={au.notes}
+                    onChange={(value, notes) => handleIntensityChange(auId, value, notes)}
+                    animationManager={animationManager}
+                  />
+                </Box>
+              ))}
             </VStack>
           </DrawerBody>
         </DrawerContent>
