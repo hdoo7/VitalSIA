@@ -127,7 +127,7 @@ function Loader({ isLoading }) {
     width: '100%',
     playerVars: {
       autoplay: 1,
-      start: 55, // Start at 64 seconds
+      start: 0, // Start at 64 seconds
     },
   };
 
@@ -145,7 +145,7 @@ function Loader({ isLoading }) {
           />
           <PosterImage />
           <YoutubePlayerContainer>
-            <YouTube videoId="cgjhXd8u4OM" opts={opts} ref={youtubeRef} />
+            <YouTube videoId="CiMOJgH-dS0" opts={opts} ref={youtubeRef} />
           </YoutubePlayerContainer>
         </LoaderContainer>
       )}
