@@ -11,7 +11,7 @@ class SpeechManager {
     }
 
     initSynthesizer() {
-        const apiKey = '035bcb3e4d914bccb05ffa9e4f38ae3e';
+        const apiKey = 'df147661838b473f8561a5687c200a7c';
         const region = 'eastus';
         const speechConfig = SpeechConfig.fromSubscription(apiKey, region);
         speechConfig.speechSynthesisVoiceName = "en-US-JennyNeural";
