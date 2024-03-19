@@ -73,7 +73,7 @@ const LoaderBar = styled.div`
 `;
 
 const img = ['logo.png', 'visage.webp', 'lovelace.jpg', 'visfaces.webp','visfaces.webp','visfaces.webp', 'lol.webp'][Math.floor(Math.random() * 7)]
-
+const vid = ["MG-kyulvO_c","YF_fu6HCloQ", "VWtEP3Uc8A8", "BUYJyVubL6w", "HgH_LsBHTPw", "ANArGmr74u4", "rTe7U92ecX8", "Fy1xQSiLx8U","K0HSD_i2DvA","rTe7U92ecX8", "rQMtXDkF9q4","rQMtXDkF9q4"][Math.floor(Math.random() * 12)]
 const ParticlesContainer = styled.div`
   position: absolute;
   top: 0;
@@ -145,7 +145,7 @@ function Loader({ isLoading }) {
           />
           <PosterImage />
           <YoutubePlayerContainer>
-            <YouTube videoId="CiMOJgH-dS0" opts={opts} ref={youtubeRef} />
+            <YouTube videoId={vid} opts={opts} ref={youtubeRef} />
           </YoutubePlayerContainer>
         </LoaderContainer>
       )}
