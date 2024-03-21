@@ -1,58 +1,45 @@
-import AudioToText from './VISOS/sensors/audio/AudioToText';
-import TextToListenerWithFollowUp from './VISOS/sensors/audio/TextToListenerWithFollowUp';
+// Import the SpeechProcessor and other necessary components
+import SpeechProcessor from './VISOS/sensors/audio/SpeechProcessor';
 import TextToGptReconciler from './VISOS/reconcilers/TextToGptReconciler';
-// import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager';
-import faces from './prompts/faces'
-import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpressions'
+import faces from './prompts/faces';
+import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpressions';
 
-const audioToText = new AudioToText();
-const textToListener = new TextToListenerWithFollowUp(['amy show me', 'set face to neutral']);
+// TextToGptReconciler instance for processing text with GPT
 const gptReconciler = new TextToGptReconciler();
 
+// faceMaker function that integrates SpeechProcessor with animationManager and other components
+const faceMaker = (animationManager) => {
+  // Get an instance of SpeechManager, assuming it requires animationManager for initialization
+  
+  // Define trigger phrases and create a SpeechProcessor instance
+  const triggerPhrases = ['amy show me', 'set face to neutral'];
+  const speechProcessor = new SpeechProcessor(triggerPhrases.join('|'), (text) => {
+    console.log(`Detected text: ${text}`);
+    headDown(animationManager);
 
-const faceMaker = ((animationManager) => {
-    // const speechManager = SpeechManager.getInstance(animationManager);
-    console.log("Starting audio transcription...");
-    const loop = () => { 
-        audioToText.startContinuousRecognition()
-        .then(text => {
-            console.log(`Transcribed text: ${text}`);
-            return textToListener.listen(text);
-        })
-        .then((detectedPhrase) => {
-            
-            console.log(detectedPhrase);
-            
-            headDown(animationManager);
-            if (!detectedPhrase.debounceText && detectedPhrase.detectedPhrase === 'set face to neutral') {
-                console.log("xxx");
-                animationManager.setFaceToNeutral()
-                return;
-            }
-            if (!detectedPhrase || !detectedPhrase.debounceText){
-                return;
-            }
-            
-            return gptReconciler.processText(detectedPhrase.debounceText, faces);
-            
-        })
-        .catch((e)=>console.log(e))
-        .then(gptResponse => {
-            if (gptResponse) {
-                
-                console.log(`GPT Response: ${gptResponse}`);
-                const parsed = JSON.parse(gptResponse);
-                // speechManager.enqueueText(parsed.explanation);
-                animationManager.applyChangesFromJson(JSON.stringify(parsed.aus))
-            }
-        })
-        .catch(error => {
-            console.error("Error in processing:", error);
-        }).finally(()=> {
-          headUp(animationManager);
-          setTimeout(()=>loop(), 500)
-        });
-    };
-    setTimeout(()=>loop(), 30)
-})
+    // Check for specific commands or phrases and respond accordingly
+    if (text.toLowerCase().includes('set face to neutral')) {
+      console.log("Setting face to neutral.");
+      animationManager.setFaceToNeutral();
+      headUp(animationManager);
+      return;
+    }
+
+    // If text requires GPT processing
+    gptReconciler.processText(text, faces)
+      .then(gptResponse => {
+        console.log(`GPT Response: ${gptResponse}`);
+        const parsed = JSON.parse(gptResponse);
+        animationManager.applyChangesFromJson(JSON.stringify(parsed.aus)); // Apply facial expression changes
+      })
+      .catch(error => console.error("Error in GPT reconciliation:", error))
+      .finally(() => headUp(animationManager));
+  });
+
+  // Start the speech recognition process
+  console.log("Starting speech recognition...");
+  speechProcessor.start();
+};
+
 export default faceMaker;
+

@@ -8,6 +8,7 @@ import faceMaker from './faceMaker';
 import { ActionUnitsList } from './unity/facs/shapeDict';
 import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager';
 import useCamera from './useCamera';
+import test from './test'
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
