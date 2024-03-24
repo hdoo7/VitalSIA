@@ -36,7 +36,7 @@ class SpeechProcessor {
         this.isRecognizing = true;
         console.log('Speech recognition started.');
       } catch (e) {
-        console.error('Error starting speech recognition:', e);
+        console.log('Error starting speech recognition:', e);
       }
     }
   
@@ -58,7 +58,7 @@ class SpeechProcessor {
   
     handleError(event) {
       this.isRecognizing = false;
-      console.error('Speech recognition error:', event.error);
+      console.log('Speech recognition error, restarting.');
       if (event.error === 'no-speech' || event.error === 'audio-capture') {
         this.restartRecognition();
       }

@@ -49,7 +49,7 @@ class SpeechManager {
                     resolve(result);
                 },
                 error => {
-                    console.error("Error during speech synthesis:", error);
+                    console.log("Error during speech synthesis, restarting");
                     reject(error);
                 });
         });

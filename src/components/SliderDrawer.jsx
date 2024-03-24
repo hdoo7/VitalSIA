@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Drawer, DrawerBody, DrawerHeader, DrawerContent, DrawerCloseButton, IconButton,
-  VStack, Box, Flex, Switch, Button, Text, Tooltip, useToast
+  VStack, Box, Flex, Switch, Button, Text, useToast,
+  Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon
 } from '@chakra-ui/react';
 import AUSlider from './AUSlider';
 import { HamburgerIcon } from '@chakra-ui/icons';
@@ -9,6 +10,7 @@ import { ActionUnitsList } from '../unity/facs/shapeDict';
 
 const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls, setDrawerControls }) => {
   const toast = useToast();
+  const [expandedItems, setExpandedItems] = useState([]);
 
   const handleIntensityChange = (auId, newValue, newNotes) => {
     setAuStates(prev => ({
@@ -18,6 +20,13 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
 
     if (animationManager) {
       animationManager.applyAUChange(auId, newValue, 0);
+    }
+
+    if (newValue > 0) {
+      const updatedSection = ActionUnitsList.find(au => au.id === auId)?.faceSection || 'Other';
+      if (!expandedItems.includes(updatedSection)) {
+        setExpandedItems(prev => [...prev, updatedSection]);
+      }
     }
   };
 
@@ -31,14 +40,53 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
         duration: 3000,
         isClosable: true,
       });
-      // Optionally reset notes when setting face to neutral
       const resetNotes = Object.keys(auStates).reduce((acc, key) => {
-        acc[key] = { ...auStates[key], intensity: 0 }; // Reset intensity, keep notes
+        acc[key] = { ...auStates[key], intensity: 0, notes: auStates[key].notes };
         return acc;
       }, {});
       setAuStates(resetNotes);
+      setExpandedItems([]); // Collapse all sections
     }
   };
+
+  const auGroups = useMemo(() => {
+    const groups = ActionUnitsList.reduce((acc, au) => {
+      (acc[au.faceSection || 'Other'] = acc[au.faceSection || 'Other'] || []).push(au);
+      return acc;
+    }, {});
+    return groups;
+  }, []);
+
+  // Determine which accordion items should be expanded based on the current AU states
+  useEffect(() => {
+    if (!drawerControls.showUnusedSliders) {
+      const activeSections = Object.values(auStates).reduce((sections, au, index) => {
+        if (au.intensity > 0) {
+          const section = ActionUnitsList.find(item => item.id === au.id)?.faceSection || 'Other';
+          sections.add(section);
+        }
+        return sections;
+      }, new Set());
+      setExpandedItems([...activeSections]);
+    }
+  }, [auStates, drawerControls.showUnusedSliders]);
+
+  const handleToggleShowUnused = () => {
+    setDrawerControls(prevControls => ({
+      ...prevControls,
+      showUnusedSliders: !prevControls.showUnusedSliders,
+    }));
+  };
+
+  // Filter sections to display based on the "Hide Unused Sliders" switch
+  const filteredSections = useMemo(() => {
+    if (!drawerControls.showUnusedSliders) {
+      return Object.entries(auGroups).filter(([section, aus]) =>
+        aus.some(au => auStates[au.id]?.intensity > 0)
+      );
+    }
+    return Object.entries(auGroups);
+  }, [auGroups, auStates, drawerControls.showUnusedSliders]);
 
   return (
     <>
@@ -51,31 +99,62 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
         zIndex="overlay"
       />
       <Drawer isOpen={drawerControls.isOpen} placement="left" onClose={() => setDrawerControls({ isOpen: false })} size="md">
-        <DrawerContent backgroundColor="rgba(255, 255, 255, 0.5)">
+        <DrawerContent>
           <DrawerCloseButton />
           <DrawerHeader borderBottomWidth="1px">Adjust Animation Units</DrawerHeader>
-          <Flex direction="column" bg="gray.100" p={4} boxShadow="base" position="sticky" top={0} zIndex="sticky">
-            <Flex justifyContent="space-between" mb={4}>
+          <Flex direction="column" p={4} boxShadow="base" position="sticky" top={0} zIndex="sticky" bg="gray.50">
+            <Flex justifyContent="space-between" mb={4} alignItems="center">
               <Text>Show Unused Sliders</Text>
               <Switch isChecked={drawerControls.showUnusedSliders} onChange={() => setDrawerControls({ showUnusedSliders: !drawerControls.showUnusedSliders })} colorScheme="teal" />
             </Flex>
             <Button colorScheme="teal" onClick={setFaceToNeutral}>Set Face to Neutral</Button>
           </Flex>
           <DrawerBody>
-            <VStack spacing={4}>
-              {Object.entries(auStates).filter(([_, au]) => drawerControls.showUnusedSliders || au.intensity !== 0).map(([auId, au]) => (
-                <Box key={auId} w="100%">
-                  <AUSlider
-                    au={auId}
-                    name={ActionUnitsList.find(item => item.id === auId)?.name || "Unknown"}
-                    intensity={au.intensity}
-                    notes={au.notes}
-                    onChange={(value, notes) => handleIntensityChange(auId, value, notes)}
-                    animationManager={animationManager}
-                  />
-                </Box>
+            <Accordion allowMultiple defaultIndex={expandedItems.map(item => filteredSections.findIndex(([section]) => section === item))}>
+              {filteredSections.map(([section, aus], index) => (
+                <AccordionItem key={section} >
+                  {({ isExpanded }) => (
+                    <>
+                      <h2>
+                        <AccordionButton onClick={() => {
+                          if (isExpanded) {
+                            setExpandedItems(current => current.filter(item => item !== section));
+                          } else {
+                            setExpandedItems(current => [...current, section]);
+                          }
+                        }}>
+                          <Box flex="1" textAlign="left">
+                            {section}
+                          </Box>
+                          <AccordionIcon />
+                        </AccordionButton>
+                      </h2>
+                      <AccordionPanel pb={4}>
+                        <VStack spacing={4}>
+                          {aus.map(au => {
+                            const auState = auStates[au.id];
+                            return auState && (drawerControls.showUnusedSliders || auState.intensity > 0) ? (
+                              <Box key={au.id} w="100%">
+                                <AUSlider
+                                  au={au.id}
+                                  name={au.name}
+                                  intensity={auState.intensity}
+                                  notes={auState.notes}
+                                  muscularBasis={ActionUnitsList[au.id]?.muscularBasis}
+                                  links={ActionUnitsList[au.id]?.links}
+                                  onChange={(value, notes) => handleIntensityChange(au.id, value, notes)}
+                                  animationManager={animationManager}
+                                />
+                              </Box>
+                            ) : null;
+                          })}
+                        </VStack>
+                      </AccordionPanel>
+                    </>
+                  )}
+                </AccordionItem>
               ))}
-            </VStack>
+            </Accordion>
           </DrawerBody>
         </DrawerContent>
       </Drawer>

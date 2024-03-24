@@ -4,7 +4,7 @@ import Particles from 'react-tsparticles';
 import { loadFull } from 'tsparticles';
 import { particleOptions } from './particleOptions'; // Make sure this is correctly imported
 import YouTube from 'react-youtube';
-
+import GameText from './GameText'
 // Keyframes for the loading bar width
 const loadAnimation = keyframes`
   from { width: 0%; }
@@ -73,7 +73,7 @@ const LoaderBar = styled.div`
 `;
 
 const img = ['logo.png', 'visage.webp', 'lovelace.jpg', 'visfaces.webp','visfaces.webp','visfaces.webp', 'lol.webp'][Math.floor(Math.random() * 7)]
-const vid = ["MG-kyulvO_c","YF_fu6HCloQ", "VWtEP3Uc8A8", "BUYJyVubL6w", "HgH_LsBHTPw", "ANArGmr74u4", "rTe7U92ecX8", "Fy1xQSiLx8U","K0HSD_i2DvA","rTe7U92ecX8", "rQMtXDkF9q4","rQMtXDkF9q4"][Math.floor(Math.random() * 12)]
+const vid = ["MG-kyulvO_c","YF_fu6HCloQ", "VWtEP3Uc8A8", "BUYJyVubL6w", "HgH_LsBHTPw", "ANArGmr74u4", "sK2v4GrASjw", "Fy1xQSiLx8U","K0HSD_i2DvA", "rQMtXDkF9q4","rQMtXDkF9q4"][Math.floor(Math.random() * 11)]
 const ParticlesContainer = styled.div`
   position: absolute;
   top: 0;
@@ -143,6 +143,7 @@ function Loader({ isLoading }) {
             init={particlesInit}
             options={particleOptions("#ffffff")}
           />
+          <GameText />
           <PosterImage />
           <YoutubePlayerContainer>
             <YouTube videoId={vid} opts={opts} ref={youtubeRef} />

@@ -27,7 +27,7 @@ export default class AnimationManager {
 
   applyAUChange(AU, targetIntensity, duration, side = 'both', smoothTime = 0.5, notes = "") {
     // Apply change directly to Unity
-    this.facsLib.setTargetAU(AU.replace("AU", ""), Math.abs(Number(targetIntensity)), side, smoothTime);
+    this.facsLib.setTargetAU(AU.replace("AU", ""), Math.abs(Number(targetIntensity)), "l", smoothTime);
     this.facsLib.updateEngine();
     
     // Update the component state with the adjusted AU information.

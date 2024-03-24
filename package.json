@@ -23,8 +23,10 @@
     "react-tsparticles": "^2.9.3",
     "react-youtube": "^10.1.0",
     "styled-components": "^6.1.8",
+    "three": "^0.162.0",
     "tsparticles": "^2.9.3",
-    "webrtc": "^1.14.1"
+    "webrtc": "^1.14.1",
+    "wikipedia": "^2.1.2"
   },
   "scripts": {
     "start": "react-scripts start",
