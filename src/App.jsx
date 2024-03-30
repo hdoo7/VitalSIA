@@ -35,16 +35,6 @@ function App() {
             setAnimationManager(manager);
             loopRandomBlink(manager);
             faceMaker(manager);
-            const speechManager = new SpeechManager(manager);
-            // speechManager.enqueueText("Welcome to Vis Facs 2024! To get started say 'Hey Amy show me...' and then name a facial expression. For example, you might say, 'Hey Amy, show me a look of agreeable disbelief!'");
-            const sampleJsonString = JSON.stringify([
-              { "id": "1", "intensity": 0.5, "duration": 500, "delay": 0 },
-              { "id": "2", "intensity": 0.7, "duration": 500, "delay": 100 },
-              { "id": "12", "intensity": 1.0, "duration": 1000, "delay": 200 }
-            ]);
-            
-            // Wait for manager to be set up before applying changes from JSON.
-            manager.applyChangesFromJson(sampleJsonString);
             setSetupComplete(true);
         }
     }, [isLoaded, facslib]);

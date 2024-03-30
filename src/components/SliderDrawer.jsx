@@ -12,24 +12,6 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
   const toast = useToast();
   const [expandedItems, setExpandedItems] = useState([]);
 
-  const handleIntensityChange = (auId, newValue, newNotes) => {
-    setAuStates(prev => ({
-      ...prev,
-      [auId]: { ...prev[auId], intensity: newValue, notes: newNotes ?? prev[auId].notes }
-    }));
-
-    if (animationManager) {
-      animationManager.applyAUChange(auId, newValue, 0);
-    }
-
-    if (newValue > 0) {
-      const updatedSection = ActionUnitsList.find(au => au.id === auId)?.faceSection || 'Other';
-      if (!expandedItems.includes(updatedSection)) {
-        setExpandedItems(prev => [...prev, updatedSection]);
-      }
-    }
-  };
-
   const setFaceToNeutral = () => {
     if (animationManager) {
       animationManager.setFaceToNeutral(750);
@@ -40,11 +22,6 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
         duration: 3000,
         isClosable: true,
       });
-      const resetNotes = Object.keys(auStates).reduce((acc, key) => {
-        acc[key] = { ...auStates[key], intensity: 0, notes: auStates[key].notes };
-        return acc;
-      }, {});
-      setAuStates(resetNotes);
       setExpandedItems([]); // Collapse all sections
     }
   };
@@ -71,12 +48,6 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
     }
   }, [auStates, drawerControls.showUnusedSliders]);
 
-  const handleToggleShowUnused = () => {
-    setDrawerControls(prevControls => ({
-      ...prevControls,
-      showUnusedSliders: !prevControls.showUnusedSliders,
-    }));
-  };
 
   // Filter sections to display based on the "Hide Unused Sliders" switch
   const filteredSections = useMemo(() => {

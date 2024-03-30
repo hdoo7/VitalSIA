@@ -51,11 +51,11 @@ export function loopSmileAndStickTongueOut(animationManager) {
 // Add blink logic with modified doubleBlink function to include looping and randomness
 export function triggerBlink(animationManager) {
     // Triggering a blink in Unity using animationManager
-    animationManager.scheduleChange("45", 380, 500, 0); // Blink with AU45, intensity of 180, duration 100ms
+    animationManager.scheduleChange("45", 100, 500, 0); // Blink with AU45, intensity of 180, duration 100ms
   
     // Reset blink
     
-      animationManager.scheduleChange("45", 0, 500, 500); // Reset blink with AU45, intensity of 0, duration 100ms
+      animationManager.scheduleChange("45", 3, 500, 500); // Reset blink with AU45, intensity of 0, duration 100ms
     // Adjust based on the blink animation duration in Unity
   }
   
@@ -88,5 +88,5 @@ export function triggerBlink(animationManager) {
     animationManager.scheduleChange("54", 100, 900, 0);
   }
   export function headUp(animationManager){
-    animationManager.scheduleChange("54", 0, 900, 0);
+    animationManager.scheduleChange("54", 2, 900, 0);
   }
