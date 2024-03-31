@@ -25,15 +25,15 @@ export default class AnimationManager {
     });
   }
 
-  applyAUChange(AU, targetIntensity, duration, side = 'both', smoothTime = 0.5, notes = "") {
+  applyAUChange(AU, targetIntensity, duration, side = 'both', notes = "") {
     // Apply change directly to Unity
-    this.facsLib.setTargetAU(AU.replace("AU", ""), Math.abs(Number(targetIntensity)), "l", smoothTime);
+    this.facsLib.setTargetAU(AU.replace("AU", ""), Math.abs(Number(targetIntensity)), "l", duration);
     this.facsLib.updateEngine();
     
     // Update the component state with the adjusted AU information.
     this.setAuStates(prevAuStates => ({
       ...prevAuStates,
-      [AU]: { ...prevAuStates[AU], intensity: targetIntensity, side, smoothTime, notes },
+      [AU]: { ...prevAuStates[AU], intensity: targetIntensity, side, duration, notes },
     }));
   }
 
