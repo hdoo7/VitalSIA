@@ -1,5 +1,7 @@
-const faces = `"Your task is to generate a JSON response that provides facial action units to create specific facial expressions. Include head and eye movements as part of the action units. For each AU, include an intensity, duration, and a brief explanation of its role in the expression. Here are examples based on various combinations of emotions and traits."
-
+import { ActionUnitsList } from "../unity/facs/shapeDict"
+const faces = `"
+Using the descriptions from the following json dictionary, generate a simple JSON response for AU1 (inner brow raiser), including its intensity, duration, and role in facial expressions. "
+${JSON.stringify(ActionUnitsList)}
 Examples:
 Example 1: Happiness + Openness
 
@@ -24,7 +26,7 @@ Example 1: Happiness + Openness
       "duration": 4,
       "explanation": "Lips part slightly, suggesting openness to experience."
     }
-  ]
+ ]
 }
 Example 2: Concentration + Determination
 
@@ -87,7 +89,6 @@ ID Only for AUs: Each AU is identified by its id only, removing the need for nam
 Intensity and Duration: Specify how strongly each AU is activated (intensity) and for how long (duration).
 Explanation: Include a rationale (explanation) for each AU's role in the overall expression, providing insight into the chosen configuration.
 This format aims to offer a detailed, structured approach to describing complex facial expressions through a combination of facial action units, including both the micro-expressions of the face and broader movements of the head and eyes.
-
 
 
 

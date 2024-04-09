@@ -6,47 +6,35 @@ import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
 import { loopRandomBlink, smile } from './VISOS/effectors/visualizers/facialExpressions';
 import faceMaker from './faceMaker';
 import { ActionUnitsList } from './unity/facs/shapeDict';
-import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager';
-import useCamera from './useCamera';
-import test from './test'
+import { useToast } from '@chakra-ui/react'; // Assuming Chakra UI for toast notifications
+import GameText from './components/GameText';
+
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
-
-    // Initialize AU states dynamically based on ActionUnitsList
-    const initialAuStates = ActionUnitsList.reduce((acc, au) => ({
-        ...acc,
-        [au.id]: { intensity: 0, name: au.name, notes: "" },
-    }), {});
-
-    const [auStates, setAuStates] = useState(initialAuStates);
+    const [auStates, setAuStates] = useState(ActionUnitsList.reduce((acc, au) => ({
+        ...acc, [au.id]: { intensity: 0, name: au.name, notes: "" },
+    }), {}));
     const [animationManager, setAnimationManager] = useState(null);
     const [setupComplete, setSetupComplete] = useState(false);
     const [drawerControls, setDrawerControls] = useState({
-        isOpen: false,
-        showUnusedSliders: false,
-        cameraEnabled: false,
+        isOpen: false, showUnusedSliders: false, cameraEnabled: false,
     });
+    const [isRequestLoading, setIsRequestLoading] = useState(false); // New loading state for requests
+    const toast = useToast();
 
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
-            console.log('Unity is loaded. Engine and facslib are now available for use.');
             const manager = new AnimationManager(facslib, setAuStates);
             setAnimationManager(manager);
             loopRandomBlink(manager);
-            faceMaker(manager);
+            faceMaker(manager, setIsRequestLoading, toast); // Pass the new loading state and toast method to faceMaker
             setSetupComplete(true);
         }
     }, [isLoaded, facslib]);
 
-    const handleDrawerControlsChange = (updates) => {
-        setDrawerControls(prev => ({ ...prev, ...updates }));
-
-        // If enabling camera controls for the first time
-        if (updates.cameraEnabled && !drawerControls.cameraEnabled) {
-            useCamera(); // This function would enable camera controls
-        }
-    };
+    // New method to trigger toast messages
+    
 
     return (
         <div className="App">
@@ -54,13 +42,15 @@ function App() {
             {isLoaded && setupComplete && animationManager && (
                 <>
                     <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
+                    {isRequestLoading && <GameText />}
                     <SliderDrawer
                         auStates={auStates}
                         setAuStates={setAuStates}
                         animationManager={animationManager}
                         drawerControls={drawerControls}
-                        setDrawerControls={handleDrawerControlsChange}
+                        setDrawerControls={setDrawerControls}
                     />
+
                 </>
             )}
         </div>

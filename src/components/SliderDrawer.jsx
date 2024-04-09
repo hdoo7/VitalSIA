@@ -26,15 +26,11 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
     }
   };
 
-  const auGroups = useMemo(() => {
-    const groups = ActionUnitsList.reduce((acc, au) => {
-      (acc[au.faceSection || 'Other'] = acc[au.faceSection || 'Other'] || []).push(au);
-      return acc;
-    }, {});
-    return groups;
-  }, []);
+  const auGroups = useMemo(() => ActionUnitsList.reduce((acc, au) => {
+    (acc[au.faceSection || 'Other'] = acc[au.faceSection || 'Other'] || []).push(au);
+    return acc;
+  }, {}), []);
 
-  // Determine which accordion items should be expanded based on the current AU states
   useEffect(() => {
     if (!drawerControls.showUnusedSliders) {
       const activeSections = Object.values(auStates).reduce((sections, au, index) => {
@@ -48,8 +44,6 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
     }
   }, [auStates, drawerControls.showUnusedSliders]);
 
-
-  // Filter sections to display based on the "Hide Unused Sliders" switch
   const filteredSections = useMemo(() => {
     if (!drawerControls.showUnusedSliders) {
       return Object.entries(auGroups).filter(([section, aus]) =>
@@ -76,14 +70,25 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
           <Flex direction="column" p={4} boxShadow="base" position="sticky" top={0} zIndex="sticky" bg="gray.50">
             <Flex justifyContent="space-between" mb={4} alignItems="center">
               <Text>Show Unused Sliders</Text>
-              <Switch isChecked={drawerControls.showUnusedSliders} onChange={() => setDrawerControls({ showUnusedSliders: !drawerControls.showUnusedSliders })} colorScheme="teal" />
+              <Switch
+  isChecked={drawerControls.showUnusedSliders}
+  onChange={(e) => {
+    e.preventDefault();  // Prevent default form submission behavior
+    e.stopPropagation(); // Stop event from propagating to higher elements
+    setDrawerControls(prev => ({
+      ...prev,
+      showUnusedSliders: !prev.showUnusedSliders
+    }));
+  }}
+  colorScheme="teal"
+/>
             </Flex>
             <Button colorScheme="teal" onClick={setFaceToNeutral}>Set Face to Neutral</Button>
           </Flex>
           <DrawerBody>
             <Accordion allowMultiple defaultIndex={expandedItems.map(item => filteredSections.findIndex(([section]) => section === item))}>
-              {filteredSections.map(([section, aus], index) => (
-                <AccordionItem key={section} >
+              {filteredSections.map(([section, aus]) => (
+                <AccordionItem key={section}>
                   {({ isExpanded }) => (
                     <>
                       <h2>
@@ -113,7 +118,7 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
                                   notes={auState.notes}
                                   muscularBasis={ActionUnitsList[au.id]?.muscularBasis}
                                   links={ActionUnitsList[au.id]?.links}
-                                  onChange={(value, notes) => handleIntensityChange(au.id, value, notes)}
+                                  onChange={(value, notes) => {/* Handle intensity change */}}
                                   animationManager={animationManager}
                                 />
                               </Box>
