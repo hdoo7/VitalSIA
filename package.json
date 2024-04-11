@@ -11,6 +11,8 @@
     "@chakra-ui/react": "^2.8.2",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
+    "@vladmandic/face-api": "^1.7.13",
+    "craco": "^0.0.3",
     "d3": "^7.8.5",
     "dotenv": "^16.4.5",
     "framer-motion": "^11.0.8",
@@ -29,10 +31,9 @@
     "wikipedia": "^2.1.2"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "NODE_OPTIONS=--max-old-space-size=4096 react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
     "predeploy": "yarn build",
     "deploy": "gh-pages -d build"
   },

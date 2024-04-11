@@ -38,6 +38,7 @@ const faceMaker = (animationManager, setIsRequestLoading, toast) => {
       duration: 3000,
       isClosable: true,
     });
+    headDown(animationManager);
     setIsRequestLoading(true);
     gptReconciler.processText(text, faces)
       .then(gptResponse => {
