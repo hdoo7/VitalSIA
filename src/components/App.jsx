@@ -28,15 +28,35 @@ function App() {
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates);
-            setAnimationManager(manager);
-            loopRandomBlink(manager);
-            faceMaker(manager, setIsSurveyActive, toast); // Adjust this to pass setIsSurveyActive
-            setSetupComplete(true);
-        }
-    }, [isLoaded, facslib]);
-
-    const handleSurveyComplete = (responses) => {
+const handleSurveyComplete = async (responses) => {
         console.log("Survey responses:", responses);
+        setIsSurveyActive(false); // Deactivate the survey
+        const dataToSave = {
+            responses,
+            actionUnits: auStates, // Collecting current states of all AUs
+            overallFeedback: "Overall feedback from the session", // Placeholder, add actual feedback
+            notes: "Detailed notes on session or AUs" // Placeholder, add specific notes
+        };
+        // Pass toast along with save function call
+        saveToFirebase('StaticExpressions', dataToSave, toast).then(() => {
+            toast({
+                title: "Data Saved Successfully",
+                description: "All data has been successfully saved to Firebase.",
+                status: 'success',
+                duration: 5000,
+                isClosable: true
+            });
+        }).catch((error) => {
+            console.error("Error saving data:", error);
+            toast({
+                title: "Error Saving Data",
+                description: "There was an error saving the data. Please try again later.",
+                status: 'error',
+                duration: 5000,
+                isClosable: true
+            });
+        });
+    };
         setIsSurveyActive(false); // Deactivate the survey
         // Add additional logic here, e.g., save responses to Firestore
     };
