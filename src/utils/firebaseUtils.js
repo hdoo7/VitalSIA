@@ -1,4 +1,5 @@
-import { db } from './firebase'; // Ensure this path correctly points to your Firebase config file
+import { db } from '../firebaseConfig'; // Adjust the path as needed if your Firebase config is elsewhere
+
 
 export const saveToFirebase = async (collectionName, data) => {
     try {
