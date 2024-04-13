@@ -9,7 +9,8 @@ import { ActionUnitsList } from '../unity/facs/shapeDict';
 import { useToast } from '@chakra-ui/react'; // Assuming Chakra UI for toast notifications
 import GameText from './GameText';
 import FaceDetection from './FaceDetection';
-
+import Survey from './Survey'; // Import the Survey component
+import { questions } from './utils/surveyQuestions'; // Import your survey questions
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
@@ -21,7 +22,7 @@ function App() {
     const [drawerControls, setDrawerControls] = useState({
         isOpen: false, showUnusedSliders: false, cameraEnabled: false,
     });
-    const [isRequestLoading, setIsRequestLoading] = useState(false); // New loading state for requests
+    const [isSurveyActive, setIsSurveyActive] = useState(false); // State to manage survey activity
     const toast = useToast();
 
     useEffect(() => {
@@ -29,13 +30,16 @@ function App() {
             const manager = new AnimationManager(facslib, setAuStates);
             setAnimationManager(manager);
             loopRandomBlink(manager);
-            faceMaker(manager, setIsRequestLoading, toast); // Pass the new loading state and toast method to faceMaker
+            faceMaker(manager, setIsSurveyActive, toast); // Adjust this to pass setIsSurveyActive
             setSetupComplete(true);
         }
     }, [isLoaded, facslib]);
 
-    // New method to trigger toast messages
-    
+    const handleSurveyComplete = (responses) => {
+        console.log("Survey responses:", responses);
+        setIsSurveyActive(false); // Deactivate the survey
+        // Add additional logic here, e.g., save responses to Firestore
+    };
 
     return (
         <div className="App">
@@ -43,7 +47,6 @@ function App() {
             {isLoaded && setupComplete && animationManager && (
                 <>
                     <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
-                    {isRequestLoading && <GameText />}
                     <SliderDrawer
                         auStates={auStates}
                         setAuStates={setAuStates}
@@ -52,6 +55,12 @@ function App() {
                         setDrawerControls={setDrawerControls}
                     />
                     <FaceDetection canvasId="#canvas" />
+                    {isSurveyActive && (
+                        <Survey
+                            questions={questions}
+                            onSurveyComplete={handleSurveyComplete}
+                        />
+                    )}
                 </>
             )}
         </div>
