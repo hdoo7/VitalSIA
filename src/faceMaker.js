@@ -5,8 +5,7 @@ import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpression
 
 const gptReconciler = new TextToGptReconciler();
 
-// Ensure setIsSurveyActive is passed as a parameter to faceMaker
-const faceMaker = (animationManager, setIsRequestLoading, toast, setIsSurveyActive) => {
+const faceMaker = (animationManager, setIsSurveyActive, toast) => {
     const triggerPhrases = ['amy show me', 'set face to neutral'];
     const speechProcessor = new SpeechProcessor(triggerPhrases.join('|'), (text) => {
         console.log(`Detected text: ${text}`);
@@ -35,15 +34,13 @@ const faceMaker = (animationManager, setIsRequestLoading, toast, setIsSurveyActi
             isClosable: true,
         });
 
-        headDown(animationManager);
-        setIsRequestLoading(true);
         gptReconciler.processText(text, faces)
             .then(gptResponse => {
                 console.log(`GPT Response: ${gptResponse}`);
                 const parsed = JSON.parse(gptResponse);
                 animationManager.applyChangesFromJson(JSON.stringify(parsed.aus)); // Apply facial expression changes
                 toast.close(t);
-                setIsSurveyActive(true); // Activate the survey only after the GPT response is processed
+                setIsSurveyActive(true); // Activate the survey only here, after processing is complete
             })
             .catch(error => {
                 console.error("Error in GPT reconciliation:", error);
@@ -55,11 +52,10 @@ const faceMaker = (animationManager, setIsRequestLoading, toast, setIsSurveyActi
                     duration: 5000,
                     isClosable: true,
                 });
-                setIsSurveyActive(false); // Ensure the survey is not activated if there's an error
+                setIsSurveyActive(false); // Deactivate survey on error
             })
             .finally(() => {
                 headUp(animationManager);
-                setIsRequestLoading(false);
             });
     });
 

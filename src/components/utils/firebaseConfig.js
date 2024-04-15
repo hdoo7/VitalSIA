@@ -2,15 +2,14 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 
-// Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyAsk_bqMcb2eKlLWfIGmaXpzdV0Pw3MkLY",
-    authDomain: "savoir-faire-ea320.firebaseapp.com",
-    projectId: "savoir-faire-ea320",
-    storageBucket: "savoir-faire-ea320.appspot.com",
-    messagingSenderId: "952407774872",
-    appId: "1:952407774872:web:bab4a0c237d086b548a2ed",
-    measurementId: "G-CZVK7PFBHT"
+    apiKey: "AIzaSyCBqK72dqC9lJLh7FPWze5NHA8dmm5NtXg",
+    authDomain: "savoir-faire-cef81.firebaseapp.com",
+    projectId: "savoir-faire-cef81",
+    storageBucket: "savoir-faire-cef81.appspot.com",
+    messagingSenderId: "255896250643",
+    appId: "1:255896250643:web:65a2a4bf8331acdc5952e6",
+    measurementId: "G-TQMB8WDQQR"
 };
 
 // Initialize Firebase

@@ -11,6 +11,7 @@ import GameText from './GameText';
 import FaceDetection from './FaceDetection';
 import Survey from './Survey'; // Import the Survey component
 import { questions } from './utils/surveyQuestions'; // Import your survey questions
+import { saveToFirebase } from './utils/firebaseUtils'; // Ensure this is correctly imported
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
@@ -22,13 +23,20 @@ function App() {
     const [drawerControls, setDrawerControls] = useState({
         isOpen: false, showUnusedSliders: false, cameraEnabled: false,
     });
-    const [isSurveyActive, setIsSurveyActive] = useState(false); // State to manage survey activity
+    const [isSurveyActive, setIsSurveyActive] = useState(false);
     const toast = useToast();
 
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates);
-const handleSurveyComplete = async (responses) => {
+            setAnimationManager(manager);
+            loopRandomBlink(manager);
+            faceMaker(manager, setIsSurveyActive, toast);
+            setSetupComplete(true);
+        }
+    }, [isLoaded, facslib]);
+
+    const handleSurveyComplete = async (responses) => {
         console.log("Survey responses:", responses);
         setIsSurveyActive(false); // Deactivate the survey
         const dataToSave = {
@@ -37,28 +45,8 @@ const handleSurveyComplete = async (responses) => {
             overallFeedback: "Overall feedback from the session", // Placeholder, add actual feedback
             notes: "Detailed notes on session or AUs" // Placeholder, add specific notes
         };
-        // Pass toast along with save function call
-        saveToFirebase('StaticExpressions', dataToSave, toast).then(() => {
-            toast({
-                title: "Data Saved Successfully",
-                description: "All data has been successfully saved to Firebase.",
-                status: 'success',
-                duration: 5000,
-                isClosable: true
-            });
-        }).catch((error) => {
-            console.error("Error saving data:", error);
-            toast({
-                title: "Error Saving Data",
-                description: "There was an error saving the data. Please try again later.",
-                status: 'error',
-                duration: 5000,
-                isClosable: true
-            });
-        });
-    };
-        setIsSurveyActive(false); // Deactivate the survey
-        // Add additional logic here, e.g., save responses to Firestore
+        // Now saving directly and handling toasts within saveToFirebase
+        saveToFirebase('StaticExpressions', dataToSave, toast);
     };
 
     return (
@@ -74,7 +62,6 @@ const handleSurveyComplete = async (responses) => {
                         drawerControls={drawerControls}
                         setDrawerControls={setDrawerControls}
                     />
-                    <FaceDetection canvasId="#canvas" />
                     {isSurveyActive && (
                         <Survey
                             questions={questions}
