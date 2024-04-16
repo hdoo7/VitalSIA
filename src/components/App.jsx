@@ -48,12 +48,7 @@ function App() {
         // Now saving directly and handling toasts within saveToFirebase
         saveToFirebase('StaticExpressions', dataToSave, toast);
     };
-
-    return (
-        <div className="App">
-            <Loader isLoading={!isLoaded || !setupComplete} />
-            {isLoaded && setupComplete && animationManager && (
-                <>
+                    {isRequestLoading && <GameText />}
                     <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
                     <SliderDrawer
                         auStates={auStates}
