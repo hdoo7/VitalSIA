@@ -15,23 +15,14 @@ import { saveToFirebase } from './utils/firebaseUtils'; // Ensure this is correc
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
-    const [auStates, setAuStates] = useState(ActionUnitsList.reduce((acc, au) => ({
-        ...acc, [au.id]: { intensity: 0, name: au.name, notes: "" },
-    }), {}));
-    const [animationManager, setAnimationManager] = useState(null);
-    const [setupComplete, setSetupComplete] = useState(false);
-    const [drawerControls, setDrawerControls] = useState({
-        isOpen: false, showUnusedSliders: false, cameraEnabled: false,
-    });
-    const [isSurveyActive, setIsSurveyActive] = useState(false);
-    const toast = useToast();
+    const [isRequestLoading, setIsRequestLoading] = useState(false); // State to manage loading of requests
 
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates);
             setAnimationManager(manager);
             loopRandomBlink(manager);
-            faceMaker(manager, setIsSurveyActive, toast);
+            faceMaker(manager, setIsSurveyActive, setIsRequestLoading, toast); // Pass setIsRequestLoading to faceMaker
             setSetupComplete(true);
         }
     }, [isLoaded, facslib]);
@@ -39,6 +30,7 @@ function App() {
     const handleSurveyComplete = async (responses) => {
         console.log("Survey responses:", responses);
         setIsSurveyActive(false); // Deactivate the survey
+        setIsRequestLoading(false); // Reset request loading state when survey is completed
         const dataToSave = {
             responses,
             actionUnits: auStates, // Collecting current states of all AUs
@@ -46,6 +38,9 @@ function App() {
             notes: "Detailed notes on session or AUs" // Placeholder, add specific notes
         };
         // Now saving directly and handling toasts within saveToFirebase
+        saveToFirebase('StaticExpressions', dataToSave, toast);
+    };
+
         saveToFirebase('StaticExpressions', dataToSave, toast);
     };
                     {isRequestLoading && <GameText />}
