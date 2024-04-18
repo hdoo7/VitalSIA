@@ -24,6 +24,7 @@ function App() {
     const [drawerControls, setDrawerControls] = useState({
         isOpen: false, showUnusedSliders: false, cameraEnabled: false,
     });
+    const [currentPromptB5T, setCurrentPromptB5T] = useState('');
     const [setupComplete, setSetupComplete] = useState(false);
     const [currentPromptIndex, setCurrentPromptIndex] = useState(0); // Track the current prompt index
     const [isSurveyActive, setIsSurveyActive] = useState(false);
@@ -48,6 +49,7 @@ function App() {
 
     const loadCurrentPrompt = () => {
         const currentPrompt = expressionPrompts[currentPromptIndex].prompt;
+        setCurrentPromptB5T(expressionPrompts[currentPromptIndex].B5T);
         faceLoader(currentPrompt, animationManager, setIsSurveyActive, setRequestIsLoading, toast);
     };
 
@@ -62,9 +64,8 @@ function App() {
         }
         saveToFirebase('StaticExpressions', {
             responses,
+            currentPromptB5T,
             actionUnits: auStates,
-            overallFeedback: "Overall feedback from the session",
-            notes: "Detailed notes on session or AUs"
         }, toast);
     };
 
@@ -74,7 +75,7 @@ function App() {
 
             {isLoaded && setupComplete && animationManager && (
                 <>
-                                {showWelcome && <WelcomeModal isOpen={showWelcome} onClose={() => setShowWelcome(false)} />}
+                {showWelcome && <WelcomeModal isOpen={showWelcome} onClose={() => setShowWelcome(false)} />}
             {showFinish && <FinishModal isOpen={showFinish} onClose={() => setShowFinish(false)} />}
                     {isRequestLoading && <GameText />}
                     <SliderDrawer
@@ -87,6 +88,7 @@ function App() {
                     {isSurveyActive && (
                         <Survey
                             questions={questions}
+                            currentPromptB5T={currentPromptB5T}
                             onSurveyComplete={handleSurveyComplete}
                         />
                     )}
