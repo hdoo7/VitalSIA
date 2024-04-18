@@ -5,13 +5,13 @@ import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpression
 
 const gptReconciler = new TextToGptReconciler();
 
-const faceMaker = (animationManager, setIsSurveyActive, toast) => {
+const faceMaker = (animationManager, setIsSurveyActive, toast, setRequestIsLoading) => {
     const triggerPhrases = ['amy show me', 'set face to neutral'];
     const speechProcessor = new SpeechProcessor(triggerPhrases.join('|'), (text) => {
         console.log(`Detected text: ${text}`);
         headDown(animationManager);
         animationManager.setFaceToNeutral();
-
+        setRequestIsLoading(true);
         if (text.toLowerCase().includes('set face to neutral')) {
             console.log("Setting face to neutral.");
             
@@ -40,6 +40,7 @@ const faceMaker = (animationManager, setIsSurveyActive, toast) => {
                 const parsed = JSON.parse(gptResponse);
                 animationManager.applyChangesFromJson(JSON.stringify(parsed.aus)); // Apply facial expression changes
                 toast.close(t);
+                setRequestIsLoading(false);
                 setIsSurveyActive(true); // Activate the survey only here, after processing is complete
             })
             .catch(error => {

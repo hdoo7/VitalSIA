@@ -15,14 +15,24 @@ import { saveToFirebase } from './utils/firebaseUtils'; // Ensure this is correc
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
-    const [isRequestLoading, setIsRequestLoading] = useState(false); // State to manage loading of requests
+    const [auStates, setAuStates] = useState(ActionUnitsList.reduce((acc, au) => ({
+        ...acc, [au.id]: { intensity: 0, name: au.name, notes: "" },
+    }), {}));
+    const [animationManager, setAnimationManager] = useState(null);
+    const [setupComplete, setSetupComplete] = useState(false);
+    const [drawerControls, setDrawerControls] = useState({
+        isOpen: false, showUnusedSliders: false, cameraEnabled: false,
+    });
+    const [isSurveyActive, setIsSurveyActive] = useState(false);
+    const [isRequestLoading, setRequestIsLoading] = useState(false); // Add this state
+    const toast = useToast();
 
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates);
             setAnimationManager(manager);
             loopRandomBlink(manager);
-            faceMaker(manager, setIsSurveyActive, setIsRequestLoading, toast); // Pass setIsRequestLoading to faceMaker
+            faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading);
             setSetupComplete(true);
         }
     }, [isLoaded, facslib]);
@@ -30,7 +40,6 @@ function App() {
     const handleSurveyComplete = async (responses) => {
         console.log("Survey responses:", responses);
         setIsSurveyActive(false); // Deactivate the survey
-        setIsRequestLoading(false); // Reset request loading state when survey is completed
         const dataToSave = {
             responses,
             actionUnits: auStates, // Collecting current states of all AUs
@@ -41,9 +50,11 @@ function App() {
         saveToFirebase('StaticExpressions', dataToSave, toast);
     };
 
-        saveToFirebase('StaticExpressions', dataToSave, toast);
-    };
-                    {isRequestLoading && <GameText />}
+    return (
+        <div className="App">
+            <Loader isLoading={!isLoaded || !setupComplete} />
+            {isLoaded && setupComplete && animationManager && (
+                <>
                     <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
                     <SliderDrawer
                         auStates={auStates}
@@ -52,6 +63,7 @@ function App() {
                         drawerControls={drawerControls}
                         setDrawerControls={setDrawerControls}
                     />
+                    {isRequestLoading && (<GameText />) }
                     {isSurveyActive && (
                         <Survey
                             questions={questions}

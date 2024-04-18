@@ -5,6 +5,7 @@ import { StarIcon } from '@chakra-ui/icons';
 const Survey = ({ questions, onSurveyComplete }) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [responses, setResponses] = useState({});
+  const [hoverIndex, setHoverIndex] = useState(null); // New state to track hover index
   const toast = useToast();
 
   // Handles user response for each question
@@ -39,9 +40,11 @@ const Survey = ({ questions, onSurveyComplete }) => {
             as={StarIcon}
             boxSize={8}
             m={1}
-            color={index < (responses[currentQuestion.id] || 0) ? "yellow.400" : "gray.300"}
+            color={index < (responses[currentQuestion.id] || 0) ? "orange.400" : "gray.300"}
             onClick={() => handleResponse(index + 1)}
-            _hover={{ color: "yellow.600", cursor: "pointer", transform: "scale(1.2)" }}
+            onMouseEnter={() => setHoverIndex(index)}
+            onMouseLeave={() => setHoverIndex(null)}
+            _hover={{ color: "orange.600", cursor: "pointer", transform: hoverIndex !== null && index <= hoverIndex ? "scale(1.2)" : "none" }}
             transition="transform 0.2s ease-in-out"
           />
         </Tooltip>

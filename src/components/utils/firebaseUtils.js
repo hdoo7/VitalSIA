@@ -1,9 +1,10 @@
 // firebaseUtils.js
-import db from './firebaseConfig'; // Ensure the correct path to your Firebase configuration
+import db from './firebaseConfig';
+import { collection, addDoc } from 'firebase/firestore';
 
 export const saveToFirebase = async (collectionName, data, toast) => {
     try {
-        await db.collection(collectionName).add({
+        await addDoc(collection(db, collectionName), {
             ...data,
             createdAt: new Date() // Timestamp for when the entry is created
         });
@@ -25,3 +26,4 @@ export const saveToFirebase = async (collectionName, data, toast) => {
         });
     }
 };
+
