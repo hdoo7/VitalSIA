@@ -14,7 +14,6 @@ const faceMaker = (animationManager, setIsSurveyActive, toast, setRequestIsLoadi
         setRequestIsLoading(true);
         if (text.toLowerCase().includes('set face to neutral')) {
             console.log("Setting face to neutral.");
-            
             toast({
                 title: "Face reset to neutral.",
                 description: "All action units have been reset.",

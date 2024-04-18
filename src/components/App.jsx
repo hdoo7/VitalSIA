@@ -3,59 +3,80 @@ import Loader from './Loader';
 import SliderDrawer from './SliderDrawer';
 import { useUnityState } from '../unityMiddleware';
 import AnimationManager from '../VISOS/effectors/visualizers/AnimationManager';
-import { loopRandomBlink, smile } from '../VISOS/effectors/visualizers/facialExpressions';
-import faceMaker from '../faceMaker';
+import faceLoader from '../faceLoader';  // Ensure this is the correct import for faceLoader
 import { ActionUnitsList } from '../unity/facs/shapeDict';
-import { useToast } from '@chakra-ui/react'; // Assuming Chakra UI for toast notifications
+import { useToast } from '@chakra-ui/react';
 import GameText from './GameText';
 import FaceDetection from './FaceDetection';
-import Survey from './Survey'; // Import the Survey component
-import { questions } from './utils/surveyQuestions'; // Import your survey questions
-import { saveToFirebase } from './utils/firebaseUtils'; // Ensure this is correctly imported
+import Survey from './Survey';
+import { questions } from './utils/surveyQuestions';
+import { saveToFirebase } from './utils/firebaseUtils';
+import expressionPrompts from './utils/expressionPrompts';  // Import the list of prompts
+import WelcomeModal from './WelcomeModal'; // Import WelcomeModal
+import FinishModal from './FinishModal'; // Import FinishModal
 
 function App() {
-    const { isLoaded, engine, facslib } = useUnityState();
+    const { isLoaded, facslib } = useUnityState();
     const [auStates, setAuStates] = useState(ActionUnitsList.reduce((acc, au) => ({
         ...acc, [au.id]: { intensity: 0, name: au.name, notes: "" },
     }), {}));
     const [animationManager, setAnimationManager] = useState(null);
-    const [setupComplete, setSetupComplete] = useState(false);
     const [drawerControls, setDrawerControls] = useState({
         isOpen: false, showUnusedSliders: false, cameraEnabled: false,
     });
+    const [setupComplete, setSetupComplete] = useState(false);
+    const [currentPromptIndex, setCurrentPromptIndex] = useState(0); // Track the current prompt index
     const [isSurveyActive, setIsSurveyActive] = useState(false);
-    const [isRequestLoading, setRequestIsLoading] = useState(false); // Add this state
+    const [isRequestLoading, setRequestIsLoading] = useState(false);
+    const [showWelcome, setShowWelcome] = useState(true); // Manage welcome modal state
+    const [showFinish, setShowFinish] = useState(false); // Manage finish modal state
     const toast = useToast();
 
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates);
             setAnimationManager(manager);
-            loopRandomBlink(manager);
-            faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading);
             setSetupComplete(true);
         }
     }, [isLoaded, facslib]);
 
-    const handleSurveyComplete = async (responses) => {
+    useEffect(() => {
+        if (setupComplete && !showWelcome && currentPromptIndex < expressionPrompts.length) {
+            loadCurrentPrompt();
+        }
+    }, [setupComplete, showWelcome, currentPromptIndex]);
+
+    const loadCurrentPrompt = () => {
+        const currentPrompt = expressionPrompts[currentPromptIndex].prompt;
+        faceLoader(currentPrompt, animationManager, setIsSurveyActive, setRequestIsLoading, toast);
+    };
+
+    const handleSurveyComplete = (responses) => {
         console.log("Survey responses:", responses);
-        setIsSurveyActive(false); // Deactivate the survey
-        const dataToSave = {
+        setIsSurveyActive(false);
+        const nextIndex = currentPromptIndex + 1;
+        if (nextIndex < expressionPrompts.length) {
+            setCurrentPromptIndex(nextIndex); // Move to the next prompt
+        } else {
+            setShowFinish(true); // Show finish modal after last survey
+        }
+        saveToFirebase('StaticExpressions', {
             responses,
-            actionUnits: auStates, // Collecting current states of all AUs
-            overallFeedback: "Overall feedback from the session", // Placeholder, add actual feedback
-            notes: "Detailed notes on session or AUs" // Placeholder, add specific notes
-        };
-        // Now saving directly and handling toasts within saveToFirebase
-        saveToFirebase('StaticExpressions', dataToSave, toast);
+            actionUnits: auStates,
+            overallFeedback: "Overall feedback from the session",
+            notes: "Detailed notes on session or AUs"
+        }, toast);
     };
 
     return (
         <div className="App">
             <Loader isLoading={!isLoaded || !setupComplete} />
+
             {isLoaded && setupComplete && animationManager && (
                 <>
-                    <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
+                                {showWelcome && <WelcomeModal isOpen={showWelcome} onClose={() => setShowWelcome(false)} />}
+            {showFinish && <FinishModal isOpen={showFinish} onClose={() => setShowFinish(false)} />}
+                    {isRequestLoading && <GameText />}
                     <SliderDrawer
                         auStates={auStates}
                         setAuStates={setAuStates}
@@ -63,7 +84,6 @@ function App() {
                         drawerControls={drawerControls}
                         setDrawerControls={setDrawerControls}
                     />
-                    {isRequestLoading && (<GameText />) }
                     {isSurveyActive && (
                         <Survey
                             questions={questions}

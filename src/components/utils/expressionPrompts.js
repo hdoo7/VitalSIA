@@ -1,4 +1,4 @@
-export const expressionPrompts = [
+const expressionPrompts = [
     {
       "id": 1,
       "prompt": "Generate an expression of someone who appears open to new experiences and shows a high level of imagination. This person should look like they are pondering creative ideas or engaging in a novel task.",
@@ -25,4 +25,4 @@ export const expressionPrompts = [
       "B5T": "Emotional Stability"
     }
   ];
-  
+  export default expressionPrompts;
