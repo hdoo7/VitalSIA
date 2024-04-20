@@ -5,7 +5,7 @@ import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpression
 
 const gptReconciler = new TextToGptReconciler();
 
-const faceMaker = (animationManager, setIsSurveyActive, toast, setRequestIsLoading) => {
+const faceMaker = (animationManager, setRequestIsLoading, toast, ) => {
     const triggerPhrases = ['amy show me', 'set face to neutral'];
     const speechProcessor = new SpeechProcessor(triggerPhrases.join('|'), (text) => {
         console.log(`Detected text: ${text}`);
@@ -40,7 +40,7 @@ const faceMaker = (animationManager, setIsSurveyActive, toast, setRequestIsLoadi
                 animationManager.applyChangesFromJson(JSON.stringify(parsed.aus)); // Apply facial expression changes
                 toast.close(t);
                 setRequestIsLoading(false);
-                setIsSurveyActive(true); // Activate the survey only here, after processing is complete
+                 // Activate the survey only here, after processing is complete
             })
             .catch(error => {
                 console.error("Error in GPT reconciliation:", error);
@@ -52,7 +52,7 @@ const faceMaker = (animationManager, setIsSurveyActive, toast, setRequestIsLoadi
                     duration: 5000,
                     isClosable: true,
                 });
-                setIsSurveyActive(false); // Deactivate survey on error
+                 // Deactivate survey on error
             })
             .finally(() => {
                 headUp(animationManager);

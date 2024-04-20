@@ -24,8 +24,8 @@ const faceLoader = (prompt, animationManager, setIsSurveyActive, setRequestIsLoa
     }
 
     let t = toast({
-        title: "Processing Text",
-        description: `Processing prompt: ${prompt}`,
+        title: "Facial Expression Loading",
+        description: `Please wait while the expression loads...`,
         status: "info",
         duration: 3000,
         isClosable: true,
@@ -37,13 +37,14 @@ const faceLoader = (prompt, animationManager, setIsSurveyActive, setRequestIsLoa
             const parsed = JSON.parse(gptResponse);
             animationManager.applyChangesFromJson(JSON.stringify(parsed.aus)); // Apply facial expression changes
             toast.close(t);
+
             setRequestIsLoading(false);
             setIsSurveyActive(true); // Activate the survey only here, after processing is complete
         })
         .catch(error => {
             console.error("Error in GPT reconciliation:", error);
             toast.close(t);
-            toast({
+            toast({ 
                 title: "Error Processing Request",
                 description: "Failed to process your request. Please try again.",
                 status: "error",

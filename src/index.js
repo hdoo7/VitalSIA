@@ -1,6 +1,6 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './components/App';
+import AppSurvey from './components/AppSurvey';
 import { ChakraProvider } from '@chakra-ui/react';
 import './unity/unitySettings';
 import { UnityLoadProvider } from './unityMiddleware';
@@ -21,7 +21,7 @@ root.render(
   <React.StrictMode>
     <ChakraProvider>
       <UnityLoadProvider>
-        <App />
+        <AppSurvey />
       </UnityLoadProvider>
     </ChakraProvider>
   </React.StrictMode>

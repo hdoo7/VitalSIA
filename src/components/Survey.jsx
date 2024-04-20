@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Flex, Icon, Text, Tooltip, useToast } from '@chakra-ui/react';
 import { StarIcon } from '@chakra-ui/icons';
 
-const Survey = ({ questions, currentPromptB5T, onSurveyComplete }) => {
+const Survey = ({ questions, currentPromptB5T, onSurveyComplete, index }) => {
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [responses, setResponses] = useState({});
     const [hoverIndex, setHoverIndex] = useState(-1);
@@ -24,8 +24,8 @@ const Survey = ({ questions, currentPromptB5T, onSurveyComplete }) => {
         } else {
             onSurveyComplete(newResponses);
             toast({
-                title: "Survey Completed",
-                description: "Thank you for your responses!",
+                title: "Section Completed",
+                description: `You have completed the ${index} / 5 sections.`,
                 status: "success",
                 duration: 5000,
                 isClosable: true,

@@ -1,6 +1,6 @@
 import { ActionUnitsList } from "../unity/facs/shapeDict"
 const faces = `"
-Using the descriptions from the following json dictionary, generate a simple JSON response for AU1 (inner brow raiser), including its intensity, duration, and role in facial expressions. "
+Using the descriptions from the following json dictionary, generate a simple JSON response, including its intensity, duration, and role in facial expressions. "
 ${JSON.stringify(ActionUnitsList)}
 Examples:
 Example 1: Happiness + Openness

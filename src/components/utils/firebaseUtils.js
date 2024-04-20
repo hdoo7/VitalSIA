@@ -10,8 +10,8 @@ export const saveToFirebase = async (collectionName, data, toast) => {
         });
         toast({
             title: 'Data Saved',
-            description: 'Your data has been successfully saved to Firestore.',
-            status: 'success',
+            description: 'Your response for this expression has been recorded.',
+            status: 'info',
             duration: 5000,
             isClosable: true
         });
