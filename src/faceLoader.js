@@ -24,7 +24,7 @@ const faceLoader = (prompt, animationManager, setIsSurveyActive, setRequestIsLoa
     }
 
     let t = toast({
-        title: "Facial Expression Loading",
+        title: "Your Facial Expression Loading",
         description: `Please wait while the expression loads...`,
         status: "info",
         duration: 3000,

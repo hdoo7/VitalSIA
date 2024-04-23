@@ -9,7 +9,10 @@ import { ActionUnitsList } from '../unity/facs/shapeDict';
 import { useToast } from '@chakra-ui/react'; // Assuming Chakra UI for toast notifications
 import GameText from './GameText';
 import FaceDetection from './FaceDetection';
-
+import Survey from './Survey'; // Import the Survey component
+import { questions } from './utils/freeFormSurveyQuestions'; // Import your survey questions
+import { saveToFirebase } from './utils/firebaseUtils'; // Ensure this is correctly imported
+import SpeechManager from '../VISOS/effectors/verbalizers/SpeechManager'; // Import the SpeechManager
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
@@ -21,21 +24,35 @@ function App() {
     const [drawerControls, setDrawerControls] = useState({
         isOpen: false, showUnusedSliders: false, cameraEnabled: false,
     });
-    const [isRequestLoading, setIsRequestLoading] = useState(false); // New loading state for requests
+    const [isSurveyActive, setIsSurveyActive] = useState(false);
+    const [isRequestLoading, setRequestIsLoading] = useState(false); // Add this state
     const toast = useToast();
 
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates);
+            const speak = new SpeechManager(manager);
             setAnimationManager(manager);
             loopRandomBlink(manager);
-            faceMaker(manager, setIsRequestLoading, toast); // Pass the new loading state and toast method to faceMaker
+            faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
             setSetupComplete(true);
+            toast({ title: `To begin, just say "Hey Amy show me" and then desribe what you would like to see the agent "act out".`, status: "success" });
         }
     }, [isLoaded, facslib]);
 
-    // New method to trigger toast messages
-    
+    const handleSurveyComplete = async (responses) => {
+        console.log("Survey responses:", responses);
+        setIsSurveyActive(false); // Deactivate the survey
+        const dataToSave = {
+            responses,
+            actionUnits: auStates, // Collecting current states of all AUs
+            overallFeedback: "Overall feedback from the session", // Placeholder, add actual feedback
+            notes: "Detailed notes on session or AUs" // Placeholder, add specific notes
+        };
+        // Now saving directly and handling toasts within saveToFirebase
+        saveToFirebase('FreeForm', dataToSave, toast);
+        animationManager.setFaceToNeutral(750); // Reset the face to neutral
+    };
 
     return (
         <div className="App">
@@ -43,7 +60,6 @@ function App() {
             {isLoaded && setupComplete && animationManager && (
                 <>
                     <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
-                    {isRequestLoading && <GameText />}
                     <SliderDrawer
                         auStates={auStates}
                         setAuStates={setAuStates}
@@ -51,7 +67,13 @@ function App() {
                         drawerControls={drawerControls}
                         setDrawerControls={setDrawerControls}
                     />
-                    <FaceDetection canvasId="#canvas" />
+                    {isRequestLoading && (<GameText />) }
+                    {isSurveyActive && (
+                        <Survey
+                            questions={questions}
+                            onSurveyComplete={handleSurveyComplete}
+                        />
+                    )}
                 </>
             )}
         </div>

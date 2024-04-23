@@ -1,7 +1,14 @@
 import { ActionUnitsList } from "../unity/facs/shapeDict"
+
+function describeActionUnits(units) {
+  return units.map(unit => {
+      return `ID: ${unit.id}, Name: ${unit.name}, Face Section: ${unit.faceSection}`;
+  });
+}
+
 const faces = `"
 Using the descriptions from the following json dictionary, generate a simple JSON response, including its intensity, duration, and role in facial expressions. "
-${JSON.stringify(ActionUnitsList)}
+${describeActionUnits(ActionUnitsList)}
 Examples:
 Example 1: Happiness + Openness
 

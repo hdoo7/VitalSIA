@@ -14,7 +14,8 @@ const Survey = ({ questions, currentPromptB5T, onSurveyComplete, index }) => {
             ...responses, 
             [question.id]: {
                 rating: rating,
-                B5T: question.B5T // Include the B5T attribute from the question
+                question: question.text,
+                B5T:  question?.B5T
             }
         };
         setResponses(newResponses);
@@ -23,13 +24,15 @@ const Survey = ({ questions, currentPromptB5T, onSurveyComplete, index }) => {
             setCurrentQuestionIndex(currentQuestionIndex + 1);
         } else {
             onSurveyComplete(newResponses);
-            toast({
+            if (index){
+              toast({
                 title: "Section Completed",
                 description: `You have completed the ${index} / 5 sections.`,
                 status: "success",
                 duration: 5000,
                 isClosable: true,
-            });
+              });
+            }
         }
     };
 
