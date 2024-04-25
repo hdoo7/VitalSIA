@@ -30,7 +30,7 @@ const expressionPrompts = [
   },
   {
       "id": 5,
-      "prompt": "Show me the the face of someone who is happy and looks calm and emotionally stable. This person should have a relaxed demeanor, with a composed facial expression that suggests they are in control and unruffled by stress.",
+      "prompt": "Show me the the face of someone who is happy and looks relaxed and unenvious. This person should have a relaxed demeanor, with a composed facial expression that suggests they are in control and unruffled by stress.",
       "B5T": "Emotional Stability"
   }
 ];

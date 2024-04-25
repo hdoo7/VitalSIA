@@ -4,20 +4,17 @@
 
 To install the system, follow these steps:
 
-1. Clone the repository:
+1. Install deps:
 ```bash
-git clone https://github.com/meekmachine/EVA-libre.git
+yarn install
 ```
 
-2. Switch to the `react` branch:
+2. Start server:
 ```bash
-git checkout react
+yarn start
 ```
 
-3. Install dependencies:
-```bash
-npm install
-```
+
 
 ## Using the System
 

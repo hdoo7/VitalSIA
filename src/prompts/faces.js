@@ -10,10 +10,10 @@ const faces = `"
 Using the descriptions from the following json dictionary, generate a simple JSON response, including its intensity, duration, and role in facial expressions. "
 ${describeActionUnits(ActionUnitsList)}
 Examples:
-Example 1: Happiness + Openness
+Example 1: Happiness
 
 {
-  "combination": "Happiness + Openness",
+  "combination": "Happiness",
   "aus": [
     {
       "id": "12",
