@@ -3,8 +3,8 @@ import { createRoot } from 'react-dom/client';
 import AppSurvey from './components/AppSurvey';
 import App from './components/App';
 import { ChakraProvider } from '@chakra-ui/react';
-import './unity/unitySettings';
-import { UnityLoadProvider } from './unityMiddleware';
+import './unity/threeJSSettings'; // Import Three.js settings
+import { ThreeJSProvider } from './unity/threeJSMiddleware'; // Import Three.js provider
 
 const container = document.getElementById('root');
 const root = createRoot(container); // Create a root.
@@ -28,11 +28,10 @@ if ('serviceWorker' in navigator) {
 root.render(
   <React.StrictMode>
     <ChakraProvider>
-      <UnityLoadProvider>
+      <ThreeJSProvider>
         <ComponentToRender />
-      </UnityLoadProvider>
+      </ThreeJSProvider>
     </ChakraProvider>
   </React.StrictMode>
 );
-
 
