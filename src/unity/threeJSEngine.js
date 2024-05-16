@@ -22,6 +22,7 @@ class ThreeJSEngine {
 
         this.FacsLib = null;
         this.morphTargetInfluences = [];
+        this.blendshapeMapping = {};
     }
 
     load(environmentSceneUrl, characterSceneUrl) {
@@ -38,9 +39,19 @@ class ThreeJSEngine {
             this.character.traverse((object) => {
                 if (object.isMesh) {
                     this.morphTargetInfluences = object.morphTargetInfluences;
+                    this.extractBlendshapes(object);
                 }
             });
         });
+    }
+
+    extractBlendshapes(mesh) {
+        if (mesh.morphTargetDictionary) {
+            Object.entries(mesh.morphTargetDictionary).forEach(([name, index]) => {
+                this.blendshapeMapping[name] = index;
+            });
+            console.log('Extracted Blendshapes:', this.blendshapeMapping);
+        }
     }
 
     setAU(auNumber, intensity, lorR) {
@@ -53,8 +64,10 @@ class ThreeJSEngine {
     }
 
     getMorphTargetIndex(auNumber) {
+        // Mapping AU numbers to morph target indices
         const auToMorphMap = {
             "1": 0, "2": 1, "2R": 1, "2L": 1, "4": 2, "5": 3, "6": 4, "7": 5, "8": 6,
+            // Add the remaining mappings based on the extracted blendshapes
         };
         return auToMorphMap[auNumber] || -1;
     }
@@ -96,3 +109,4 @@ class ThreeJSEngine {
 }
 
 export { ThreeJSEngine };
+
