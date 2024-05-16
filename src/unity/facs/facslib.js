@@ -24,7 +24,7 @@ class FacsLib {
   }
 
   setNeutralWithoutHeadTurn(smoothTime) {
-    this.setNeutral(smoothTime); // Reset all to neutral first
+    this.setNeutral(smoothTime);
     this.currentWeightTargets.fill(0, 0, 50);
     this.currentWeightSmooth.fill(smoothTime, 0, 50);
     this.currentWeightTargets.fill(0, 55, 60);
@@ -36,25 +36,25 @@ class FacsLib {
   setLookBottomLeft(smoothTime) {
     this.currentWeightTargets[51] = 20;
     this.currentWeightTargets[54] = 40;
-    this.currentWeightSmooth.fill(smoothTime, 51, 55); // Assuming you want to smooth these changes
+    this.currentWeightSmooth.fill(smoothTime, 51, 55);
   }
 
   setLookBottomRight(smoothTime) {
     this.currentWeightTargets[52] = 20;
     this.currentWeightTargets[54] = 40;
-    this.currentWeightSmooth.fill(smoothTime, 52, 55); // Assuming you want to smooth these changes
+    this.currentWeightSmooth.fill(smoothTime, 52, 55);
   }
 
   setLookUpLeft(smoothTime) {
     this.currentWeightTargets[51] = 10;
     this.currentWeightTargets[53] = 10;
-    this.currentWeightSmooth.fill(smoothTime, 51, 54); // Assuming you want to smooth these changes
+    this.currentWeightSmooth.fill(smoothTime, 51, 54);
   }
 
   setLookUpRight(smoothTime) {
     this.currentWeightTargets[52] = 90;
     this.currentWeightTargets[53] = 90;
-    this.currentWeightSmooth.fill(smoothTime, 52, 54); // Assuming you want to smooth these changes
+    this.currentWeightSmooth.fill(smoothTime, 52, 54);
   }
 
   setTargetEmotion(emotionName, intensity, smoothTime) {
@@ -83,6 +83,7 @@ class FacsLib {
     if (AUIndex !== -1) {
       this.currentWeightTargets[AUIndex] = intensity;
       this.currentWeightSmooth[AUIndex] = smoothTime;
+      this.engine.setAU(AUIndex, intensity, lOrR);
     }
   }
 
@@ -118,5 +119,8 @@ class FacsLib {
     this.engine.setTargets(this.currentWeightTargets, this.currentWeightSmooth);
   }
 }
+
+export { FacsLib };
+
 
 export { FacsLib };
