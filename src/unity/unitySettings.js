@@ -9,10 +9,11 @@ window.facslib;
 
 window.unityWebGLContentLoaded = false;
 let character = {
-    id: "001_FEMALE_CAU",
+    id: "018_MALE_AA",
     name: "Amy",
     img: "unity/img/001_FEMALE_CAU.PNG",
-    path: "https://newpath.blob.core.windows.net/evalibre/001_FEMALE_CAU_2023/",
+    // path: "https://evalibre.blob.core.windows.net/evalibre/",
+    path: process.env.PUBLIC_URL + "/unitywasm/Build/",
     scene: "scene_001_FEMALE_CAU",
     voiceIndex: 5
 };
@@ -57,9 +58,9 @@ function adjustCanvasOnLayoutChange() {
 // Function to initialize Unity game instance and related settings
 function initializeUnityGame() {
     createUnityInstance(document.querySelector("#gameContainer"), {
-        dataUrl: character.path + "Build/data.data",
-        frameworkUrl: character.path + "Build/framework.js",
-        codeUrl: character.path + "Build/code.wasm",
+        dataUrl: character.path + "unitywasm.data",
+        frameworkUrl: character.path + "unitywasm.framework.js",
+        codeUrl: character.path + "unitywasm.wasm",
     }).then((unityInstance) => {
         window.engine = new EngineWebGL_u3d(unityInstance);
         window.facslib = new FacsLib(window.engine);
@@ -70,4 +71,4 @@ function initializeUnityGame() {
 }
 
 // Load the Unity loader script and initialize the Unity game instance once the script is loaded
-loadUnityScript(character.path + "UnityLoader.js", initializeUnityGame);
+loadUnityScript(`${character.path}unitywasm.loader.js`, initializeUnityGame);

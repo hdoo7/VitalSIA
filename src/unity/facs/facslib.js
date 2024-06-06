@@ -122,5 +122,3 @@ class FacsLib {
 
 export { FacsLib };
 
-
-export { FacsLib };

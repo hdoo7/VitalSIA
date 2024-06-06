@@ -13,6 +13,9 @@ import Survey from './Survey'; // Import the Survey component
 import { questions } from './utils/freeFormSurveyQuestions'; // Import your survey questions
 import { saveToFirebase } from './utils/firebaseUtils'; // Ensure this is correctly imported
 import SpeechManager from '../VISOS/effectors/verbalizers/SpeechManager'; // Import the SpeechManager
+import CameraControl from '../VISOS/effectors/visualizers/CameraControl'; // Import CameraControl
+import CameraInputControl from '../VISOS/effectors/visualizers/CameraInputControl'; // Import CameraInputControl
+
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
@@ -32,6 +35,8 @@ function App() {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates);
             const speak = new SpeechManager(manager);
+            const cameraControl = new CameraControl(engine); // Initialize CameraControl
+            const cameraInputControl = new CameraInputControl(cameraControl);
             setAnimationManager(manager);
             loopRandomBlink(manager);
             faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
@@ -56,7 +61,7 @@ function App() {
 
     return (
         <div className="App">
-            <Loader isLoading={!isLoaded || !setupComplete} />
+            {/* <Loader isLoading={!isLoaded || !setupComplete} /> */}
             {isLoaded && setupComplete && animationManager && (
                 <>
                     <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
@@ -68,12 +73,12 @@ function App() {
                         setDrawerControls={setDrawerControls}
                     />
                     {isRequestLoading && (<GameText />) }
-                    {isSurveyActive && (
+                    {/* {isSurveyActive && (
                         <Survey
                             questions={questions}
                             onSurveyComplete={handleSurveyComplete}
                         />
-                    )}
+                    )} */}
                 </>
             )}
         </div>

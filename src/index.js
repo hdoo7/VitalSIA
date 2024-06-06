@@ -3,8 +3,8 @@ import { createRoot } from 'react-dom/client';
 import AppSurvey from './components/AppSurvey';
 import App from './components/App';
 import { ChakraProvider } from '@chakra-ui/react';
-import './unity/threeJSSettings'; // Import Three.js settings
-import { ThreeJSProvider } from './unity/threeJSMiddleware'; // Import Three.js provider
+import './unity/unitySettings';
+import { UnityLoadProvider } from './unityMiddleware';
 
 const container = document.getElementById('root');
 const root = createRoot(container); // Create a root.
@@ -12,7 +12,8 @@ const root = createRoot(container); // Create a root.
 // Determine which component to render based on URL search parameters
 const params = new URLSearchParams(window.location.search);
 const isFreeform = params.get('app') === 'freeform';
-const ComponentToRender = isFreeform ? App : AppSurvey;
+// const ComponentToRender = isFreeform ? App : AppSurvey;
+const ComponentToRender = App;
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -28,10 +29,9 @@ if ('serviceWorker' in navigator) {
 root.render(
   <React.StrictMode>
     <ChakraProvider>
-      <ThreeJSProvider>
+      <UnityLoadProvider>
         <ComponentToRender />
-      </ThreeJSProvider>
+      </UnityLoadProvider>
     </ChakraProvider>
   </React.StrictMode>
 );
-

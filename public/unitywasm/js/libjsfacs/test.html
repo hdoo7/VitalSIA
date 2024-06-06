@@ -1,0 +1,19 @@
+<html>
+    <head></head>
+    <body>
+    <script type="text/javascript" src="engine3d.js"></script>
+    <script type="text/javascript" src="facslib.js"></script>
+	<script type="text/javascript" src="engineDemo.js"></script>
+    <script type="text/javascript">
+       window.onload = function(){
+            var engine = new EngineDemo();
+            var facslib =  new  FacsLib(engine);
+            var testAU = "R1+L2E+4";
+			
+            facslib.setDefaultIntencity('D');
+			facslib.setAUS(testAU);
+        };
+        
+    </script>
+    </body>
+</html>
