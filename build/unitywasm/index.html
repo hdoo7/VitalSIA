@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title></title>
+    <style>
+		#main {
+		  max_width:640px;
+		  margin:auto;
+		}
+        #controls_Emotions{			
+			background-color:#cccccc;
+			padding:5px 10px;
+			margin-top:0px;
+        }
+        #controls_Visemes{
+			background-color:#dddddd;
+			padding:5px 10px;
+			margin-top:0px;
+            #width:200px;
+            float:left;
+        }
+        #getvalue_Visemes, #setvalue_Visemes, #desc_Visemes{
+		    float:left;		
+			background-color:#dddddd;
+			padding:5px 1px;
+			margin-top:0px;
+			min-width : 25px;			
+			font-size : 12px;
+			border-style:solid
+			border-right:1px black;
+        }
+		#controls_1{
+		    float:left;		
+            clear:left;
+			background-color:#cccccc;
+			padding:5px 10px;
+			margin-top:0px;
+		}
+		#controls_2, #controls_3 {
+		    float:left;		
+			background-color:#dddddd;
+			padding:5px 1px;
+			margin-top:0px;
+			width : 25px;			
+			font-size : 12px;
+			border-style:solid
+			border-right:1px black;
+		}
+		#controls_3 {
+			font-weight : bold;
+		}
+		#controls_func {
+		    float:left;		
+			background-color:#eeeeee;
+			padding:5px 1px;
+			margin-top:0px;
+			width : 200px;
+		}		
+		#part3d {
+//			border-style : solid;
+//			border-color : black;
+            position: fixed;
+            margin-left: 400px;
+		}		
+        
+        .slidercontainer, .slider-value, .slider-desc{
+            height:22px;
+            font-size: 12px;
+        }
+                
+        .slider{
+            width:100px;
+            height:10px;
+        }
+		#controls_anims {
+			position: fixed;
+			right:100px;
+			top:250px;
+		}
+    </style>
+	
+	<link rel="stylesheet" href="js/jquery-ui-1.11.4.custom/jquery-ui.min.css">
+	<script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
+	<script type="text/javascript" src="js/jquery-ui-1.11.4.custom/jquery-ui.min.js"></script>
+	
+	<script type="text/javascript" src="Build/UnityLoader.js"></script>
+    <script type="text/javascript" src="js/libjsfacs/engine3d.js"></script>
+    <script type="text/javascript" src="js/libjsfacs/facslib.js"></script>
+	<script type="text/javascript" src="js/libjsfacs/engineWebGL_u3d.js"></script>
+	
+	<script type="text/javascript">
+		var nb_slider = 3;
+		var gameInstance = UnityLoader.instantiate("gameContainer", "Build/webgl.json");
+		var engine = new EngineWebGL_u3d();
+		var facslib =  new  FacsLib(engine);
+        engine.FacsLib = facslib;
+        //
+        //
+        function U3_sceneLoaded() {
+            $( "#scene_loaded").html('Scene loaded !');
+			engine.getLocalCameraPosition();
+			engine.getLocalEyeTargetPosition();
+			facslib.updateEngine();
+        }
+        function U3_startSceneLoaded() {
+            $( "#scene_loaded").html('Start scene loaded !'); 
+			$('.loadbutton').prop('disabled', false );
+        }
+        
+		//
+		//	  
+		$(document).ready(function() {
+			var heightSlider = 22;
+			var counter = 0
+            
+			$('.loadbutton').prop('disabled', true );
+			
+            $( "#WebGLKeyboardInput").val('');
+            
+            
+            // Create a button for each Emotion            
+            $.each( facslib.EmotionsList, function( emotionIndex, emotion ) {
+                var id_button = "id_button_fac_" + emotion.name;
+				$( "#controls_Emotions").append($( "<div class='slidercontainer' style='display: inline-block;'><button id='" + id_button + "' class='ui-button ui-widget ui-corner-all'>" + emotion.name + "</button></div>" ));
+                $( "#" + id_button ).button();
+                $('body').on('click', "#" + id_button, function(event) {
+                    facslib.setTargetEmotion(emotion.name, 1.0, 0.2);
+                    facslib.updateEngine();
+                    updateSliders();
+                });   
+            });            
+            
+            
+            // Create a slider for each Viseme
+            $.each( facslib.VisemesList, function( visemeIndex, viseme /*key, VisemeDesc*/ ) {
+                var id_slider = "id_slider_fac_viseme_" + viseme.id;
+				$( "#controls_Visemes").append($( "<div class='slidercontainer'><div id='" + id_slider + "' class='slider' ></div></div>" ));
+  				$( "#" + id_slider ).slider({
+					range: "min", min: 0, max: 100, value: 0,
+					slide: function( event, ui ) {
+						$( "#id_intensity_set_viseme_" + viseme.id ).html(ui.value);					
+						facslib.setTargetViseme(viseme.id, ui.value, 0.2);
+                        facslib.updateEngine();
+                    
+					},
+                    stop: function(event,ui){
+                        updateSliders();
+                    }
+				}); 
+   
+
+                var id_intensity_set = "id_intensity_set_viseme_" + viseme.id;
+				$( "#setvalue_Visemes").append($( "<div id='" + id_intensity_set + "' class='slider-value' ></div>" ));
+				$( "#" + id_intensity_set ).html($( "#" + id_slider ).slider( "value" ));				
+
+				var id_label = "id_label_fac_viseme_" + viseme.id;
+				$( "#desc_Visemes").append($( "<div id='" + id_label + "' class='slider-desc' >" + viseme.id + " (" + viseme.name + ")</div>" ));
+
+            });            
+            
+            // Create a slider for each ActionUnit
+            $.each( facslib.ActionUnitsList, function( ActionUnitIndex, ActionUnit /*ActionUnitId, ActionUnitName*/ ) {
+                var id_slider = "id_slider_fac_" + ActionUnit.id;
+				$( "#controls_1").append($( "<div class='slidercontainer'><div id='" + id_slider + "' class='slider' ></div></div>" ));
+  				$( "#" + id_slider ).slider({
+					range: "min", min: 0, max: 100, value: 0,
+					slide: function( event, ui ) {
+						$( "#id_intensity_set_" + ActionUnit.id ).html(ui.value);					
+						facslib.setTargetAU(ActionUnit.id, ui.value, '', 0.2);
+                        facslib.updateEngine();
+					},
+                    stop: function(event,ui){
+                        updateSliders();
+                    }
+				});   
+            	
+                var id_intensity_set = "id_intensity_set_" + ActionUnit.id;
+				$( "#controls_2").append($( "<div id='" + id_intensity_set + "' class='slider-value' ></div>" ));
+				$( "#" + id_intensity_set ).html($( "#" + id_slider ).slider( "value" ));				
+				//
+				//
+				var id_label = "id_label_fac_" + ActionUnit.id;
+				$( "#controls_func").append($( "<div id='" + id_label + "' class='slider-desc' >" + ActionUnit.id + " (" + ActionUnit.name + ")</div>" ));
+
+            });
+			
+			
+			
+			
+			$( "#eyesTargetX" ).slider({
+				range: "min", min: -1, max: 0.9, value: 0, step: 0.01,
+				slide: function( event, ui ) {
+					facslib.setLocalEyeTarget(
+						// For the demo, eye & head have the same target location
+						localEyeTargetPositionX+ui.value, localEyeTargetPositionY, localEyeTargetPositionZ, 
+						localEyeTargetPositionX+ui.value, localEyeTargetPositionY, localEyeTargetPositionZ, 
+						localEyeTargetPositionX+ui.value, localEyeTargetPositionY, localEyeTargetPositionZ, 
+						1.0, 0.02, 0.2, 0.1, 1.0
+					);
+					facslib.updateEngine();
+				}
+			}); 			
+			
+			$( "#camZ" ).slider({
+				//range: "min", min: -0.5, max: 0.5, value: 0.062, step: 0.01,
+				range: "min", min: -2, max: 2, value: 0.062, step: 0.01,				
+				slide: function( event, ui ) {
+					engine.setLocalCameraPosition(localCameraPositionX, localCameraPositionY, localCameraPositionZ+ui.value, -0.282, -170.374, 0.0);
+					facslib.updateEngine();
+				}
+			}); 			
+
+			
+			
+		});
+		//
+		//
+		function updateSlider(FacIndex, intensity) {
+			$( "#id_slider_fac_" + FacIndex).slider('value', intensity);
+		}
+        
+        function updateSliders(){
+            $.each( facslib.ActionUnitsList, function( ActionUnitId, ActionUnitName ) {
+                var targetValue = facslib.getTargetAU(ActionUnitId);
+
+				var id_intensity_set = "id_intensity_set_" + ActionUnitId;
+				$( "#" + id_intensity_set ).html(targetValue);
+                
+                var id_slider = "id_slider_fac_" + ActionUnitId;
+				$( "#" + id_slider ).slider('value',targetValue);                  
+                
+                
+            });
+            $.each( facslib.VisemesList, function( key, VisemeDesc ) {
+                var targetValue = facslib.getTargetViseme(parseInt(key));
+
+                var id_slider = "id_slider_fac_viseme_" + key;
+				$( "#" + id_slider ).slider('value',targetValue); 
+
+                var id_intensity_set = "id_intensity_set_viseme_" + key;
+				$( "#" + id_intensity_set ).html(targetValue);
+            });            
+        
+        }
+		
+	</script>
+  </head>
+  <body>
+		<div id="main"> 	
+		<div>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_001_FEMALE_CAU'); //$('.loadbutton').prop('disabled', true );">Load 001_FEMALE_CAU and simple scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_002_FEMALE_CAU'); //$('.loadbutton').prop('disabled', true );">Load 002_FEMALE_CAU and simple scene  </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_003_FEMALE_AA');  //$('.loadbutton').prop('disabled', true );">Load 003_FEMALE_AA and simple scene   </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_004_MALE_CAU');   //$('.loadbutton').prop('disabled', true );">Load 004_MALE_CAU and simple scene    </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_005_MALE_AA');    //$('.loadbutton').prop('disabled', true );">Load 005_MALE_AA and simple scene     </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_006_FEMALE_LAT'); //$('.loadbutton').prop('disabled', true );">Load 006_FEMALE_LAT and simple scene  </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_007_MALE_LAT');   //$('.loadbutton').prop('disabled', true );">Load 007_MALE_LAT and simple scene    </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_008_MALE_AA');    //$('.loadbutton').prop('disabled', true );">Load 008_MALE_AA and simple scene     </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_009_FEMALE_NA');  //$('.loadbutton').prop('disabled', true );">Load 009_FEMALE_NA and simple scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_010_MALE_NA');    //$('.loadbutton').prop('disabled', true );">Load 010_MALE_NA and simple scene     </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_011_FEMALE_AS');  //$('.loadbutton').prop('disabled', true );">Load 011_FEMALE_AS and simple scene   </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_012_MALE_AS');    //$('.loadbutton').prop('disabled', true );">Load 012_MALE_AS and simple scene     </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_013_MALE_CAU');   //$('.loadbutton').prop('disabled', true );">Load 013_MALE_CAU and simple scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_014_FEMALE_AA');  //$('.loadbutton').prop('disabled', true );">Load 014_FEMALE_AA and simple scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_015_MALE_CAU');   //$('.loadbutton').prop('disabled', true );">Load 015_MALE_CAU and simple scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_016_FEMALE_LAT'); //$('.loadbutton').prop('disabled', true );">Load 016_FEMALE_LAT and simple scene  </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_017_FEMALE_CAU'); //$('.loadbutton').prop('disabled', true );">Load 017_FEMALE_CAU and simple scene  </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_018_MALE_AA');    //$('.loadbutton').prop('disabled', true );">Load 018_MALE_AA and simple scene     </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_019_FEMALE_CAU'); //$('.loadbutton').prop('disabled', true );">Load 019_FEMALE_CAU and simple scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_020_FEMALE_AA');  //$('.loadbutton').prop('disabled', true );">Load 020_FEMALE_AA and simple scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_021_MALE_LAT');   //$('.loadbutton').prop('disabled', true );">Load 021_MALE_LAT and simple scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_022_FEMALE_LAT'); //$('.loadbutton').prop('disabled', true );">Load 022_FEMALE_LAT and simple scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_023_FEMALE_NA');  //$('.loadbutton').prop('disabled', true );">Load 023_FEMALE_NA and simple scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_024_MALE_NA');    //$('.loadbutton').prop('disabled', true );">Load 024_MALE_NA and simple scene     </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_025_MALE_CAU');   //$('.loadbutton').prop('disabled', true );">Load 025_MALE_CAU and simple scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_simple', 'scene_character_CAU_BrownHair1Woman');//$('.loadbutton').prop('disabled', true );">Load WomanBrownHair1 and simple scene</button-->
+	</div>
+	
+	<br/>
+	<div>
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_001_FEMALE_CAU');     //$('.loadbutton').prop('disabled', true );">Load 001_FEMALE_CAU and empty scene </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_002_FEMALE_CAU');     //$('.loadbutton').prop('disabled', true );">Load 002_FEMALE_CAU and empty scene </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_003_FEMALE_AA');      //$('.loadbutton').prop('disabled', true );">Load 003_FEMALE_AA and empty scene  </button>
+	<button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_004_MALE_CAU');       //$('.loadbutton').prop('disabled', true );">Load 004_MALE_CAU and empty scene   </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_005_MALE_AA');        //$('.loadbutton').prop('disabled', true );">Load 005_MALE_AA and empty scene    </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_006_FEMALE_LAT');     //$('.loadbutton').prop('disabled', true );">Load 006_FEMALE_LAT and empty scene </button>
+	<button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_007_MALE_LAT');       //$('.loadbutton').prop('disabled', true );">Load 007_MALE_LAT and empty scene   </button>
+	<button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_008_MALE_AA');        //$('.loadbutton').prop('disabled', true );">Load 008_MALE_AA and empty scene    </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_009_FEMALE_NA');      //$('.loadbutton').prop('disabled', true );">Load 009_FEMALE_NA and empty scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_010_MALE_NA');        //$('.loadbutton').prop('disabled', true );">Load 010_MALE_NA and empty scene    </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_011_FEMALE_AS');      //$('.loadbutton').prop('disabled', true );">Load 011_FEMALE_AS and empty scene  </button>
+	<button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_012_MALE_AS');        //$('.loadbutton').prop('disabled', true );">Load 012_MALE_AS and empty scene    </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_013_MALE_CAU');       //$('.loadbutton').prop('disabled', true );">Load 013_MALE_CAU and empty scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_014_FEMALE_AA');      //$('.loadbutton').prop('disabled', true );">Load 014_FEMALE_AA and empty scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_015_MALE_CAU');       //$('.loadbutton').prop('disabled', true );">Load 015_MALE_CAU and empty scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_016_FEMALE_LAT');     //$('.loadbutton').prop('disabled', true );">Load 016_FEMALE_LAT and empty scene </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_017_FEMALE_CAU');     //$('.loadbutton').prop('disabled', true );">Load 017_FEMALE_CAU and empty scene </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_018_MALE_AA');        //$('.loadbutton').prop('disabled', true );">Load 018_MALE_AA and empty scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_019_FEMALE_CAU');     //$('.loadbutton').prop('disabled', true );">Load 019_FEMALE_CAU and empty scene </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_020_FEMALE_AA');      //$('.loadbutton').prop('disabled', true );">Load 020_FEMALE_AA and empty scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_021_MALE_LAT');       //$('.loadbutton').prop('disabled', true );">Load 021_MALE_LAT and empty scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_022_FEMALE_LAT');     //$('.loadbutton').prop('disabled', true );">Load 022_FEMALE_LAT and empty scene </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_023_FEMALE_NA');      //$('.loadbutton').prop('disabled', true );">Load 023_FEMALE_NA and empty scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_024_MALE_NA');        //$('.loadbutton').prop('disabled', true );">Load 024_MALE_NA and empty scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_025_MALE_CAU');       //$('.loadbutton').prop('disabled', true );">Load 025_MALE_CAU and empty scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_no_environment', 'scene_character_CAU_BrownHair1Woman');//$('.loadbutton').prop('disabled', true );">Load WomanBrownHair1 and empty scene</button-->
+    </div>
+	
+	<br/>
+	<div>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_001_FEMALE_CAU_anim'); //$('.loadbutton').prop('disabled', true );">Load 001_FEMALE_CAU and animated scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_002_FEMALE_CAU_anim'); //$('.loadbutton').prop('disabled', true );">Load 002_FEMALE_CAU and animated scene  </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_003_FEMALE_anim');  //$('.loadbutton').prop('disabled', true );">Load 003_FEMALE_AA and animated scene   </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_004_MALE_CAU_anim');   //$('.loadbutton').prop('disabled', true );">Load 004_MALE_CAU and animated scene    </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_005_MALE_AA_anim');    //$('.loadbutton').prop('disabled', true );">Load 005_MALE_AA and animated scene     </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_006_FEMALE_LAT_anim'); //$('.loadbutton').prop('disabled', true );">Load 006_FEMALE_LAT and animated scene  </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_007_MALE_LAT_anim');   //$('.loadbutton').prop('disabled', true );">Load 007_MALE_LAT and animated scene    </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_008_MALE_AA_anim');    //$('.loadbutton').prop('disabled', true );">Load 008_MALE_AA and animated scene     </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_009_FEMALE_NA_anim');  //$('.loadbutton').prop('disabled', true );">Load 009_FEMALE_NA and animated scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_010_MALE_NA_anim');    //$('.loadbutton').prop('disabled', true );">Load 010_MALE_NA and animated scene     </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_011_FEMALE_AS_anim');  //$('.loadbutton').prop('disabled', true );">Load 011_FEMALE_AS and animated scene   </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_012_MALE_AS_anim');    //$('.loadbutton').prop('disabled', true );">Load 012_MALE_AS and animated scene     </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_013_MALE_CAU_anim');   //$('.loadbutton').prop('disabled', true );">Load 013_MALE_CAU and animated scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_014_FEMALE_AA_anim');  //$('.loadbutton').prop('disabled', true );">Load 014_FEMALE_AA and animated scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_015_MALE_CAU_anim');   //$('.loadbutton').prop('disabled', true );">Load 015_MALE_CAU and animated scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_016_FEMALE_LAT_anim'); //$('.loadbutton').prop('disabled', true );">Load 016_FEMALE_LAT and animated scene  </button-->
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_017_FEMALE_CAU_anim'); //$('.loadbutton').prop('disabled', true );">Load 017_FEMALE_CAU and animated scene  </button>
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_018_MALE_AA_anim');    //$('.loadbutton').prop('disabled', true );">Load 018_MALE_AA and animated scene     </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_019_FEMALE_CAU_anim'); //$('.loadbutton').prop('disabled', true );">Load 019_FEMALE_CAU and animated scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_020_FEMALE_AA_anim');  //$('.loadbutton').prop('disabled', true );">Load 020_FEMALE_AA and animated scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_021_MALE_LAT_anim');   //$('.loadbutton').prop('disabled', true );">Load 021_MALE_LAT and animated scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_022_FEMALE_LAT_anim'); //$('.loadbutton').prop('disabled', true );">Load 022_FEMALE_LAT and animated scene  </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_023_FEMALE_NA_anim');  //$('.loadbutton').prop('disabled', true );">Load 023_FEMALE_NA and animated scene   </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_024_MALE_NA_anim');    //$('.loadbutton').prop('disabled', true );">Load 024_MALE_NA and animated scene     </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_025_MALE_CAU_anim');   //$('.loadbutton').prop('disabled', true );">Load 025_MALE_CAU and animated scene    </button-->
+	<!--button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_character_CAU_BrownHair1Woman_anim');//$('.loadbutton').prop('disabled', true );">Load WomanBrownHair1 and animated scene</button-->
+	</div>
+	<br/>
+	<div>
+	</div>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_001_FEMALE_OLDER_anim');   //$('.loadbutton').prop('disabled', true );">Load 001_FEMALE_OLDER and animated scene    </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_001_FEMALE_OLDER_anim');   //$('.loadbutton').prop('disabled', true );">Load 003_FEMALE_OLDER and animated scene    </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_001_FEMALE_OLDER_anim');   //$('.loadbutton').prop('disabled', true );">Load 006_FEMALE_OLDER and animated scene    </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_001_FEMALE_OLDER_anim');   //$('.loadbutton').prop('disabled', true );">Load 007_FEMALE_OLDER and animated scene    </button>
+	<button class="loadbutton" onclick="facslib.load('scene_environment_anim', 'scene_001_FEMALE_OLDER_anim');   //$('.loadbutton').prop('disabled', true );">Load 008_FEMALE_OLDER and animated scene    </button>
+	<br/>
+	<div id="controls_anims">
+		<div class="slidercontainer"><button class="loadbutton" onclick="gameInstance.SendMessage('Character_and_light','LaunchCharAnims','RHandTalk1');">RHandTalk1</button></div>
+		<div class="slidercontainer"><button class="loadbutton" onclick="gameInstance.SendMessage('Character_and_light','LaunchCharAnims','RHandTalk2');">RHandTalk2</button></div>
+		<div class="slidercontainer"><button class="loadbutton" onclick="gameInstance.SendMessage('Character_and_light','LaunchCharAnims','2HandsTalk1');">2HandsTalk1</button></div>
+		<div class="slidercontainer"><button class="loadbutton" onclick="gameInstance.SendMessage('Character_and_light','LaunchCharAnims','2HandsTalk2');">2HandsTalk2</button></div>
+		<div class="slidercontainer"><button class="loadbutton" onclick="gameInstance.SendMessage('Character_and_light','LaunchCharAnims','Leaning');">Leaning</button></div>
+		<div class="slidercontainer"><button class="loadbutton" onclick="gameInstance.SendMessage('Character_and_light','LaunchCharAnims','LeaningRHand');">LeaningRHand</button></div>
+    </div>
+	<br/>	
+	                                                                                                                        
+    <div id="controls_direction">
+		<div class='slidercontainer' style='display: inline-block;'><div id='eyesTargetX' class='slider' ></div></div>
+		<div class='slidercontainer' style='display: inline-block;'><div id='camZ' class='slider' ></div></div>
+    </div>
+	<br/>	
+
+    <div id="controls_Emotions">
+    </div>
+	<br/>    
+	
+    <div>
+        <div id="controls_Visemes"></div>
+        <div id="setvalue_Visemes"></div>
+        <div id="desc_Visemes"></div>
+    </div>
+	
+    <div id="controls_1">
+    </div>
+    <div id="controls_2">
+    </div>
+    <div id="controls_func">
+    </div>
+    <div id="scene_loaded"></div>	
+	<input id="WebGLKeyboardInput" type="text" name="WebGLKeyboardInput" value="" />
+    <div id="part3d">	
+		<!--canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" height="480" width="640px"></canvas-->
+		<div id="gameContainer" style="width:640px;height:480px"></div>
+		<script src="Release/UnityLoader.js"></script>
+    </div>
+	</div>	
+  </body>
+</html>
