@@ -14,7 +14,7 @@ let character = {
     img: "unity/img/001_FEMALE_CAU.PNG",
     // path: "https://evalibre.blob.core.windows.net/evalibre/",
     path: process.env.PUBLIC_URL + "/unitywasm/Build/",
-    scene: "scene_001_FEMALE_CAU",
+    scene: "scene_0001_FEMALE_CAU",
     voiceIndex: 5
 };
 

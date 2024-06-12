@@ -16,7 +16,6 @@ import SpeechManager from '../VISOS/effectors/verbalizers/SpeechManager'; // Imp
 import CameraControl from '../VISOS/effectors/visualizers/CameraControl'; // Import CameraControl
 import CameraInputControl from '../VISOS/effectors/visualizers/CameraInputControl'; // Import CameraInputControl
 
-
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
     const [auStates, setAuStates] = useState(ActionUnitsList.reduce((acc, au) => ({
@@ -35,8 +34,8 @@ function App() {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates);
             const speak = new SpeechManager(manager);
-            const cameraControl = new CameraControl(engine); // Initialize CameraControl
-            const cameraInputControl = new CameraInputControl(cameraControl);
+            // const cameraControl = new CameraControl(engine); // Initialize CameraControl
+            // const cameraInputControl = new CameraInputControl(cameraControl);
             setAnimationManager(manager);
             loopRandomBlink(manager);
             faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);

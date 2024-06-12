@@ -1,7 +1,6 @@
 class CameraInputControl {
     constructor(cameraControl) {
         this.cameraControl = cameraControl;
-
         this.initMouseControls();
         this.initKeyboardControls();
     }

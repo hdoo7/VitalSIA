@@ -1,23 +1,38 @@
-
 import { unityBlendshapes, unityBoneshapes } from './shapeDict.js';
 
 class EngineWebGL_u3d  {
     constructor(gameInstance) {
-
         this.gameInstance = gameInstance;
         this.unityBlendshapes = unityBlendshapes;
         this.unityBoneshapes = unityBoneshapes;
-
         this.weights = new Array(this.unityBlendshapes.length).fill(0);
         this.smoothTimes = new Array(this.unityBlendshapes.length).fill(0);
-
         this.boneWeights = new Array(this.unityBoneshapes.length).fill(0);
         this.boneSmoothTimes = new Array(this.unityBoneshapes.length).fill(0);
-		this.centerHeadPosition;
+        this.centerHeadPosition;
         this.cameraPosition = new Array(3).fill(0);
         this.viewportLookPoint = new Array(2).fill(0);
-		
         this.FacsLib = null;
+
+        window.addEventListener('mousedown', (event) => {
+            if (event.ctrlKey) {
+                this.isRotating = true;
+                this.lastMousePosition = { x: event.clientX, y: event.clientY };
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            this.isRotating = false;
+        });
+
+        window.addEventListener('mousemove', (event) => {
+            if (this.isRotating) {
+                const deltaX = event.clientX - this.lastMousePosition.x;
+                const deltaY = event.clientY - this.lastMousePosition.y;
+                this.rotateCamera(deltaX, deltaY);
+                this.lastMousePosition = { x: event.clientX, y: event.clientY };
+            }
+        });
     }
 
     load(environmentSceneName, characterSceneName) {
@@ -78,6 +93,12 @@ class EngineWebGL_u3d  {
         this.gameInstance.SendMessage('FACcontroler', 'SetCameraPosition', params);
     }
 
+    rotateCamera(deltaX, deltaY) {
+        const rotationX = deltaX * 0.1; // Adjust sensitivity as needed
+        const rotationY = deltaY * 0.1;
+        const params = `${rotationX};${rotationY};`;
+        this.gameInstance.SendMessage('FACcontroler', 'RotateCamera', params);
+    }
 }
 
 window.centerHeadPosition = (x,y,z) => {
@@ -85,5 +106,5 @@ window.centerHeadPosition = (x,y,z) => {
 		engine.centerHeadPosition = [x,y,z];
 	}
 }
-// Export the class for use in other modules
+
 export { EngineWebGL_u3d };
