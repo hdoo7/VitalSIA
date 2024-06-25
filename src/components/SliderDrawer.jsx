@@ -6,9 +6,9 @@ import {
 } from '@chakra-ui/react';
 import AUSlider from './AUSlider';
 import { HamburgerIcon } from '@chakra-ui/icons';
-import { ActionUnitsList } from '../unity/facs/shapeDict';
+import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
 
-const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls, setDrawerControls }) => {
+const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, animationManager, drawerControls, setDrawerControls }) => {
   const toast = useToast();
   const [expandedItems, setExpandedItems] = useState([]);
 
@@ -17,7 +17,7 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
       animationManager.setFaceToNeutral(750);
       toast({
         title: "Face reset to neutral.",
-        description: "All action units have been reset.",
+        description: "All action units have been reset.
         status: "info",
         duration: 3000,
         isClosable: true,
@@ -28,6 +28,11 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
 
   const auGroups = useMemo(() => ActionUnitsList.reduce((acc, au) => {
     (acc[au.faceSection || 'Other'] = acc[au.faceSection || 'Other'] || []).push(au);
+    return acc;
+  }, {}), []);
+
+  const visemeGroups = useMemo(() => VisemesList.reduce((acc, viseme) => {
+    (acc[viseme.faceSection || 'Other'] = acc[viseme.faceSection || 'Other'] || []).push(viseme);
     return acc;
   }, {}), []);
 
@@ -71,17 +76,17 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
             <Flex justifyContent="space-between" mb={4} alignItems="center">
               <Text>Show Unused Sliders</Text>
               <Switch
-  isChecked={drawerControls.showUnusedSliders}
-  onChange={(e) => {
-    e.preventDefault();  // Prevent default form submission behavior
-    e.stopPropagation(); // Stop event from propagating to higher elements
-    setDrawerControls(prev => ({
-      ...prev,
-      showUnusedSliders: !prev.showUnusedSliders
-    }));
-  }}
-  colorScheme="teal"
-/>
+                isChecked={drawerControls.showUnusedSliders}
+                onChange={(e) => {
+                  e.preventDefault();  // Prevent default form submission behavior
+                  e.stopPropagation(); // Stop event from propagating to higher elements
+                  setDrawerControls(prev => ({
+                    ...prev,
+                    showUnusedSliders: !prev.showUnusedSliders
+                  }));
+                }}
+                colorScheme="teal"
+              />
             </Flex>
             <Button colorScheme="teal" onClick={setFaceToNeutral}>Set Face to Neutral</Button>
           </Flex>
@@ -124,6 +129,21 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
                               </Box>
                             ) : null;
                           })}
+                          {visemeGroups[section]?.map(viseme => {
+                            const visemeState = visemeStates[viseme.id];
+                            return visemeState && (drawerControls.showUnusedSliders || visemeState.intensity > 0) ? (
+                              <Box key={viseme.id} w="100%">
+                                <AUSlider
+                                  au={viseme.id}
+                                  name={viseme.name}
+                                  intensity={visemeState.intensity}
+                                  notes={visemeState.notes}
+                                  onChange={(value, notes) => {/* Handle intensity change */}}
+                                  animationManager={animationManager}
+                                />
+                              </Box>
+                            ) : null;
+                          })}
                         </VStack>
                       </AccordionPanel>
                     </>
@@ -139,3 +159,4 @@ const SliderDrawer = ({ auStates, setAuStates, animationManager, drawerControls,
 };
 
 export default SliderDrawer;
+
