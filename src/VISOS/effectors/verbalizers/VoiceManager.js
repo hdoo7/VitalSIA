@@ -65,20 +65,22 @@ export default class VoiceManager {
     applyVisemes(visemes) {
         let delay = 0;
         visemes.forEach((viseme, index) => {
-            viseme = String(viseme); // Ensure viseme is a string
-            if (viseme.startsWith('PAUSE')) {
-                const pauseDuration = parseInt(viseme.split('_')[1], 10);
-                delay += pauseDuration;
-            } else {
-                setTimeout(() => {
-                    this.animationManager.facsLib.setTargetViseme(viseme, 70, 0);
-                    this.animationManager.facsLib.updateEngine();
-                }, delay);
-                delay += 100; // Adjust timing as necessary for phonemes
-            }
-        });
-        this.animationManager.facsLib.updateEngine();
-    }
+applyVisemes(visemes) {
+    let delay = 0;
+    visemes.forEach((viseme, index) => {
+        if (viseme === 0) {
+            // Handle pause
+            delay += 100; // Adjust this duration for pause
+        } else {
+            setTimeout(() => {
+                this.animationManager.facsLib.setTargetViseme(viseme, 70, 0);
+                this.animationManager.facsLib.updateEngine();
+            }, delay);
+            delay += 100; // Adjust timing as necessary for phonemes
+        }
+    });
+}
+
 
     stopSpeech() {
         this.queue = [];
