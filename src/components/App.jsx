@@ -5,21 +5,22 @@ import { useUnityState } from '../unityMiddleware';
 import AnimationManager from '../VISOS/effectors/visualizers/AnimationManager';
 import { loopRandomBlink, smile } from '../VISOS/effectors/visualizers/facialExpressions';
 import faceMaker from '../faceMaker';
-import { ActionUnitsList } from '../unity/facs/shapeDict';
-import { useToast, Box, Button, Textarea } from '@chakra-ui/react'; // Assuming Chakra UI for toast notifications
+import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
+import { useToast, Box, Button, Textarea } from '@chakra-ui/react';
 import GameText from './GameText';
 import FaceDetection from './FaceDetection';
-import Survey from './Survey'; // Import the Survey component
-import { questions } from './utils/freeFormSurveyQuestions'; // Import your survey questions
-import { saveToFirebase } from './utils/firebaseUtils'; // Ensure this is correctly imported
-import VoiceManager from '../VISOS/effectors/verbalizers/VoiceManager'; // Import the SpeechManager
-import CameraControl from '../VISOS/effectors/visualizers/CameraControl'; // Import CameraControl
-import CameraInputControl from '../VISOS/effectors/visualizers/CameraInputControl'; // Import CameraInputControl
+import Survey from './Survey';
+import { questions } from './utils/freeFormSurveyQuestions';
+import { saveToFirebase } from './utils/firebaseUtils';
+import VoiceManager from '../VISOS/effectors/verbalizers/VoiceManager';
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
     const [auStates, setAuStates] = useState(ActionUnitsList.reduce((acc, au) => ({
         ...acc, [au.id]: { intensity: 0, name: au.name, notes: "" },
+    }), {}));
+    const [visemeStates, setVisemeStates] = useState(VisemesList.reduce((acc, viseme) => ({
+        ...acc, [viseme.id]: { intensity: 0, name: viseme.name },
     }), {}));
     const [animationManager, setAnimationManager] = useState(null);
     const [setupComplete, setSetupComplete] = useState(false);
@@ -27,15 +28,14 @@ function App() {
         isOpen: false, showUnusedSliders: false, cameraEnabled: false,
     });
     const [isSurveyActive, setIsSurveyActive] = useState(false);
-    const [isRequestLoading, setRequestIsLoading] = useState(false); // Add this state
+    const [isRequestLoading, setRequestIsLoading] = useState(false);
     const toast = useToast();
     const [text, setText] = useState('');
     const [voiceManager, setVoiceManager] = useState(null);
 
-    // Initialize VoiceManager on component mount
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
-            const manager = new AnimationManager(facslib, setAuStates);
+            const manager = new AnimationManager(facslib, setAuStates, setVisemeStates);
             const speak = new VoiceManager(manager);
             const vm = new VoiceManager(manager);
             setVoiceManager(vm);
@@ -43,7 +43,7 @@ function App() {
             loopRandomBlink(manager);
             faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
             setSetupComplete(true);
-            toast({ title: `To begin, just say "Hey Amy show me" and then desribe what you would like to see the agent "act out".`, status: "success" });
+            toast({ title: `To begin, just say "Hey Amy show me" and then describe what you would like to see the agent "act out".`, status: "success" });
         }
     }, [isLoaded, facslib]);
 
@@ -67,16 +67,15 @@ function App() {
 
     const handleSurveyComplete = async (responses) => {
         console.log("Survey responses:", responses);
-        setIsSurveyActive(false); // Deactivate the survey
+        setIsSurveyActive(false);
         const dataToSave = {
             responses,
-            actionUnits: auStates, // Collecting current states of all AUs
-            overallFeedback: "Overall feedback from the session", // Placeholder, add actual feedback
-            notes: "Detailed notes on session or AUs" // Placeholder, add specific notes
+            actionUnits: auStates,
+            overallFeedback: "Overall feedback from the session",
+            notes: "Detailed notes on session or AUs"
         };
-        // Now saving directly and handling toasts within saveToFirebase
         saveToFirebase('FreeForm', dataToSave, toast);
-        animationManager.setFaceToNeutral(750); // Reset the face to neutral
+        animationManager.setFaceToNeutral(750);
     };
 
     return (
@@ -88,6 +87,8 @@ function App() {
                     <SliderDrawer
                         auStates={auStates}
                         setAuStates={setAuStates}
+                        visemeStates={visemeStates}
+                        setVisemeStates={setVisemeStates}
                         animationManager={animationManager}
                         drawerControls={drawerControls}
                         setDrawerControls={setDrawerControls}
@@ -99,7 +100,6 @@ function App() {
                             onSurveyComplete={handleSurveyComplete}
                         />
                     )}
-                    {/* VoiceManager Test Controls */}
                     <Box p={4}>
                         <Textarea
                             value={text}
