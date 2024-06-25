@@ -20,10 +20,14 @@ module.exports = {
             };
             webpackConfig.plugins.push(
                 new webpack.ProvidePlugin({
-                    process: 'process/browser.js',
+                    process: 'process/browser',
                     Buffer: ['buffer', 'Buffer'],
                 })
             );
+            webpackConfig.resolve.alias = {
+                ...webpackConfig.resolve.alias,
+                process: 'process/browser'
+            };
             return webpackConfig;
         },
     },
