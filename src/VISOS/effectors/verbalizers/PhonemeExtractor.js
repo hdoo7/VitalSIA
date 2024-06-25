@@ -1,18 +1,47 @@
+import natural from 'natural';
+
 class PhonemeExtractor {
-    extractPhonemes(text) {
-        // A simple function to extract phonemes from text.
-        // For demonstration purposes, this could be more complex using a phoneme extraction library or API.
-        return text.split('').map(char => this.simplePhonemeMapping(char));
+    constructor() {
+        this.phonetic = natural.Phonetic;
+        this.tokenizer = new natural.WordTokenizer();
     }
 
-    simplePhonemeMapping(char) {
-        const phonemeMap = {
-            'a': 'AA', 'b': 'B', 'c': 'K', 'd': 'D', 'e': 'EH', 'f': 'F', 'g': 'G', 'h': 'HH', 'i': 'IH',
-            'j': 'JH', 'k': 'K', 'l': 'L', 'm': 'M', 'n': 'N', 'o': 'AO', 'p': 'P', 'q': 'K', 'r': 'R',
-            's': 'S', 't': 'T', 'u': 'UH', 'v': 'V', 'w': 'W', 'x': 'K', 'y': 'Y', 'z': 'Z'
-        };
-        return phonemeMap[char.toLowerCase()] || char;
+    extractPhonemes(text) {
+        const tokens = this.tokenizer.tokenize(text);
+        const phonemes = [];
+
+        tokens.forEach((token, index) => {
+            if (token.match(/[\s,]/)) {
+                phonemes.push(this.getPauseForChar(token));
+            } else {
+                const phoneticRepresentations = this.phonetic.doubleMetaphone(token);
+                phoneticRepresentations[0].split('').forEach(phoneme => phonemes.push(phoneme));
+            }
+
+            // Add a pause if the token is not the last one
+            if (index < tokens.length - 1) {
+                phonemes.push(this.getPauseForChar(' '));
+            }
+        });
+
+        return phonemes;
+    }
+
+    getPauseForChar(char) {
+        switch (char) {
+            case ' ':
+                return 'PAUSE_500'; // 500ms pause for space
+            case ',':
+                return 'PAUSE_300'; // 300ms pause for comma
+            case '.':
+            case '!':
+            case '?':
+                return 'PAUSE_700'; // 700ms pause for sentence end
+            default:
+                return 'PAUSE_100'; // 100ms for regular characters
+        }
     }
 }
 
 export default PhonemeExtractor;
+
