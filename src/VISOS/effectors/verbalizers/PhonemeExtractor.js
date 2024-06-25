@@ -11,7 +11,7 @@ class PhonemeExtractor {
         const phonemes = [];
 
         tokens.forEach((token, index) => {
-            if (token.match(/\s,]/)) {
+            if (token.match(/[\s,]/)) {
                 phonemes.push(this.getPauseForChar(token));
             } else {
                 const phoneticRepresentations = this.doubleMetaphone.process(token);
@@ -34,6 +34,17 @@ class PhonemeExtractor {
             case ',':
                 return 'PAUSE_300'; // 300ms pause for comma
             case '.':
+            case '!':
+            case '?':
+                return 'PAUSE_700'; // 700ms pause for sentence end
+            default:
+                return 'PAUSE_100'; // 100ms for regular characters
+        }
+    }
+}
+
+export default PhonemeExtractor;
+
             case '!':
             case '?':
                 return 'PAUSE_700'; // 700ms pause for sentence end
