@@ -63,11 +63,18 @@ class VoiceManager {
     }
 
     applyVisemes(visemes) {
+        let delay = 0;
         visemes.forEach((viseme, index) => {
-            setTimeout(() => {
-                this.animationManager.facsLib.setTargetViseme(viseme, 70, 0);
-                this.animationManager.facsLib.updateEngine();
-            }, index * 100); // Adjust timing as necessary
+            if (viseme.startsWith('PAUSE')) {
+                const pauseDuration = parseInt(viseme.split('_')[1], 10);
+                delay += pauseDuration;
+            } else {
+                setTimeout(() => {
+                    this.animationManager.facsLib.setTargetViseme(viseme, 70, 0);
+                    this.animationManager.facsLib.updateEngine();
+                }, delay);
+                delay += 100; // Adjust timing as necessary for phonemes
+            }
         });
     }
 
@@ -95,6 +102,11 @@ class VoiceManager {
         }
 
         console.log("Speech synthesis interrupted.");
+    }
+}
+
+export default VoiceManager;
+
     }
 }
 
