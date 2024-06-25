@@ -1,7 +1,7 @@
 import PhonemeExtractor from './PhonemeExtractor';
 import VisemeMapper from './VisemeMapper';
 
-class VoiceManager {
+export default class VoiceManager {
     constructor(animationManager) {
         this.animationManager = animationManager;
         this.queue = [];
@@ -101,27 +101,3 @@ class VoiceManager {
         console.log("Speech synthesis interrupted.");
     }
 }
-
-export default VoiceManager;
-
-        this.isSpeaking = false;
-        this.synth.cancel();
-        this.setVisemeToNeutral();
-        console.log("Speech synthesis stopped.");
-    }
-
-    interruptSpeech(text) {
-        this.queue = [];
-        this.isSpeaking = false;
-        this.synth.cancel();
-        this.setVisemeToNeutral();
-
-        if (text) {
-            this.enqueueText(text);
-        }
-
-        console.log("Speech synthesis interrupted.");
-    }
-}
-
-export default VoiceManager;

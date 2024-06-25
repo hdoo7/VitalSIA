@@ -17,7 +17,7 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
       animationManager.setFaceToNeutral(750);
       toast({
         title: "Face reset to neutral.",
-        description: "All action units have been reset.
+        description: "All action units have been reset.",
         status: "info",
         duration: 3000,
         isClosable: true,
