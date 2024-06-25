@@ -40,11 +40,13 @@ class VoiceManager {
 
             utterThis.onend = () => {
                 console.log("Speech synthesis completed.");
+                this.setVisemeToNeutral();
                 resolve();
             };
 
             utterThis.onerror = (e) => {
                 console.error("Error during speech synthesis:", e);
+                this.setVisemeToNeutral();
                 reject(e);
             };
 
@@ -69,10 +71,16 @@ class VoiceManager {
         });
     }
 
+    setVisemeToNeutral() {
+        this.animationManager.facsLib.setTargetViseme(0, 100, 0);
+        this.animationManager.facsLib.updateEngine();
+    }
+
     stopSpeech() {
         this.queue = [];
         this.isSpeaking = false;
         this.synth.cancel();
+        this.setVisemeToNeutral();
         console.log("Speech synthesis stopped.");
     }
 
@@ -80,6 +88,7 @@ class VoiceManager {
         this.queue = [];
         this.isSpeaking = false;
         this.synth.cancel();
+        this.setVisemeToNeutral();
 
         if (text) {
             this.enqueueText(text);
@@ -91,10 +100,6 @@ class VoiceManager {
 
 export default VoiceManager;
 
-    }
-
-    handleResult(event) {
-        const lastResult = event.results[event.resultIndex];
         const text = lastResult[0].transcript;
         console.log(`Heard: ${text}`);
         if (lastResult.isFinal && this.triggerPhrases.test(text)) {
