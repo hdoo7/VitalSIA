@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import VoiceManager from './VISOS/effectors/verbalizers/VoiceManager';
-import { Box, Button, Input, Textarea } from '@chakra-ui/react';
+import { Box, Button, Textarea } from '@chakra-ui/react';
+import ExistingComponent from './ExistingComponent'; // Adjust the import based on your existing components
 
 const App = () => {
     const [text, setText] = useState('');
     const [voiceManager, setVoiceManager] = useState(null);
 
     // Initialize VoiceManager on component mount
-    React.useEffect(() => {
+    useEffect(() => {
         const animationManager = {
             facsLib: {
                 setTargetViseme: (viseme, weight, duration) => {
@@ -42,6 +43,10 @@ const App = () => {
 
     return (
         <Box p={4}>
+            {/* Existing components */}
+            <ExistingComponent />
+
+            {/* VoiceManager Test Controls */}
             <Textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
