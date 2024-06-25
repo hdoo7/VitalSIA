@@ -4,7 +4,7 @@ import SliderDrawer from './SliderDrawer';
 import { useUnityState } from '../unityMiddleware';
 import AnimationManager from '../VISOS/effectors/visualizers/AnimationManager';
 import { loopRandomBlink, smile } from '../VISOS/effectors/visualizers/facialExpressions';
-import faceMaker from '../faceMaker';
+// import faceMaker from '../faceMaker';
 import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
 import { useToast, Box, Button, Textarea } from '@chakra-ui/react';
 import GameText from './GameText';
@@ -41,7 +41,7 @@ function App() {
             setVoiceManager(vm);
             setAnimationManager(manager);
             loopRandomBlink(manager);
-            faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
+            // faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
             setSetupComplete(true);
             toast({ title: `To begin, just say "Hey Amy show me" and then describe what you would like to see the agent "act out".`, status: "success" });
         }

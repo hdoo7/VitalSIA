@@ -1,8 +1,8 @@
-import { Phonetic, WordTokenizer } from 'natural';
+import { DoubleMetaphone, WordTokenizer } from 'natural';
 
 class PhonemeExtractor {
     constructor() {
-        this.phonetic = Phonetic;
+        this.doubleMetaphone = new DoubleMetaphone();
         this.tokenizer = new WordTokenizer();
     }
 
@@ -14,7 +14,7 @@ class PhonemeExtractor {
             if (token.match(/\s,]/)) {
                 phonemes.push(this.getPauseForChar(token));
             } else {
-                const phoneticRepresentations = this.phonetic.doubleMetaphone(token);
+                const phoneticRepresentations = this.doubleMetaphone.process(token);
                 phoneticRepresentations[0].split('').forEach(phoneme => phonemes.push(phoneme));
             }
 
