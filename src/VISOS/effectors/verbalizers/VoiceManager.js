@@ -40,13 +40,13 @@ class VoiceManager {
 
             utterThis.onend = () => {
                 console.log("Speech synthesis completed.");
-                this.setVisemeToNeutral();
+                this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
                 resolve();
             };
 
             utterThis.onerror = (e) => {
                 console.error("Error during speech synthesis:", e);
-                this.setVisemeToNeutral();
+                this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
                 reject(e);
             };
 
@@ -64,29 +64,46 @@ class VoiceManager {
 
     applyVisemes(visemes) {
         let delay = 0;
-applyVisemes(visemes) {
-    let delay = 0;
-    visemes.forEach((viseme, index) => {
-        viseme = String(viseme); // Ensure viseme is a string
-        if (viseme.startsWith('PAUSE')) {
-            const pauseDuration = parseInt(viseme.split('_')[1], 10);
-            delay += pauseDuration;
-        } else {
-            setTimeout(() => {
-                this.animationManager.facsLib.setTargetViseme(viseme, 70, 0);
-                this.animationManager.facsLib.updateEngine();
-            }, delay);
-            delay += 100; // Adjust timing as necessary for phonemes
-        }
-    });
-}
-
-
+        visemes.forEach((viseme, index) => {
+            viseme = String(viseme); // Ensure viseme is a string
+            if (viseme.startsWith('PAUSE')) {
+                const pauseDuration = parseInt(viseme.split('_')[1], 10);
+                delay += pauseDuration;
+            } else {
+                setTimeout(() => {
+                    this.animationManager.facsLib.setTargetViseme(viseme, 70, 0);
+                    this.animationManager.facsLib.updateEngine();
+                }, delay);
+                delay += 100; // Adjust timing as necessary for phonemes
+            }
+        });
         this.animationManager.facsLib.updateEngine();
     }
 
     stopSpeech() {
         this.queue = [];
+        this.isSpeaking = false;
+        this.synth.cancel();
+        this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
+        console.log("Speech synthesis stopped.");
+    }
+
+    interruptSpeech(text) {
+        this.queue = [];
+        this.isSpeaking = false;
+        this.synth.cancel();
+        this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
+
+        if (text) {
+            this.enqueueText(text);
+        }
+
+        console.log("Speech synthesis interrupted.");
+    }
+}
+
+export default VoiceManager;
+
         this.isSpeaking = false;
         this.synth.cancel();
         this.setVisemeToNeutral();
