@@ -10,27 +10,9 @@ class VoiceManager {
         // Initialize the Speech Synthesis API
         this.synth = window.speechSynthesis;
         this.voice = this.synth.getVoices().find(voice => voice.name === 'Google US English' || voice.name === 'en-US');
-        this.recognition = null;
 
         this.phonemeExtractor = new PhonemeExtractor();
         this.visemeMapper = new VisemeMapper();
-
-        this.initRecognition();
-    }
-
-    initRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) {
-            console.error("Speech recognition is not supported in this browser.");
-            return;
-        }
-        this.recognition = new SpeechRecognition();
-        this.recognition.lang = 'en-US';
-        this.recognition.interimResults = true;
-        this.recognition.continuous = true;
-        this.recognition.onresult = (event) => this.handleResult(event);
-        this.recognition.onend = () => this.handleEnd();
-        this.recognition.onerror = (event) => this.handleError(event);
     }
 
     enqueueText(text) {
@@ -87,14 +69,28 @@ class VoiceManager {
         });
     }
 
-    startRecognition(triggerPhrases, onTriggerDetected) {
-        if (!this.recognition) return;
+    stopSpeech() {
+        this.queue = [];
+        this.isSpeaking = false;
+        this.synth.cancel();
+        console.log("Speech synthesis stopped.");
+    }
 
-        this.triggerPhrases = this.prepareTriggerPhrasesRegex(triggerPhrases);
-        this.onTriggerDetected = onTriggerDetected;
+    interruptSpeech(text) {
+        this.queue = [];
+        this.isSpeaking = false;
+        this.synth.cancel();
 
-        this.recognition.start();
-        console.log('Speech recognition started.');
+        if (text) {
+            this.enqueueText(text);
+        }
+
+        console.log("Speech synthesis interrupted.");
+    }
+}
+
+export default VoiceManager;
+
     }
 
     handleResult(event) {
