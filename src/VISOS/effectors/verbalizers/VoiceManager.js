@@ -81,6 +81,7 @@ applyVisemes(visemes) {
     });
 }
 
+
         this.animationManager.facsLib.updateEngine();
     }
 
