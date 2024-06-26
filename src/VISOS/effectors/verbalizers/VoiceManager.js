@@ -40,13 +40,13 @@ export default class VoiceManager {
 
             utterThis.onend = () => {
                 console.log("Speech synthesis completed.");
-                this.animationManager.setFaceToNeutral();
+                this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
                 resolve();
             };
 
             utterThis.onerror = (e) => {
                 console.error("Error during speech synthesis:", e);
-                this.animationManager.setFaceToNeutral();
+                this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
                 reject(e);
             };
 
@@ -64,25 +64,32 @@ export default class VoiceManager {
 
     applyVisemes(visemes) {
         let delay = 0;
+        const visemeInterval = 150; // Adjust this value to control the speed of viseme transitions
+
         visemes.forEach((viseme, index) => {
             if (viseme === 0) {
-                delay += 100;
+                // Handle pause
+                delay += visemeInterval; // Use the interval as the duration for the pause
             } else {
                 setTimeout(() => {
                     this.animationManager.scheduleVisemeChange(viseme, 70, 0).then(() => {
                         this.animationManager.facsLib.updateEngine();
                     });
                 }, delay);
-                delay += 100;
+                delay += visemeInterval; // Ensure a consistent interval between viseme changes
             }
         });
+
+        setTimeout(() => {
+            this.animationManager.setVisemeToNeutral(); // Reset viseme after speech
+        }, delay + visemeInterval); // Add a slight delay after the last viseme
     }
 
     stopSpeech() {
         this.queue = [];
         this.isSpeaking = false;
         this.synth.cancel();
-        this.animationManager.setFaceToNeutral();
+        this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
         console.log("Speech synthesis stopped.");
     }
 
@@ -90,7 +97,7 @@ export default class VoiceManager {
         this.queue = [];
         this.isSpeaking = false;
         this.synth.cancel();
-        this.animationManager.setFaceToNeutral();
+        this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
 
         if (text) {
             this.enqueueText(text);
@@ -98,6 +105,8 @@ export default class VoiceManager {
 
         console.log("Speech synthesis interrupted.");
     }
+}
+
 }
 
     stopSpeech() {
