@@ -1,4 +1,6 @@
+import React, { useState } from 'react';
 import { Box, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Tooltip, Text } from '@chakra-ui/react';
+import * as d3 from 'd3';
 import * as d3 from 'd3';
 import React from 'react';
 import { Box, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Text } from '@chakra-ui/react';
