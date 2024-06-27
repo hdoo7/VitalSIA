@@ -44,15 +44,3 @@ class PhonemeExtractor {
 }
 
 export default PhonemeExtractor;
-
-            case '!':
-            case '?':
-                return 'PAUSE_700'; // 700ms pause for sentence end
-            default:
-                return 'PAUSE_100'; // 100ms for regular characters
-        }
-    }
-}
-
-export default PhonemeExtractor;
-

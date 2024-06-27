@@ -4,17 +4,14 @@ import SliderDrawer from './SliderDrawer';
 import { useUnityState } from '../unityMiddleware';
 import AnimationManager from '../VISOS/effectors/visualizers/AnimationManager';
 import { loopRandomBlink, smile } from '../VISOS/effectors/visualizers/facialExpressions';
-import faceMaker from '../faceMaker';
+// import faceMaker from '../faceMaker';
 import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
-import { useToast } from '@chakra-ui/react';
+import { useToast, Box, Button, Textarea } from '@chakra-ui/react';
 import GameText from './GameText';
 import FaceDetection from './FaceDetection';
 import Survey from './Survey';
 import { questions } from './utils/freeFormSurveyQuestions';
 import { saveToFirebase } from './utils/firebaseUtils';
-import SpeechManager from '../VISOS/effectors/verbalizers/VoiceManager';
-import CameraControl from '../VISOS/effectors/visualizers/CameraControl';
-import CameraInputControl from '../VISOS/effectors/visualizers/CameraInputControl';
 import VoiceManager from '../VISOS/effectors/verbalizers/VoiceManager';
 
 function App() {
@@ -33,18 +30,41 @@ function App() {
     const [isSurveyActive, setIsSurveyActive] = useState(false);
     const [isRequestLoading, setRequestIsLoading] = useState(false);
     const toast = useToast();
-    const vm = new VoiceManager();
+    const [text, setText] = useState('');
+    const [voiceManager, setVoiceManager] = useState(null);
+
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates, setVisemeStates);
-            const speak = new SpeechManager(manager);
+            window.animationManager = manager;
+            const speak = new VoiceManager(manager);
+            const vm = new VoiceManager(manager);
+            setVoiceManager(vm);
             setAnimationManager(manager);
             loopRandomBlink(manager);
-            faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
+            // faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
             setSetupComplete(true);
             toast({ title: `To begin, just say "Hey Amy show me" and then describe what you would like to see the agent "act out".`, status: "success" });
         }
     }, [isLoaded, facslib]);
+
+    const handleEnqueueText = () => {
+        if (voiceManager) {
+            voiceManager.enqueueText(text);
+        }
+    };
+
+    const handleStopSpeech = () => {
+        if (voiceManager) {
+            voiceManager.stopSpeech();
+        }
+    };
+
+    const handleInterruptSpeech = () => {
+        if (voiceManager) {
+            voiceManager.interruptSpeech("This is an interruption.");
+        }
+    };
 
     const handleSurveyComplete = async (responses) => {
         console.log("Survey responses:", responses);
@@ -61,27 +81,24 @@ function App() {
 
     return (
         <div className="App">
+            <Loader isLoading={!isLoaded || !setupComplete} />
             {isLoaded && setupComplete && animationManager && (
                 <>
                     <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
                     <SliderDrawer
                         auStates={auStates}
-                        visemeStates={visemeStates}
                         setAuStates={setAuStates}
+                        visemeStates={visemeStates}
                         setVisemeStates={setVisemeStates}
                         animationManager={animationManager}
                         drawerControls={drawerControls}
                         setDrawerControls={setDrawerControls}
                     />
-                    {isRequestLoading && (<GameText />) }
-                </>
-            )}
-        </div>
-    );
-}
-
-export default App;
-
+                    {isRequestLoading && (<GameText />)}
+                    {isSurveyActive && (
+                        <Survey
+                            questions={questions}
+                            onSurveyComplete={handleSurveyComplete}
                         />
                     )}
                     <Box p={4}>

@@ -107,26 +107,3 @@ export default class VoiceManager {
     }
 }
 
-}
-
-    stopSpeech() {
-        this.queue = [];
-        this.isSpeaking = false;
-        this.synth.cancel();
-        this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
-        console.log("Speech synthesis stopped.");
-    }
-
-    interruptSpeech(text) {
-        this.queue = [];
-        this.isSpeaking = false;
-        this.synth.cancel();
-        this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
-
-        if (text) {
-            this.enqueueText(text);
-        }
-
-        console.log("Speech synthesis interrupted.");
-    }
-}

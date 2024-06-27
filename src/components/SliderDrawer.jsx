@@ -5,6 +5,7 @@ import {
   Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon
 } from '@chakra-ui/react';
 import AUSlider from './AUSlider';
+import VisemeSlider from './VisemeSlider';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
 
@@ -57,6 +58,13 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
     }
     return Object.entries(auGroups);
   }, [auGroups, auStates, drawerControls.showUnusedSliders]);
+
+  const handleVisemeChange = (id, value, notes) => {
+    setVisemeStates(prevStates => ({
+      ...prevStates,
+      [id]: { ...prevStates[id], intensity: value, notes },
+    }));
+  };
 
   return (
     <>
@@ -123,22 +131,12 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                                   notes={auState.notes}
                                   muscularBasis={ActionUnitsList[au.id]?.muscularBasis}
                                   links={ActionUnitsList[au.id]?.links}
-                                  onChange={(value, notes) => {/* Handle intensity change */}}
-                                  animationManager={animationManager}
-                                />
-                              </Box>
-                            ) : null;
-                          })}
-                          {visemeGroups[section]?.map(viseme => {
-                            const visemeState = visemeStates[viseme.id];
-                            return visemeState && (drawerControls.showUnusedSliders || visemeState.intensity > 0) ? (
-                              <Box key={viseme.id} w="100%">
-                                <AUSlider
-                                  au={viseme.id}
-                                  name={viseme.name}
-                                  intensity={visemeState.intensity}
-                                  notes={visemeState.notes}
-                                  onChange={(value, notes) => {/* Handle intensity change */}}
+                                  onChange={(value, notes) => {
+                                    setAuStates(prevStates => ({
+                                      ...prevStates,
+                                      [au.id]: { ...prevStates[au.id], intensity: value, notes },
+                                    }));
+                                  }}
                                   animationManager={animationManager}
                                 />
                               </Box>
@@ -150,6 +148,36 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                   )}
                 </AccordionItem>
               ))}
+              <AccordionItem>
+                <AccordionButton>
+                  <Box flex="1" textAlign="left">
+                    Visemes
+                  </Box>
+                  <AccordionIcon />
+                </AccordionButton>
+                <AccordionPanel pb={4}>
+                  <VStack spacing={4}>
+                    {Object.entries(visemeStates).map(([id, viseme]) => (
+                      <Box key={id} mb={4}>
+                        <Text>{viseme.name}</Text>
+                        <VisemeSlider
+                          viseme={id}
+                          name={viseme.name}
+                          intensity={viseme.intensity}
+                          notes={viseme.notes}
+                          animationManager={animationManager}
+                          onChange={(value, notes) => {
+                            setVisemeStates(prevStates => ({
+                              ...prevStates,
+                              [viseme.id]: { ...prevStates[viseme.id], intensity: value, notes },
+                          }))
+                          }}
+                        />
+                      </Box>
+                    ))}
+                  </VStack>
+                </AccordionPanel>
+              </AccordionItem>
             </Accordion>
           </DrawerBody>
         </DrawerContent>
@@ -159,4 +187,3 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
 };
 
 export default SliderDrawer;
-
