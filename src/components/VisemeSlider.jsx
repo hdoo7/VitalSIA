@@ -10,17 +10,42 @@ const VisemeSlider = ({ viseme, name, intensity, notes, onChange, animationManag
     animationManager.scheduleVisemeChange(viseme, value, 750); // Adjust duration as needed
   };
 
-  // Define the gradient for the slider
-  const gradientId = `grad-${viseme}`;
-  const gradient = (
-    <linearGradient id={gradientId}>
-      <stop offset="0%" stopColor="blue" />
-      <stop offset="100%" stopColor="red" />
-    </linearGradient>
-  );
+  // Color transition from teal to magenta using d3 for dynamic color based on intensity
+  const colorScale = d3.scaleLinear()
+    .domain([0, 100])
+    .range(["teal", "magenta"]);
 
   return (
-    <Box w="100%">
+    <Box width="100%">
+      <Text mb={2}>{name}</Text>
+      <Slider
+        value={intensity}
+        min={0}
+        max={100}
+        step={1}
+        onChange={handleChange}
+        colorScheme={useColorModeValue("teal", "magenta")}
+        onMouseEnter={() => setShowTooltip(true)}
+        onMouseLeave={() => setShowTooltip(false)}
+        width="100%"
+      >
+        <SliderTrack bg="gray.200">
+          <SliderFilledTrack bg={colorScale(intensity)} />
+        </SliderTrack>
+        <Tooltip
+          hasArrow
+          bg="teal.500"
+          color="white"
+          placement="top"
+          isOpen={showTooltip}
+          label={`${intensity}`}
+        >
+          <SliderThumb boxSize={6} />
+        </Tooltip>
+      </Slider>
+    </Box>
+  );
+};
       <Text mb={2}>{name}</Text>
       <svg width="0" height="0">
         <defs>{gradient}</defs>
