@@ -169,7 +169,7 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                           onChange={(value, notes) => {
                             setVisemeStates(prevStates => ({
                               ...prevStates,
-                              [viseme.id]: { ...prevStates[viseme.id], intensity: value, notes },
+                              [viseme.id]: { ...prevStates[viseme], intensity: value, notes },
                           }))
                           }}
                         />

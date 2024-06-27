@@ -3,13 +3,15 @@ import { Box, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Text } from '
 
 const VisemeSlider = ({ viseme, name, intensity, notes, onChange, animationManager }) => {
   const handleChange = (value) => {
-    onChange(value, notes);
-    animationManager.scheduleVisemeChange(viseme, value, 0); // Adjust duration as needed
+    
+    animationManager.scheduleVisemeChange(parseInt(viseme), value, 0).then(() => {
+      animationManager.facsLib.updateEngine();
+  }); // Adjust duration as needed
   };
 
   return (
     <Box>
-      <Text>{name}</Text>
+      <Text>{viseme}: {name}</Text>
       <Slider value={intensity} min={0} max={100} onChange={handleChange}>
         <SliderTrack>
           <SliderFilledTrack />
