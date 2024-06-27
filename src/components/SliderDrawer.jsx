@@ -127,6 +127,36 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                                 <AUSlider
                                   au={au.id}
                                   name={au.name}
+<AccordionItem>
+  <AccordionButton>
+    <Box flex="1" textAlign="left">
+      Visemes
+    </Box>
+    <AccordionIcon />
+  </AccordionButton>
+  <AccordionPanel pb={4}>
+    <VStack spacing={4}>
+      {Object.entries(visemeStates).map(([id, viseme]) => (
+        <Box key={id} mb={4}>
+          <Text>{viseme.name}</Text>
+          <VisemeSlider
+            viseme={id}
+            name={viseme.name}
+            intensity={viseme.intensity}
+            notes={viseme.notes}
+            animationManager={animationManager}
+            onChange={(value, notes) => {
+              setVisemeStates(prevStates => ({
+                ...prevStates,
+                [viseme.id]: { ...prevStates[viseme], intensity: value, notes },
+              }));
+            }}
+          />
+        </Box>
+      ))}
+    </VStack>
+  </AccordionPanel>
+</AccordionItem>
                                   intensity={auState.intensity}
                                   notes={auState.notes}
                                   muscularBasis={ActionUnitsList[au.id]?.muscularBasis}
