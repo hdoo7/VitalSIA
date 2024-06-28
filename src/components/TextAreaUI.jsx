@@ -3,27 +3,23 @@ import { Box, Textarea, Button, VStack, HStack } from '@chakra-ui/react';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
 import VoiceManager from '../VISOS/effectors/verbalizers/VoiceManager';
 
-const TextAreaUI = (manager) => {
-  
-  
+const TextAreaUI = ({ animationManager }) => {
   const [isListening, setIsListening] = useState(false);
   const [voiceManager, setVoiceManager] = useState(null);
+  const [text, setText] = useState('');
+
+  useEffect(() => {
+    if (!animationManager) return;
+    const vm = new VoiceManager(animationManager);
+    setVoiceManager(vm);
+  }, [animationManager]);
 
   const handleTextSubmit = () => {
-    if (!manager) return;
-
-    const vmm = new VoiceManager(manager);
-      vmm.enqueueText(text);
-    
-    
+    if (voiceManager) {
+      voiceManager.enqueueText(text);
+    }
   };
-    const [text, setText] = useState('');
-  useEffect(() => {  
-    if (!manager) return;
-    const vm = new VoiceManager(manager);
-    setVoiceManager(vm);
 
-  }, [manager]);
   const handleListening = () => {
     setIsListening(!isListening);
     if (!isListening) {

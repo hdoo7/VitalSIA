@@ -154,7 +154,7 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                   </AccordionButton>
                 </h2>
                 <AccordionPanel pb={4}>
-                  <TextAreaUI onSubmit={handleTextSubmit} manager={animationManager} />
+                  <TextAreaUI onSubmit={handleTextSubmit} animationManager={animationManager} />
                 </AccordionPanel>
               </AccordionItem>
               <AccordionItem>

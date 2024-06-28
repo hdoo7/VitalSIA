@@ -12,7 +12,6 @@ import FaceDetection from './FaceDetection';
 import Survey from './Survey';
 import { questions } from './utils/freeFormSurveyQuestions';
 import { saveToFirebase } from './utils/firebaseUtils';
-import VoiceManager from '../VISOS/effectors/verbalizers/VoiceManager';
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
@@ -31,15 +30,12 @@ function App() {
     const [isRequestLoading, setRequestIsLoading] = useState(false);
     const toast = useToast();
     const [text, setText] = useState('');
-    const [voiceManager, setVoiceManager] = useState(null);
 
     useEffect(() => {
         if (isLoaded && facslib && !animationManager) {
             const manager = new AnimationManager(facslib, setAuStates, setVisemeStates);
             window.animationManager = manager;
-            const speak = new VoiceManager(manager);
-            const vm = new VoiceManager(manager);
-            setVoiceManager(vm);
+           
             setAnimationManager(manager);
             loopRandomBlink(manager);
             // faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
@@ -48,23 +44,7 @@ function App() {
         }
     }, [isLoaded, facslib]);
 
-    const handleEnqueueText = () => {
-        if (voiceManager) {
-            voiceManager.enqueueText(text);
-        }
-    };
 
-    const handleStopSpeech = () => {
-        if (voiceManager) {
-            voiceManager.stopSpeech();
-        }
-    };
-
-    const handleInterruptSpeech = () => {
-        if (voiceManager) {
-            voiceManager.interruptSpeech("This is an interruption.");
-        }
-    };
 
     const handleSurveyComplete = async (responses) => {
         console.log("Survey responses:", responses);
@@ -100,22 +80,7 @@ function App() {
                             onSurveyComplete={handleSurveyComplete}
                         />
                     )}
-                    <Box p={4}>
-                        <Textarea
-                            value={text}
-                            onChange={(e) => setText(e.target.value)}
-                            mb={2}
-                        />
-                        <Button colorScheme="teal" onClick={handleEnqueueText} mb={2}>
-                            Enqueue Text
-                        </Button>
-                        <Button colorScheme="red" onClick={handleStopSpeech} mb={2}>
-                            Stop Speech
-                        </Button>
-                        <Button colorScheme="yellow" onClick={handleInterruptSpeech}>
-                            Interrupt Speech
-                        </Button>
-                    </Box>
+                    
                 </>
             )}
         </div>
