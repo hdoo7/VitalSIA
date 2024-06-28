@@ -64,17 +64,17 @@ export default class VoiceManager {
 
     applyVisemes(visemes) {
         let delay = 0;
-        const visemeInterval = 150; // Adjust this value to control the speed of viseme transitions
+        const visemeInterval = 80; // Adjust this value to control the speed of viseme transitions
 
         visemes.forEach((viseme, index) => {
-            if (viseme === 0) {
-                // Handle pause
-                delay += visemeInterval; // Use the interval as the duration for the pause
+            if (viseme.indexOf('PAUSE') > -1) {
+                // Handle pause 
+                 // Split the viseme name and duration
+                delay += parseInt(viseme.spit('_')[1]);
+                this.animationManager.setVisemeToNeutral(0); // Use the interval as the duration for the pause
             } else {
                 setTimeout(() => {
-                    this.animationManager.scheduleVisemeChange(viseme, 70, 0).then(() => {
-                        this.animationManager.facsLib.updateEngine();
-                    });
+                    this.animationManager.applyVisemeChange(viseme, 70, 0)
                 }, delay);
                 delay += visemeInterval; // Ensure a consistent interval between viseme changes
             }
@@ -82,7 +82,7 @@ export default class VoiceManager {
 
         setTimeout(() => {
             this.animationManager.setVisemeToNeutral(); // Reset viseme after speech
-        }, delay + visemeInterval); // Add a slight delay after the last viseme
+        }, delay); // Add a slight delay after the last viseme
     }
 
     stopSpeech() {

@@ -158,8 +158,7 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                 <AccordionPanel pb={4}>
                   <VStack spacing={4}>
                     {Object.entries(visemeStates).map(([id, viseme]) => (
-                      <Box key={id} mb={4}>
-                        <Text>{viseme.name}</Text>
+                      <Box key={id} mb={4} w="100%">
                         <VisemeSlider
                           viseme={id}
                           name={viseme.name}
@@ -169,7 +168,7 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                           onChange={(value, notes) => {
                             setVisemeStates(prevStates => ({
                               ...prevStates,
-                              [viseme.id]: { ...prevStates[viseme], intensity: value, notes },
+                              [viseme]: { ...prevStates[viseme], intensity: value, notes },
                           }))
                           }}
                         />

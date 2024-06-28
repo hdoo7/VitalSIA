@@ -92,7 +92,7 @@ class FacsLib {
     return this.currentWeightTargets[AUIndex];
   }
 
-  setNeutralViseme(smoothTime) {
+  setNeutralViseme(smoothTime=0) {
     this.currentWeightTargets.fill(0, this.nbActionUnits, this.nbActionUnits + this.nbVisemes);
     this.currentWeightSmooth.fill(smoothTime, this.nbActionUnits, this.nbActionUnits + this.nbVisemes);
   }

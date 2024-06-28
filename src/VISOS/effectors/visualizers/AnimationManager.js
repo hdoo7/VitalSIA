@@ -70,9 +70,7 @@ export default class AnimationManager {
     }
 
     setVisemeToNeutral() {
-        VisemesList.forEach((viseme) => {
-            this.scheduleVisemeChange(viseme.id, 0, 750);
-        });
+        this.facsLib.setNeutralViseme()
     }
 
     applyChangesFromJson(auJson) {
