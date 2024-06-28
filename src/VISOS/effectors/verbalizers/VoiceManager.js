@@ -13,8 +13,28 @@ export default class VoiceManager {
 
         this.phonemeExtractor = new PhonemeExtractor();
         this.visemeMapper = new VisemeMapper();
+
     }
 
+    initVoices() {
+        this.synth.onvoiceschanged = () => {
+            if (!this.voice) {
+                const voices = this.getVoices();
+                this.voice = voices.find(voice => voice.name === 'Google US English' || voice.name === 'en-US') || voices[0];
+            }
+        };
+    }
+
+    getVoices() {
+        return this.synth.getVoices();
+    }
+
+    setVoice(voiceName) {
+        const voice = this.getVoices().find(v => v.name === voiceName);
+        if (voice) {
+            this.voice = voice;
+        }
+    }
     enqueueText(text) {
         this.queue.push(text);
         if (!this.isSpeaking) {
@@ -45,9 +65,8 @@ export default class VoiceManager {
             };
 
             utterThis.onerror = (e) => {
-                console.error("Error during speech synthesis:", e);
-                this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
-                reject(e);
+                console.log("Error during speech synthesis:", e);
+                
             };
 
             utterThis.onboundary = (event) => {

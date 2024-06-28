@@ -1,17 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Textarea, Button, VStack, HStack } from '@chakra-ui/react';
+import { Box, Textarea, Button, VStack, HStack, Select } from '@chakra-ui/react';
 import { FaMicrophone, FaStop } from 'react-icons/fa';
 import VoiceManager from '../VISOS/effectors/verbalizers/VoiceManager';
 
 const TextAreaUI = ({ animationManager }) => {
   const [isListening, setIsListening] = useState(false);
-  const [voiceManager, setVoiceManager] = useState(null);
   const [text, setText] = useState('');
+  const [voiceManager, setVoiceManager] = useState(null);
+  const [voices, setVoices] = useState([]);
+  const [selectedVoice, setSelectedVoice] = useState('');
 
   useEffect(() => {
     if (!animationManager) return;
     const vm = new VoiceManager(animationManager);
     setVoiceManager(vm);
+    const availableVoices = vm.getVoices();
+    setVoices(availableVoices);
+    if (availableVoices.length > 0) {
+      setSelectedVoice(availableVoices[0].name);
+      vm.setVoice(availableVoices[0].name);
+    }
   }, [animationManager]);
 
   const handleTextSubmit = () => {
@@ -41,8 +49,23 @@ const TextAreaUI = ({ animationManager }) => {
     }
   };
 
+  const handleVoiceChange = (e) => {
+    const voiceName = e.target.value;
+    setSelectedVoice(voiceName);
+    if (voiceManager) {
+      voiceManager.setVoice(voiceName);
+    }
+  };
+
   return (
     <VStack spacing={4} w="100%">
+      <Select placeholder="Select Voice" value={selectedVoice} onChange={handleVoiceChange}>
+        {voices.map((voice, index) => (
+          <option key={index} value={voice.name}>
+            {voice.name}
+          </option>
+        ))}
+      </Select>
       <Textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
