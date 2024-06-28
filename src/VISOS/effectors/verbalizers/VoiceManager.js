@@ -1,5 +1,73 @@
 import PhonemeExtractor from './PhonemeExtractor';
 import VisemeMapper from './VisemeMapper';
+import PhonemeExtractor from './PhonemeExtractor';
+
+class VoiceManager {
+    constructor(animationManager) {
+        this.animationManager = animationManager;
+        this.visemeMapper = new VisemeMapper();
+        this.phonemeExtractor = new PhonemeExtractor();
+        this.queue = [];
+        this.speaking = false;
+    }
+
+    speak(text) {
+        this.enqueueText(text);
+        if (!this.speaking) {
+            this.processQueue();
+        }
+    }
+
+    enqueueText(text) {
+        this.queue.push(text);
+    }
+
+    processQueue() {
+        if (this.queue.length === 0) {
+            this.speaking = false;
+            return;
+        }
+
+        this.speaking = true;
+        const text = this.queue.shift();
+        const utterance = new SpeechSynthesisUtterance(text);
+
+        utterance.onboundary = (event) => {
+            if (event.name === "word") {
+                const phonemes = this.phonemeExtractor.extractPhonemes(text);
+                this.applyVisemes(phonemes);
+            }
+        };
+
+        utterance.onend = () => {
+            this.setVisemeToNeutral();
+            this.processQueue();
+        };
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    applyVisemes(phonemes) {
+        const visemes = this.visemeMapper.mapPhonemesToVisemes(phonemes);
+        let delay = 0;
+        visemes.forEach(({ viseme, duration }) => {
+            setTimeout(() => {
+                this.animationManager.facsLib.setTargetViseme(viseme, 70, 0);
+                this.animationManager.facsLib.updateEngine();
+            }, delay);
+            delay += duration; // Use the calculated duration
+        });
+        this.animationManager.facsLib.updateEngine();
+    }
+
+    setVisemeToNeutral() {
+        this.animationManager.setVisemeToNeutral();
+    }
+}
+
+export default VoiceManager;
+
+import VisemeMapper from './VisemeMapper';
 
 export default class VoiceManager {
     constructor(animationManager) {
