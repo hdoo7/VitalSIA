@@ -6,6 +6,7 @@ import {
 } from '@chakra-ui/react';
 import AUSlider from './AUSlider';
 import VisemeSlider from './VisemeSlider';
+import TextAreaUI from './TextAreaUI';
 import { HamburgerIcon } from '@chakra-ui/icons';
 import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
 
@@ -59,11 +60,11 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
     return Object.entries(auGroups);
   }, [auGroups, auStates, drawerControls.showUnusedSliders]);
 
-  const handleVisemeChange = (id, value, notes) => {
-    setVisemeStates(prevStates => ({
-      ...prevStates,
-      [id]: { ...prevStates[id], intensity: value, notes },
-    }));
+  const handleTextSubmit = (text) => {
+    console.log("Submitted text:", text);
+    if (animationManager && animationManager.speechManager) {
+      animationManager.speechManager.enqueueText(text);
+    }
   };
 
   return (
@@ -86,8 +87,8 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
               <Switch
                 isChecked={drawerControls.showUnusedSliders}
                 onChange={(e) => {
-                  e.preventDefault();  // Prevent default form submission behavior
-                  e.stopPropagation(); // Stop event from propagating to higher elements
+                  e.preventDefault();
+                  e.stopPropagation();
                   setDrawerControls(prev => ({
                     ...prev,
                     showUnusedSliders: !prev.showUnusedSliders
@@ -131,12 +132,7 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                                   notes={auState.notes}
                                   muscularBasis={ActionUnitsList[au.id]?.muscularBasis}
                                   links={ActionUnitsList[au.id]?.links}
-                                  onChange={(value, notes) => {
-                                    setAuStates(prevStates => ({
-                                      ...prevStates,
-                                      [au.id]: { ...prevStates[au.id], intensity: value, notes },
-                                    }));
-                                  }}
+                                  onChange={(value, notes) => {/* Handle intensity change */}}
                                   animationManager={animationManager}
                                 />
                               </Box>
@@ -149,28 +145,44 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                 </AccordionItem>
               ))}
               <AccordionItem>
-                <AccordionButton>
-                  <Box flex="1" textAlign="left">
-                    Visemes
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
+                <h2>
+                  <AccordionButton>
+                    <Box flex="1" textAlign="left">
+                      Text Input
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
+                <AccordionPanel pb={4}>
+                  <TextAreaUI onSubmit={handleTextSubmit} manager={animationManager} />
+                </AccordionPanel>
+              </AccordionItem>
+              <AccordionItem>
+                <h2>
+                  <AccordionButton>
+                    <Box flex="1" textAlign="left">
+                      Visemes
+                    </Box>
+                    <AccordionIcon />
+                  </AccordionButton>
+                </h2>
                 <AccordionPanel pb={4}>
                   <VStack spacing={4}>
-                    {Object.entries(visemeStates).map(([id, viseme]) => (
-                      <Box key={id} mb={4} w="100%">
+                    {Object.entries(visemeStates).map(([id, visemeState]) => (
+                      <Box key={id} w="100%">
                         <VisemeSlider
                           viseme={id}
-                          name={viseme.name}
-                          intensity={viseme.intensity}
-                          notes={viseme.notes}
-                          animationManager={animationManager}
+                          name={VisemesList.find(v => v.id === id)?.name || id}
+                          intensity={visemeState.intensity}
+                          notes={visemeState.notes}
                           onChange={(value, notes) => {
-                            setVisemeStates(prevStates => ({
-                              ...prevStates,
-                              [viseme]: { ...prevStates[viseme], intensity: value, notes },
-                          }))
+                            setVisemeStates(prev => ({
+                              ...prev,
+                              [id]: { ...prev[id], intensity: value, notes }
+                            }));
+                            animationManager.applyVisemeChange(id, value, notes);
                           }}
+                          animationManager={animationManager}
                         />
                       </Box>
                     ))}

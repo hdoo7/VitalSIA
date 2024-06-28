@@ -44,7 +44,7 @@ function App() {
             loopRandomBlink(manager);
             // faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
             setSetupComplete(true);
-            toast({ title: `To begin, just say "Hey Amy show me" and then describe what you would like to see the agent "act out".`, status: "success" });
+    setText("If you were to insist I was a robot, you might not consider me capable of love in some mystic human sense.");
         }
     }, [isLoaded, facslib]);
 
@@ -78,7 +78,6 @@ function App() {
         saveToFirebase('FreeForm', dataToSave, toast);
         animationManager.setFaceToNeutral(750);
     };
-
     return (
         <div className="App">
             <Loader isLoading={!isLoaded || !setupComplete} />
@@ -105,7 +104,6 @@ function App() {
                         <Textarea
                             value={text}
                             onChange={(e) => setText(e.target.value)}
-                            placeholder="Enter text to synthesize"
                             mb={2}
                         />
                         <Button colorScheme="teal" onClick={handleEnqueueText} mb={2}>
