@@ -1,19 +1,21 @@
 import PhonemeExtractor from './PhonemeExtractor';
 import VisemeMapper from './VisemeMapper';
+import PitchAnalyzer from './PitchAnalyzer';
+import Pizzicato from 'pizzicato';
 import natural from 'natural';
 
 export default class VoiceManager {
-    constructor(animationManager) {
+    constructor(animationManager, pitchEnhance = false) {
         this.animationManager = animationManager;
         this.queue = [];
         this.isSpeaking = false;
-
-        // Initialize the Speech Synthesis API
+        this.pitchEnhance = pitchEnhance;
         this.synth = window.speechSynthesis;
         this.voice = null;
         this.phonemeExtractor = new PhonemeExtractor();
         this.visemeMapper = new VisemeMapper();
-
+        this.pitchAnalyzer = new PitchAnalyzer();
+        this.echoEffect = null;
         this.initVoices();
     }
 
@@ -38,8 +40,16 @@ export default class VoiceManager {
         }
     }
 
-    onVoicesChanged(voices) {
-        // Placeholder for callback function to update voice list in UI
+    setPitchEnhance(pitchEnhance) {
+        this.pitchEnhance = pitchEnhance;
+    }
+
+    setEchoEffect(params) {
+        this.echoEffect = new Pizzicato.Effects.PingPongDelay({
+            feedback: params.feedback,
+            time: params.delay,
+            mix: params.mix
+        });
     }
 
     enqueueText(text) {
@@ -67,18 +77,17 @@ export default class VoiceManager {
 
             utterThis.onend = () => {
                 console.log("Speech synthesis completed.");
-                this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
+                this.animationManager.setVisemeToNeutral();
                 resolve();
             };
 
             utterThis.onerror = (e) => {
                 console.error("Error during speech synthesis:", e);
-                this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
+                this.animationManager.setVisemeToNeutral();
                 resolve(); // Resolve to continue processing the queue
             };
 
-            if (this.voice.name.includes('Google')) {
-                // Workaround for Google voices
+            if (this.voice && this.voice.name.includes('Google')) {
                 this.handleGoogleVoiceWorkaround(text, utterThis);
             } else {
                 utterThis.onboundary = (event) => {
@@ -92,36 +101,39 @@ export default class VoiceManager {
             }
 
             this.synth.speak(utterThis);
+
+            if (this.echoEffect) {
+                const sound = new Pizzicato.Sound({
+                    source: 'wave',
+                    options: {
+                        frequency: 440
+                    }
+                }, () => {
+                    sound.addEffect(this.echoEffect);
+                    sound.play();
+                    setTimeout(() => sound.stop(), text.length * 50); // Adjust this timing based on the length of the text
+                });
+            }
         });
     }
 
     handleGoogleVoiceWorkaround(text) {
-        const phonemes = this.phonemeExtractor.extractPhonemes(text);
-        const visemes = this.visemeMapper.mapPhonemesToVisemes(phonemes);
-        const totalDuration = this.calculateTotalDuration(visemes);
+        const words = text.split(' ');
+        let delay = 20;
 
-        let startTime = performance.now();
-        let delay = 0;
-
-        visemes.forEach(({ viseme, duration }) => {
-            duration = Math.max(30, duration / 3); // Speed up Google voices by reducing duration
+        words.forEach((word, index) => {
             setTimeout(() => {
-                const currentTime = performance.now();
-                const elapsedTime = currentTime - startTime;
-                if (elapsedTime < totalDuration) {
-                    this.animationManager.applyVisemeChange(viseme, 80, 0);
-                }
+                const phonemes = this.phonemeExtractor.extractPhonemes(word);
+                const visemes = this.visemeMapper.mapPhonemesToVisemes(phonemes);
+                this.applyVisemes(visemes);
             }, delay);
-            delay += duration;
+
+            delay += word.length * 66; // Adjust this timing based on the length of the word
         });
 
         setTimeout(() => {
-            this.animationManager.setVisemeToNeutral(); // Reset viseme after speech
-        }, totalDuration);
-    }
-
-    calculateTotalDuration(visemes) {
-        return visemes.reduce((acc, { duration }) => acc + duration, 0);
+            this.animationManager.setVisemeToNeutral();
+        }, delay);
     }
 
     applyVisemes(visemes) {
@@ -130,31 +142,30 @@ export default class VoiceManager {
         visemes.forEach(({ viseme, duration }, i) => {
             if (viseme === 'PAUSE' && i !== visemes.length - 1) {
                 delay += duration;
-                this.animationManager.applyVisemeChange(0, 1, 0); // Use the interval as the duration for the pause
+                this.animationManager.applyVisemeChange(0, 1, 0);
             } else {
                 setTimeout(() => {
                     this.animationManager.applyVisemeChange(viseme, 80, 0);
                 }, delay);
-                delay += duration; // Use the calculated duration
+                delay += duration;
             }
             if (i === visemes.length - 1) {
                 setTimeout(() => {
                     this.animationManager.applyVisemeChange(viseme, 0, 0);
                 }, delay);
-                // Use the interval as the duration for the pause
             }
         });
 
         setTimeout(() => {
-            this.animationManager.setVisemeToNeutral(); // Reset viseme after speech
-        }, delay - 300); // Add a slight delay after the last viseme
+            this.animationManager.setVisemeToNeutral();
+        }, delay - 300);
     }
 
     stopSpeech() {
         this.queue = [];
         this.isSpeaking = false;
         this.synth.cancel();
-        this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
+        this.animationManager.setVisemeToNeutral();
         console.log("Speech synthesis stopped.");
     }
 
@@ -162,7 +173,7 @@ export default class VoiceManager {
         this.queue = [];
         this.isSpeaking = false;
         this.synth.cancel();
-        this.animationManager.setVisemeToNeutral(); // Correctly call setVisemeToNeutral
+        this.animationManager.setVisemeToNeutral();
 
         if (text) {
             this.enqueueText(text);

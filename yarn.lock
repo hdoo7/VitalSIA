@@ -7251,6 +7251,11 @@ fb-watchman@^2.0.0:
   dependencies:
     bser "2.1.1"
 
+fft.js@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.yarnpkg.com/fft.js/-/fft.js-4.0.4.tgz#ffed83a397e58039141c804c1dbe1910dced8e6e"
+  integrity sha512-f9c00hphOgeQTlDyavwTtu6RiK8AIFjD6+jvXkNkpeQ7rirK3uFWVpalkoS4LAwbdX7mfZ8aoBfFVQX1Re/8aw==
+
 figgy-pudding@^3.5.1:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/figgy-pudding/-/figgy-pudding-3.5.2.tgz#b4eee8148abb01dcf1d1ac34367d59e12fa61d6e"
@@ -10738,6 +10743,23 @@ pirates@^4.0.1, pirates@^4.0.4:
   version "4.0.6"
   resolved "https://registry.yarnpkg.com/pirates/-/pirates-4.0.6.tgz#3018ae32ecfcff6c29ba2267cbf21166ac1f36b9"
   integrity sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==
+
+pitch@^0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/pitch/-/pitch-0.0.0.tgz#02c73eda0f7f6e4b90d39db47f2605cc58e4df92"
+  integrity sha512-geUE9MoUm4fT1PoOmpQ3ZyR29fE31OA3m8f/6inD7olcXFMo+Lyt5XTzEBNx5rSsjua3aB7IgMVvIfriB8/oYg==
+
+pitchy@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/pitchy/-/pitchy-4.1.0.tgz#d67e8ef14512db7d2d0ab8ab51b8a7f6d3dc712b"
+  integrity sha512-E8nQ8svBroGSMcc3qu2KvLHIuRYAIfrSkqDKWhjgj3WizseqWQXjQ+Q5t4g1CU73R5Euk+DAinyNFDK+KZw7zA==
+  dependencies:
+    fft.js "^4.0.4"
+
+pizzicato@^0.6.4:
+  version "0.6.4"
+  resolved "https://registry.yarnpkg.com/pizzicato/-/pizzicato-0.6.4.tgz#a386ec79e4e615cf8e7e125959a3cb7d1da9e607"
+  integrity sha512-1Y4UGnhdBvCoeRTt4Cor/zPRsH/pEAGsBESy0zeR8mH2i2piJRQLEEctkzUJGo6h64GiepZy+LFaJ/a3riR+WA==
 
 pkg-dir@^3.0.0:
   version "3.0.0"
