@@ -13,14 +13,27 @@ const TextAreaUI = ({ animationManager }) => {
   useEffect(() => {
     if (!animationManager) return;
     const vm = new VoiceManager(animationManager);
+    vm.onVoicesChanged = (availableVoices) => {
+      setVoices(availableVoices);
+      if (availableVoices.length > 0) {
+        setSelectedVoice(availableVoices[0].name);
+        vm.setVoice(availableVoices[0].name);
+      }
+    };
     setVoiceManager(vm);
-    const availableVoices = vm.getVoices();
-    setVoices(availableVoices);
-    if (availableVoices.length > 0) {
-      setSelectedVoice(availableVoices[0].name);
-      vm.setVoice(availableVoices[0].name);
-    }
-  }, [animationManager]);
+    setText("If you were to insist I was a robot, you might not consider me capable of love... in some mystic human sense.");
+    // Set a timeout to repopulate voices if they are not available immediately
+    setTimeout(() => {
+      if (voices.length === 0) {
+        const availableVoices = vm.getVoices();
+        setVoices(availableVoices);
+        if (availableVoices.length > 0) {
+          setSelectedVoice(availableVoices[0].name);
+          vm.setVoice(availableVoices[0].name);
+        }
+      }
+    }, 1000);
+  }, [animationManager, voices.length]);
 
   const handleTextSubmit = () => {
     if (voiceManager) {
@@ -57,9 +70,25 @@ const TextAreaUI = ({ animationManager }) => {
     }
   };
 
+  const handleVoiceDropdownClick = () => {
+    if (voices.length === 0) {
+      const availableVoices = voiceManager.getVoices();
+      setVoices(availableVoices);
+      if (availableVoices.length > 0) {
+        setSelectedVoice(availableVoices[0].name);
+        voiceManager.setVoice(availableVoices[0].name);
+      }
+    }
+  };
+
   return (
     <VStack spacing={4} w="100%">
-      <Select placeholder="Select Voice" value={selectedVoice} onChange={handleVoiceChange}>
+      <Select
+        placeholder="Select Voice"
+        value={selectedVoice}
+        onChange={handleVoiceChange}
+        onClick={handleVoiceDropdownClick}
+      >
         {voices.map((voice, index) => (
           <option key={index} value={voice.name}>
             {voice.name}
