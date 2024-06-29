@@ -12,6 +12,7 @@ import FaceDetection from './FaceDetection';
 import Survey from './Survey';
 import { questions } from './utils/freeFormSurveyQuestions';
 import { saveToFirebase } from './utils/firebaseUtils';
+import AppsMenu from './AppsMenu';
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
@@ -26,7 +27,6 @@ function App() {
     const [drawerControls, setDrawerControls] = useState({
         isOpen: false, showUnusedSliders: false, cameraEnabled: false,
     });
-    const [isSurveyActive, setIsSurveyActive] = useState(false);
     const [isRequestLoading, setRequestIsLoading] = useState(false);
     const toast = useToast();
     const [text, setText] = useState('');
@@ -37,27 +37,11 @@ function App() {
             window.animationManager = manager;
            
             setAnimationManager(manager);
-            loopRandomBlink(manager);
             // faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
             setSetupComplete(true);
-    setText("If you were to insist I was a robot, you might not consider me capable of love in some mystic human sense.");
         }
     }, [isLoaded, facslib]);
 
-
-
-    const handleSurveyComplete = async (responses) => {
-        console.log("Survey responses:", responses);
-        setIsSurveyActive(false);
-        const dataToSave = {
-            responses,
-            actionUnits: auStates,
-            overallFeedback: "Overall feedback from the session",
-            notes: "Detailed notes on session or AUs"
-        };
-        saveToFirebase('FreeForm', dataToSave, toast);
-        animationManager.setFaceToNeutral(750);
-    };
     return (
         <div className="App">
             <Loader isLoading={!isLoaded || !setupComplete} />
@@ -73,13 +57,10 @@ function App() {
                         drawerControls={drawerControls}
                         setDrawerControls={setDrawerControls}
                     />
+                    <AppsMenu animationManager={animationManager} />
+
                     {isRequestLoading && (<GameText />)}
-                    {isSurveyActive && (
-                        <Survey
-                            questions={questions}
-                            onSurveyComplete={handleSurveyComplete}
-                        />
-                    )}
+                    
                     
                 </>
             )}
