@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Text, Switch, Tooltip, Flex, IconButton, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter } from '@chakra-ui/react';
+import { Box, Button, Text, Switch, Tooltip, Flex, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter } from '@chakra-ui/react';
 import { InfoIcon } from '@chakra-ui/icons';
 import appsConfig from '../apps/config';
 
@@ -9,19 +9,22 @@ const AppsMenu = ({ animationManager, ml }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleSwitchChange = (app, isChecked) => {
-        if (isChecked) {
-            // Assuming each app module exports a start function
-            import(`../apps/${app.path}`).then(module => module.start(animationManager, appSettings));
-        } else {
-            import(`../apps/${app.path}`).then(module => module.stop(animationManager));
-        }
+        import(`../apps/${app.path}`).then(module => {
+            if (isChecked) {
+                module.start(animationManager, appSettings);
+            } else {
+                module.stop(animationManager);
+            }
+        });
     };
 
     const handleConfigClick = (app) => {
         setSelectedApp(app);
-        setAppSettings(app.settings.reduce((acc, setting) => ({
-            ...acc, [setting.name]: setting.default,
-        }), {}));
+        const initialSettings = {};
+        Object.keys(app.settings).forEach(setting => {
+            initialSettings[app.settings[setting].name] = app.settings[setting].default;
+        });
+        setAppSettings(initialSettings);
         setIsModalOpen(true);
     };
 
@@ -57,13 +60,13 @@ const AppsMenu = ({ animationManager, ml }) => {
                         <ModalHeader>{selectedApp.name} Settings</ModalHeader>
                         <ModalCloseButton />
                         <ModalBody>
-                            {selectedApp.settings.map((setting, index) => (
+                            {Object.keys(selectedApp.settings).map((setting, index, settings) => (
                                 <FormControl key={index} mb={4}>
-                                    <FormLabel>{setting.description}</FormLabel>
+                                    <FormLabel>{selectedApp.settings[setting]?.description}</FormLabel>
                                     <Input
-                                        type={setting.type}
-                                        name={setting.name}
-                                        value={appSettings[setting.name]}
+                                        type={selectedApp.settings[setting].type}
+                                        name={selectedApp.settings[setting].name}
+                                        value={selectedApp.settings[setting].default}
                                         onChange={handleInputChange}
                                     />
                                 </FormControl>

@@ -1,19 +1,15 @@
 // src/apps/blink.js
 let blinkInterval;
 
-export default {
-    start: (animationManager, speed) => {
-        if (!blinkInterval) {
-            blinkInterval = setInterval(() => {
-                animationManager.setAU(45, 100); // Close eyes
-                setTimeout(() => animationManager.setAU(45, 0), 200); // Open eyes
-            }, speed);
-        }
-    },
-    stop:()=>{
-        if (blinkInterval) {
-            clearInterval(blinkInterval);
-            blinkInterval = null;
-        }
+export function start(animationManager, settings) {
+    blinkInterval = setInterval(() => {
+        animationManager.scheduleChange("45", 100, 100, 0); 
+        setTimeout(() => animationManager.scheduleChange("45", 0, 100, 0), 100); // Open eyes
+    }, settings.speed);
+}
+
+export function stop(animationManager) {
+    if (blinkInterval) {
+        clearInterval(blinkInterval);
     }
-};
+}
