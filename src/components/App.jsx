@@ -8,10 +8,6 @@ import { loopRandomBlink, smile } from '../VISOS/effectors/visualizers/facialExp
 import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
 import { useToast, Box, Button, Textarea } from '@chakra-ui/react';
 import GameText from './GameText';
-import FaceDetection from './FaceDetection';
-import Survey from './Survey';
-import { questions } from './utils/freeFormSurveyQuestions';
-import { saveToFirebase } from './utils/firebaseUtils';
 import AppsMenu from './AppsMenu';
 
 function App() {
