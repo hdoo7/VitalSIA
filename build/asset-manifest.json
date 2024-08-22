@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.js": "/EVA-libre/static/js/main.248412d4.js",
+    "static/js/607.617bfa19.chunk.js": "/EVA-libre/static/js/607.617bfa19.chunk.js",
+    "static/js/833.51053d18.chunk.js": "/EVA-libre/static/js/833.51053d18.chunk.js",
+    "index.html": "/EVA-libre/index.html",
+    "main.248412d4.js.map": "/EVA-libre/static/js/main.248412d4.js.map",
+    "607.617bfa19.chunk.js.map": "/EVA-libre/static/js/607.617bfa19.chunk.js.map",
+    "833.51053d18.chunk.js.map": "/EVA-libre/static/js/833.51053d18.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/js/main.248412d4.js"
+  ]
+}

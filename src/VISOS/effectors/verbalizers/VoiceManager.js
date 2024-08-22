@@ -1,7 +1,6 @@
 import PhonemeExtractor from './PhonemeExtractor';
 import VisemeMapper from './VisemeMapper';
 import PitchAnalyzer from './PitchAnalyzer';
-import Pizzicato from 'pizzicato';
 import natural from 'natural';
 
 export default class VoiceManager {
@@ -15,7 +14,6 @@ export default class VoiceManager {
         this.phonemeExtractor = new PhonemeExtractor();
         this.visemeMapper = new VisemeMapper();
         this.pitchAnalyzer = new PitchAnalyzer();
-        this.echoEffect = null;
         this.initVoices();
     }
 
@@ -42,14 +40,6 @@ export default class VoiceManager {
 
     setPitchEnhance(pitchEnhance) {
         this.pitchEnhance = pitchEnhance;
-    }
-
-    setEchoEffect(params) {
-        this.echoEffect = new Pizzicato.Effects.PingPongDelay({
-            feedback: params.feedback,
-            time: params.delay,
-            mix: params.mix
-        });
     }
 
     enqueueText(text) {
@@ -101,19 +91,6 @@ export default class VoiceManager {
             }
 
             this.synth.speak(utterThis);
-
-            if (this.echoEffect) {
-                const sound = new Pizzicato.Sound({
-                    source: 'wave',
-                    options: {
-                        frequency: 440
-                    }
-                }, () => {
-                    sound.addEffect(this.echoEffect);
-                    sound.play();
-                    setTimeout(() => sound.stop(), text.length * 50); // Adjust this timing based on the length of the text
-                });
-            }
         });
     }
 

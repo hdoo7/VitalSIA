@@ -40,7 +40,6 @@ function App() {
 
     return (
         <div className="App">
-            <Loader isLoading={!isLoaded || !setupComplete} />
             {isLoaded && setupComplete && animationManager && (
                 <>
                     <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>

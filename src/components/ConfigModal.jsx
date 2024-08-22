@@ -1,29 +1,49 @@
-// src/components/ConfigModal.jsx
 import React from 'react';
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Input, Button } from '@chakra-ui/react';
+import {
+    Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody,
+    FormControl, FormLabel, Input, ModalFooter, NumberInput, NumberInputField,
+    NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper, Button
+} from '@chakra-ui/react';
 
-const ConfigModal = ({ isOpen, onClose, app, settings, handleSettingsChange }) => {
+const ConfigModal = ({ isOpen, onClose, app, settings, handleSettingsChange, handleNumberInputChange }) => {
+
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>Configure {app?.name}</ModalHeader>
+                <ModalHeader>{app.name} Settings</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    {app && Object.keys(app.settings).map(setting => (
-                        <FormControl key={setting}>
-                            <FormLabel>{setting}</FormLabel>
-                            <Input
-                                type="number"
-                                name={setting}
-                                value={settings[setting]}
-                                onChange={handleSettingsChange}
-                            />
+                    {Object.keys(app.settings).map((setting, index) => (
+                        <FormControl key={index} mb={4}>
+                            <FormLabel>{app.settings[setting]?.description}</FormLabel>
+                            {app.settings[setting]?.type === 'number' ? (
+                                <NumberInput
+                                    name={app.settings[setting].name}
+                                    value={settings[app.settings[setting].name]}
+                                    onChange={(valueString, valueNumber) => handleNumberInputChange(app.settings[setting].name, valueNumber)}
+                                >
+                                    <NumberInputField />
+                                    <NumberInputStepper>
+                                        <NumberIncrementStepper />
+                                        <NumberDecrementStepper />
+                                    </NumberInputStepper>
+                                </NumberInput>
+                            ) : (
+                                <Input
+                                    type={app.settings[setting].type}
+                                    name={app.settings[setting].name}
+                                    value={settings[app.settings[setting].name]}
+                                    onChange={handleSettingsChange}
+                                />
+                            )}
                         </FormControl>
                     ))}
                 </ModalBody>
                 <ModalFooter>
-                    <Button onClick={onClose}>Close</Button>
+                    <Button colorScheme="blue" mr={3} onClick={onClose}>
+                        Save
+                    </Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>

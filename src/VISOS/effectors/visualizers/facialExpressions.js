@@ -1,7 +1,7 @@
 // facialExpressions.js
 
 export function smile(animationManager) {
-    animationManager.scheduleChange("12", 88, 250, 0); // Parameters: , intensity, duration, delay
+    animationManager.scheduleChange("12", 88, 250, 0); // Parameters: AU, intensity, duration, delay
     // Assume start() now returns a promise that resolves when all scheduled animations are done
     // Start the animation and return the promise
 }
@@ -13,8 +13,8 @@ export function frown(animationManager) {
 
 export function loopSmileAndFrown(animationManager) {
     setInterval(() => {
-    smile(animationManager);
-    frown(animationManager);
+      smile(animationManager);
+      frown(animationManager);
     },750);
 }
 

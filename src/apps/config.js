@@ -14,6 +14,11 @@ const appsConfig = {
         },
       },
       {
+        name: "Close Eyes",
+        description: "This app controls the blinking speed of the avatar.",
+        path: "myApp"
+      },
+      {
         name: "Chat",
         description: "This app handles voice chat using GPT and voice synthesis.",
         path: "chat",

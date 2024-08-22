@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-    Box, Button, IconButton, Text, Switch, Tooltip, Flex, Modal, ModalOverlay, ModalContent, ModalHeader,
-    ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter, Accordion, AccordionItem,
-    AccordionButton, AccordionPanel, AccordionIcon, NumberInput, NumberInputField, NumberInputStepper,
-    NumberIncrementStepper, NumberDecrementStepper
+    Box, Button, IconButton, Text, Switch, Tooltip, Flex, Accordion, AccordionItem,
+    AccordionButton, AccordionPanel, AccordionIcon
 } from '@chakra-ui/react';
 import { InfoIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import appsConfig from '../apps/config';
+import ConfigModal from './ConfigModal';
 
 const AppsMenu = ({ animationManager, ml }) => {
     const [selectedApp, setSelectedApp] = useState(null);
@@ -14,10 +13,18 @@ const AppsMenu = ({ animationManager, ml }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    useEffect(() => {
+        const initialSettings = {};
+        appsConfig.apps.forEach(app => {
+            initialSettings[app.name] = { ...app.settings };
+        });
+        setAppSettings(initialSettings);
+    }, []);
+
     const handleSwitchChange = (app, isChecked) => {
         import(`../apps/${app.path}`).then(module => {
             if (isChecked) {
-                module.start(animationManager, appSettings);
+                module.start(animationManager, appSettings[app.name]);
             } else {
                 module.stop(animationManager);
             }
@@ -26,11 +33,6 @@ const AppsMenu = ({ animationManager, ml }) => {
 
     const handleConfigClick = (app) => {
         setSelectedApp(app);
-        const initialSettings = {};
-        Object.keys(app.settings).forEach(setting => {
-            initialSettings[app.settings[setting].name] = app.settings[setting].default;
-        });
-        setAppSettings(initialSettings);
         setIsModalOpen(true);
     };
 
@@ -41,11 +43,23 @@ const AppsMenu = ({ animationManager, ml }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setAppSettings(prevSettings => ({ ...prevSettings, [name]: value }));
+        setAppSettings(prevSettings => ({
+            ...prevSettings,
+            [selectedApp.name]: {
+                ...prevSettings[selectedApp.name],
+                [name]: value,
+            },
+        }));
     };
 
     const handleNumberInputChange = (name, value) => {
-        setAppSettings(prevSettings => ({ ...prevSettings, [name]: value }));
+        setAppSettings(prevSettings => ({
+            ...prevSettings,
+            [selectedApp.name]: {
+                ...prevSettings[selectedApp.name],
+                [name]: value,
+            },
+        }));
     };
 
     const toggleMenu = () => {
@@ -85,45 +99,14 @@ const AppsMenu = ({ animationManager, ml }) => {
                 </Accordion>
             )}
             {selectedApp && (
-                <Modal isOpen={isModalOpen} onClose={handleModalClose}>
-                    <ModalOverlay />
-                    <ModalContent>
-                        <ModalHeader>{selectedApp.name} Settings</ModalHeader>
-                        <ModalCloseButton />
-                        <ModalBody>
-                            {Object.keys(selectedApp.settings).map((setting, index) => (
-                                <FormControl key={index} mb={4}>
-                                    <FormLabel>{selectedApp.settings[setting]?.description}</FormLabel>
-                                    {selectedApp.settings[setting]?.type === 'number' ? (
-                                        <NumberInput
-                                            name={selectedApp.settings[setting].name}
-                                            value={appSettings[selectedApp.settings[setting].name]}
-                                            onChange={(valueString, valueNumber) => handleNumberInputChange(selectedApp.settings[setting].name, valueNumber)}
-                                        >
-                                            <NumberInputField />
-                                            <NumberInputStepper>
-                                                <NumberIncrementStepper />
-                                                <NumberDecrementStepper />
-                                            </NumberInputStepper>
-                                        </NumberInput>
-                                    ) : (
-                                        <Input
-                                            type={selectedApp.settings[setting].type}
-                                            name={selectedApp.settings[setting].name}
-                                            value={appSettings[selectedApp.settings[setting].name]}
-                                            onChange={handleInputChange}
-                                        />
-                                    )}
-                                </FormControl>
-                            ))}
-                        </ModalBody>
-                        <ModalFooter>
-                            <Button colorScheme="blue" mr={3} onClick={handleModalClose}>
-                                Save
-                            </Button>
-                        </ModalFooter>
-                    </ModalContent>
-                </Modal>
+                <ConfigModal
+                    isOpen={isModalOpen}
+                    onClose={handleModalClose}
+                    app={selectedApp}
+                    settings={appSettings[selectedApp.name]}
+                    handleInputChange={handleInputChange}
+                    handleNumberInputChange={handleNumberInputChange}
+                />
             )}
         </Box>
     );
