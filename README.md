@@ -1,24 +1,126 @@
+
 # EVA-libre
+
+## Table of Contents
+1. [Installation](#installation)
+   - [Windows](#windows)
+   - [macOS](#macos)
+   - [Linux](#linux)
+2. [Running the Server](#running-the-server)
+3. [Deploying to GitHub Pages](#deploying-to-github-pages)
+4. [Animation Manager](#animation-manager)
+5. [Setting up an App](#setting-up-an-app)
+6. [Voice Manager and Speech Manager](#voice-manager-and-speech-manager)
 
 ## Installation
 
-To install the system, follow these steps:
+To install the system on your local machine, follow these steps based on your operating system.
 
-1. Install deps:
-```bash
-yarn install
-```
+### Windows
 
-2. Start server:
-```bash
-yarn start
-```
+1. Install Git and Node.js using Chocolatey:
+   ```bash
+   choco install git nodejs
+   ```
 
+2. Install Yarn using npm:
+   ```bash
+   npm install -g yarn
+   ```
 
+3. Fork the repository on GitHub and then clone your forked repository:
+   ```bash
+   git clone https://github.com/<your-username>/EVA-libre.git
+   ```
 
-## Using the System
+4. Navigate to the project directory:
+   ```bash
+   cd EVA-libre
+   ```
 
-### Animation Manager
+5. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+### macOS
+
+1. Install Git and Node.js using Homebrew:
+   ```bash
+   brew install git node
+   ```
+
+2. Install Yarn using npm:
+   ```bash
+   npm install -g yarn
+   ```
+
+3. Fork the repository on GitHub and then clone your forked repository:
+   ```bash
+   git clone https://github.com/<your-username>/EVA-libre.git
+   ```
+
+4. Navigate to the project directory:
+   ```bash
+   cd EVA-libre
+   ```
+
+5. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+### Linux
+
+1. Install Git, Node.js, and npm using your package manager (e.g., apt for Debian/Ubuntu):
+   ```bash
+   sudo apt update && sudo apt install git nodejs npm
+   ```
+
+2. Install Yarn using npm:
+   ```bash
+   npm install -g yarn
+   ```
+
+3. Fork the repository on GitHub and then clone your forked repository:
+   ```bash
+   git clone https://github.com/<your-username>/EVA-libre.git
+   ```
+
+4. Navigate to the project directory:
+   ```bash
+   cd EVA-libre
+   ```
+
+5. Install dependencies:
+   ```bash
+   yarn install
+   ```
+
+## Running the Server
+
+1. Start the development server:
+   ```bash
+   yarn start
+   ```
+
+2. The server will be available at `http://localhost:3000`.
+
+## Deploying to GitHub Pages
+
+1. Build the project:
+   ```bash
+   yarn build
+   ```
+
+2. Deploy the build to GitHub Pages:
+   ```bash
+   yarn deploy
+   ```
+
+This will automatically deploy the site to the `gh-pages` branch of your repository, making it available at `https://<your-username>.github.io/EVA-libre`.
+
+## Animation Manager
 
 The Animation Manager is responsible for controlling the visual animations of characters. To use the Animation Manager, import it into your project and create an instance of it.
 
@@ -30,7 +132,7 @@ const animationManager = new AnimationManager();
 // Use animationManager to control animations
 ```
 
-### App.js Example Usage Patterns
+## Setting up an App
 
 In `app.js`, you can set up the initial environment and include the main components of the system, such as the Animation Manager and the newly added UI sensor components.
 
@@ -59,76 +161,25 @@ function App() {
 export default App;
 ```
 
-This setup includes the ChakraProvider for using Chakra UI components, integrates the SmileControl component for demonstrating UI interaction, and prepares the application for further expansion with additional sensors and effectors.
+## Voice Manager and Speech Manager
 
-For more detailed documentation on using other components of the system, refer to the respective component documentation.
+### Voice Manager
+The Voice Manager handles the configuration and management of different voices within the system. It integrates with various text-to-speech (TTS) engines to provide natural and dynamic voice outputs.
 
-# EVA-libre
-# EVA-libre
+### Speech Manager (MS TTS)
+The Speech Manager is specifically designed to work with Microsoft Text-to-Speech (TTS) services. It handles the conversion of text to speech using MS TTS, providing an interface for easy integration into applications.
 
-## Installation
-
-To install the system, follow these steps:
-
-1. Clone the repository:
-```bash
-git clone https://github.com/meekmachine/EVA-libre.git
-```
-
-2. Switch to the `react` branch:
-```bash
-git checkout react
-```
-
-3. Install dependencies:
-```bash
-npm install
-```
-
-## Using the System
-
-### Animation Manager
-
-The Animation Manager is responsible for controlling the visual animations of characters. To use the Animation Manager, import it into your project and create an instance of it.
-
-Example:
+Example setup and usage:
 ```javascript
-import AnimationManager from './src/VISOS/effectors/visualizers/AnimationManager';
+import VoiceManager from './src/VISOS/effectors/verbalizers/VoiceManager';
+import SpeechManager from './src/VISOS/effectors/verbalizers/SpeechManager';
 
-const animationManager = new AnimationManager();
-// Use animationManager to control animations
+// Initialize Voice and Speech Managers
+const voiceManager = new VoiceManager();
+const speechManager = new SpeechManager(voiceManager);
+
+// Use speechManager to convert text to speech
+speechManager.speak("Hello, this is a test using MS TTS.");
 ```
 
-### App.js Example Usage Patterns
-
-In `app.js`, you can set up the initial environment and include the main components of the system, such as the Animation Manager and the newly added UI sensor components.
-
-Example:
-```javascript
-import React from 'react';
-import { ChakraProvider } from '@chakra-ui/react';
-import SmileControl from './src/VISOS/sensors/UI/SmileControl';
-import AnimationManager from './src/VISOS/effectors/visualizers/AnimationManager';
-
-function App() {
-  const animationManager = new AnimationManager();
-  // Setup and use animationManager as needed
-
-  return (
-    <ChakraProvider>
-      <div className="App">
-        <h1>EVA-libre System</h1>
-        <SmileControl />
-        {/* Include other UI components as needed */}
-      </div>
-    </ChakraProvider>
-  );
-}
-
-export default App;
-```
-
-This setup includes the ChakraProvider for using Chakra UI components, integrates the SmileControl component for demonstrating UI interaction, and prepares the application for further expansion with additional sensors and effectors.
-
-For more detailed documentation on using other components of the system, refer to the respective component documentation.
-
+For detailed documentation on additional components and usage, refer to the respective component documentation.
