@@ -9,6 +9,8 @@ const appsConfig = {
             name: "speed",
             type: "number",
             default: 2000,
+            min: 500,  // Minimum value for speed
+            max: 5000, // Maximum value for speed
             description: "Speed of blinking in milliseconds",
           },
         },
