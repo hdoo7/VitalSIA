@@ -104,17 +104,20 @@ export const ActionUnitsList = [
             "https://en.wikipedia.org/wiki/Frontalis_muscle",
             "https://en.wikipedia.org/wiki/Pars_medialis"
         ],
-        faceSection: "Forehead"
+        faceSection: "Forehead",
+        faceArea: "Upper"
     },
     {
         id: "1L",
         name: "Inner Brow Raiser L",
-        faceSection: "Forehead"
+        faceSection: "Forehead",
+        faceArea: "Upper"
     },
     {
         id: "1R",
         name: "Inner Brow Raiser R",
-        faceSection: "Forehead"
+        faceSection: "Forehead",
+        faceArea: "Upper"
     },
     {
         id: "2",
@@ -124,10 +127,11 @@ export const ActionUnitsList = [
             "https://en.wikipedia.org/wiki/Frontalis_muscle",
             "https://en.wikipedia.org/wiki/Pars_lateralis"
         ],
-        faceSection: "Forehead"
+        faceSection: "Forehead",
+        faceArea: "Upper"
     },
-    { id: "2L", name: "Outer Brow Raiser L", faceSection: "Forehead" },
-    { id: "2R", name: "Outer Brow Raiser R", faceSection: "Forehead" },
+    { id: "2L", name: "Outer Brow Raiser L", faceSection: "Forehead", faceArea: "Upper" },
+    { id: "2R", name: "Outer Brow Raiser R", faceSection: "Forehead", faceArea: "Upper" },
     {
         id: "4",
         name: "Brow Lowerer",
@@ -137,7 +141,8 @@ export const ActionUnitsList = [
             "https://en.wikipedia.org/wiki/Depressor_supercilii",
             "https://en.wikipedia.org/wiki/Corrugator_supercilii"
         ],
-        faceSection: "Brow area"
+        faceSection: "Brow area",
+        faceArea: "Upper"
     },
     {
         id: "5",
@@ -147,160 +152,184 @@ export const ActionUnitsList = [
             "https://en.wikipedia.org/wiki/Levator_palpebrae_superioris",
             "https://en.wikipedia.org/wiki/Superior_tarsal_muscle"
         ],
-        faceSection: "Eyelids"
+        faceSection: "Eyelids",
+        faceArea: "Upper"
     },
     {
         id: "6",
         name: "Cheek Raiser",
         muscularBasis: "orbicularis oculi (pars orbitalis)",
         links: ["https://en.wikipedia.org/wiki/Orbicularis_oculi"],
-        faceSection: "Cheeks"
+        faceSection: "Cheeks",
+        faceArea: "Upper"
     },
     {
         id: "7",
         name: "Lid Tightener",
         muscularBasis: "orbicularis oculi (pars palpebralis)",
         links: ["https://en.wikipedia.org/wiki/Orbicularis_oculi"],
-        faceSection: "Eyelids"
+        faceSection: "Eyelids",
+        faceArea: "Upper"
     },
     {
         id: "8",
         name: "Lips Toward Each Other",
         muscularBasis: "orbicularis oris",
         links: ["https://en.wikipedia.org/wiki/Orbicularis_oris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "9",
         name: "Nose Wrinkler",
         muscularBasis: "levator labii superioris alaeque nasi",
         links: ["https://en.wikipedia.org/wiki/Levator_labii_superioris_alaeque_nasi"],
-        faceSection: "Nose"
+        faceSection: "Nose",
+        faceArea: "Upper"
     },
     {
         id: "10",
         name: "Upper Lip Raiser",
         muscularBasis: "levator labii superioris, caput infraorbitalis",
         links: ["https://en.wikipedia.org/wiki/Levator_labii_superioris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "11",
         name: "Nasolabial Deepener",
         muscularBasis: "zygomaticus minor",
         links: ["https://en.wikipedia.org/wiki/Zygomaticus_minor"],
-        faceSection: "Cheeks"
+        faceSection: "Cheeks",
+        faceArea: "Lower"
     },
     {
         id: "12",
         name: "Lip Corner Puller",
         muscularBasis: "zygomaticus major",
         links: ["https://en.wikipedia.org/wiki/Zygomaticus_major"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "12L",
         name: "Lip Corner Puller L",
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "12R",
         name: "Lip Corner Puller R",
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "13",
         name: "Sharp Lip Puller",
         muscularBasis: "levator anguli oris (also known as caninus)",
         links: ["https://en.wikipedia.org/wiki/Levator_anguli_oris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "14",
         name: "Dimpler",
         muscularBasis: "buccinator",
         links: ["https://en.wikipedia.org/wiki/Buccinator"],
-        faceSection: "Cheeks"
+        faceSection: "Cheeks",
+        faceArea: "Lower"
     },
     {
         id: "14L",
         name: "Dimpler L",
-        faceSection: "Cheeks"
+        faceSection: "Cheeks",
+        faceArea: "Lower"
     },
     {
         id: "14R",
         name: "Dimpler R",
-        faceSection: "Cheeks"
+        faceSection: "Cheeks",
+        faceArea: "Lower"
     },
     {
         id: "15",
         name: "Lip Corner Depressor",
         muscularBasis: "depressor anguli oris (also known as triangularis)",
         links: ["https://en.wikipedia.org/wiki/Depressor_anguli_oris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "16",
         name: "Lower Lip Depressor",
         muscularBasis: "depressor labii inferioris",
         links: ["https://en.wikipedia.org/wiki/Depressor_labii_inferioris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "17",
         name: "Chin Raiser",
         muscularBasis: "mentalis",
         links: ["https://en.wikipedia.org/wiki/Mentalis"],
-        faceSection: "Chin"
+        faceSection: "Chin",
+        faceArea: "Lower"
     },
     {
         id: "18",
         name: "Lip Pucker",
         muscularBasis: "incisivii labii superioris and incisivii labii inferioris",
         links: [],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "19",
         name: "Tongue Show",
         muscularBasis: "",
         links: [],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "20",
         name: "Lip Stretcher",
         muscularBasis: "risorius with platysma",
         links: ["https://en.wikipedia.org/wiki/Risorius", "https://en.wikipedia.org/wiki/Platysma"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "21",
         name: "Neck Tightener",
         muscularBasis: "platysma",
         links: ["https://en.wikipedia.org/wiki/Platysma"],
-        faceSection: "Neck"
+        faceSection: "Neck",
+        faceArea: "Lower"
     },
     {
         id: "22",
         name: "Lip Funneler",
         muscularBasis: "orbicularis oris",
         links: ["https://en.wikipedia.org/wiki/Orbicularis_oris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "23",
         name: "Lip Tightener",
         muscularBasis: "orbicularis oris",
         links: ["https://en.wikipedia.org/wiki/Orbicularis_oris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "24",
         name: "Lip Pressor",
         muscularBasis: "orbicularis oris",
         links: ["https://en.wikipedia.org/wiki/Orbicularis_oris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "25",
@@ -311,7 +340,8 @@ export const ActionUnitsList = [
             "https://en.wikipedia.org/wiki/Mentalis",
             "https://en.wikipedia.org/wiki/Orbicularis_oris"
         ],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "26",
@@ -322,7 +352,8 @@ export const ActionUnitsList = [
             "https://en.wikipedia.org/wiki/Temporalis",
             "https://en.wikipedia.org/wiki/Medial_pterygoid_muscle"
         ],
-        faceSection: "Jaw"
+        faceSection: "Jaw",
+        faceArea: "Lower"
     },
     {
         id: "27",
@@ -332,35 +363,40 @@ export const ActionUnitsList = [
             "https://en.wikipedia.org/wiki/Pterygoid_bone",
             "https://en.wikipedia.org/wiki/Digastric_muscle"
         ],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "28",
         name: "Lip Suck",
         muscularBasis: "orbicularis oris",
         links: ["https://en.wikipedia.org/wiki/Orbicularis_oris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "29",
         name: "Jaw Thrust",
         muscularBasis: "",
         links: [],
-        faceSection: "Jaw"
+        faceSection: "Jaw",
+        faceArea: "Lower"
     },
     {
         id: "30L",
         name: "Jaw Sideways Left",
         muscularBasis: "",
         links: [],
-        faceSection: "Jaw"
+        faceSection: "Jaw",
+        faceArea: "Lower"
     },
     {
         id: "30R",
         name: "Jaw Sideways Right",
         muscularBasis: "",
         links: [],
-        faceSection: "Jaw"
+        faceSection: "Jaw",
+        faceArea: "Lower"
     },
     {
         id: "31",
@@ -370,301 +406,344 @@ export const ActionUnitsList = [
             "https://en.wikipedia.org/wiki/Masseter",
             "https://en.wikipedia.org/wiki/Temporalis"
         ],
-        faceSection: "Jaw"
+        faceSection: "Jaw",
+        faceArea: "Lower"
     },
     {
         id: "32",
         name: "Lip Bite",
         muscularBasis: "orbicularis oris",
         links: ["https://en.wikipedia.org/wiki/Orbicularis_oris"],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "33",
         name: "Cheek Blow",
         muscularBasis: "",
         links: [],
-        faceSection: "Cheeks"
+        faceSection: "Cheeks",
+        faceArea: "Lower"
     },
     {
         id: "34",
         name: "Cheek Puff",
         muscularBasis: "",
         links: [],
-        faceSection: "Cheeks"
+        faceSection: "Cheeks",
+        faceArea: "Lower"
     },
     {
         id: "35",
         name: "Cheek Suck",
         muscularBasis: "",
         links: [],
-        faceSection: "Cheeks"
+        faceSection: "Cheeks",
+        faceArea: "Lower"
     },
     {
         id: "36",
         name: "Tongue Bulge",
         muscularBasis: "",
         links: [],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "36L",
         name: "Tongue Bulge L",
         muscularBasis: "",
         links: [],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "36R",
         name: "Tongue Bulge R",
         muscularBasis: "",
         links: [],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "37",
         name: "Lip Wipe",
         muscularBasis: "",
         links: [],
-        faceSection: "Mouth"
+        faceSection: "Mouth",
+        faceArea: "Lower"
     },
     {
         id: "38",
         name: "Nostril Dilator",
         muscularBasis: "",
         links: [],
-        faceSection: "Nose"
+        faceSection: "Nose",
+        faceArea: "Upper"
     },
     {
         id: "39",
         name: "Nostril Compressor",
         muscularBasis: "",
         links: [],
-        faceSection: "Nose"
+        faceSection: "Nose",
+        faceArea: "Upper"
     },
     {
         id: "41",
         name: "Glabella Lowerer",
         muscularBasis: "",
         links: [],
-        faceSection: "Forehead"
+        faceSection: "Forehead",
+        faceArea: "Upper"
     },
     {
         id: "42",
         name: "Inner Eyebrow Lowerer",
         muscularBasis: "",
         links: [],
-        faceSection: "Brow area"
+        faceSection: "Brow area",
+        faceArea: "Upper"
     },
     {
         id: "43",
         name: "Eyes Closed",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyelids"
+        faceSection: "Eyelids",
+        faceArea: "Upper"
     },
     {
         id: "44",
         name: "Eyebrow Gatherer",
         muscularBasis: "",
         links: [],
-        faceSection: "Brow area"
+        faceSection: "Brow area",
+        faceArea: "Upper"
     },
     {
         id: "45",
         name: "Blink",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyelids"
+        faceSection: "Eyelids",
+        faceArea: "Upper"
     },
     {
         id: "46R",
         name: "Wink Right",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyelids"
+        faceSection: "Eyelids",
+        faceArea: "Upper"
     },
     {
         id: "46L",
         name: "Wink Left",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyelids"
+        faceSection: "Eyelids",
+        faceArea: "Upper"
     },
     {
         id: "51",
         name: "Head Turn Left",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "52",
         name: "Head Turn Right",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "53",
         name: "Head Up",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "54",
         name: "Head Down",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "55",
         name: "Head Tilt Left",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "M55",
         name: "Head Tilt Left Bis",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "56",
         name: "Head Tilt Right",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "M56",
         name: "Head Tilt Right Bis",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "57",
         name: "Head Forward",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "M57",
         name: "Head Forward Bis",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "58",
         name: "Head Back",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "M59",
         name: "Head Shake Up And Down",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "M60",
         name: "Head Shake Side To Side",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "M83",
         name: "Head Upward And To The Side",
         muscularBasis: "",
         links: [],
-        faceSection: "Head"
+        faceSection: "Head",
+        faceArea: "Upper"
     },
     {
         id: "61",
         name: "Eyes Turn Left",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "M61",
         name: "Eyes Left",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "62",
         name: "Eyes Turn Right",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "M62",
         name: "Eyes Right",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "63",
         name: "Eyes Up",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "64",
         name: "Eyes Down",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "65",
         name: "Walleye",
         muscularBasis: "",
         links: ["https://en.wikipedia.org/wiki/Strabismus"],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "66",
         name: "Cross-eye",
         muscularBasis: "",
         links: ["https://en.wikipedia.org/wiki/Strabismus"],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "M68",
         name: "Upward Rolling Of Eyes",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "69",
         name: "Eyes Positioned To Look At Other Person",
         muscularBasis: "",
         links: [],
-        faceSection: "Eyes"
+        faceSection: "Eyes",
+        faceArea: "Upper"
     },
     {
         id: "M69",
         name: "Head Or Eyes Look At Other Person",
         muscularBasis: "",
         links: [],
-        faceSection: "Head/Eyes"
+        faceSection: "Head/Eyes",
+        faceArea: "Upper"
     }
 ];
 
