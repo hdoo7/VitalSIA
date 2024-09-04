@@ -144,34 +144,108 @@ const animationManager = new AnimationManager();
 // Use animationManager to control animations
 ```
 
-## Setting up an App
+## Setting up a Module
 
-In `app.js`, you can set up the initial environment and include the main components of the system, such as the Animation Manager and the newly added UI sensor components.
 
-Example:
+# Adding a New App (Module) in EVA-Libre
+
+## 1. Update `src/apps/config.js`
+
 ```javascript
-import React from 'react';
-import { ChakraProvider } from '@chakra-ui/react';
-import SmileControl from './src/VISOS/sensors/UI/SmileControl';
-import AnimationManager from './src/VISOS/effectors/visualizers/AnimationManager';
+{
+  name: "Close Eyes",
+  description: "This app controls the avatar's eye movements.",
+  path: "myApp" // The path where the app logic resides
+}
+```
 
-function App() {
-  const animationManager = new AnimationManager();
-  // Setup and use animationManager as needed
+To add a new app, for example a **"Blink"** app:
 
-  return (
-    <ChakraProvider>
-      <div className="App">
-        <h1>EVA-libre System</h1>
-        <SmileControl />
-        {/* Include other UI components as needed */}
-      </div>
-    </ChakraProvider>
-  );
+```javascript
+{
+  name: "Blink",
+  description: "This app controls the blinking speed of the avatar.",
+  path: "blinkApp", // Path to your new module file
+  settings: {
+    speed: {
+      name: "speed",
+      type: "number",
+      default: 2000,
+      min: 500,
+      max: 5000,
+      description: "Speed of blinking in milliseconds"
+    }
+  }
+}
+```
+
+## 2. Create the App Module File
+
+For **Close Eyes**, the file is `src/apps/myApp.js`. Here is the content:
+
+```javascript
+// Declare a variable to hold the interval ID for the blinking action
+let blinkInterval;
+
+/**
+ * Starts the blinking action using the provided animation manager and settings.
+ *
+ * @param {Object} animationManager - The manager responsible for controlling facial animations.
+ * @param {Object} settings - The configuration settings for the blink action, such as speed.
+ */
+export function start(animationManager, settings)   {
+    animationManager.scheduleChange("45", 200, 100, 0); 
 }
 
-export default App;
+/**
+ * Stops the blinking action by clearing the interval.
+ *
+ * @param {Object} animationManager - The manager responsible for controlling facial animations.
+ */
+export function stop(animationManager) {
+    // If the blinking interval is active, clear it to stop the blinking action
+    animationManager.scheduleChange("45", 0, 100, 0); 
+}
 ```
+
+For a new **"Blink"** app, create `src/apps/blinkApp.js` with similar structure:
+
+```javascript
+// Declare a variable to hold the interval ID for the blinking action
+let blinkInterval;
+
+/**
+ * Starts the blinking action using the provided animation manager and settings.
+ *
+ * @param {Object} animationManager - The manager responsible for controlling facial animations.
+ * @param {Object} settings - The configuration settings for the blink action, such as speed.
+ */
+export function start(animationManager, settings) {
+    blinkInterval = setInterval(() => {
+        animationManager.scheduleChange("45", 200, 100, 0); // Schedule the blink action
+    }, settings.speed);
+}
+
+/**
+ * Stops the blinking action by clearing the interval.
+ *
+ * @param {Object} animationManager - The manager responsible for controlling facial animations.
+ */
+export function stop(animationManager) {
+    clearInterval(blinkInterval); // Clear the blink interval
+    animationManager.scheduleChange("45", 0, 100, 0); // Set the eyes to open
+}
+```
+
+## 3. Test the New App
+
+1. Run the app:
+   ```bash
+   yarn start
+   ```
+
+2. Check the UI for the new "Blink" app.
+
 
 ## Voice Manager and Speech Manager
 
