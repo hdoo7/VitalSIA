@@ -147,7 +147,7 @@ const animationManager = new AnimationManager();
 ## Setting up a Module
 
 
-# Adding a New App (Module) in EVA-Libre
+# Adding a New Module in EVA-Libre
 
 ## 1. Update `src/apps/config.js`
 
