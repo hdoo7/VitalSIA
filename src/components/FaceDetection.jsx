@@ -1,76 +1,118 @@
 import React, { useEffect, useRef, useState } from 'react';
-import * as faceapi from '@vladmandic/face-api';
+import { Box, Button } from '@chakra-ui/react';
+import * as faceapi from 'face-api.js';
+import WebcamManager from '../VISOS/sensors/video/WebcamManager';
 
-const FaceDetection = ({ canvasId }) => {
-  const overlayRef = useRef(null);
-  const [isModelLoaded, setIsModelLoaded] = useState(false);
-
-  // Function to load face-api models
-  const loadModels = async () => {
-    const MODEL_URL = process.env.PUBLIC_URL + '/models';
-    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-    await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
-    setIsModelLoaded(true);
-    console.log('Face API models loaded');
-  };
+const FaceDetection = ({ onFaceDetection }) => {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const [isWebcamEnabled, setIsWebcamEnabled] = useState(false);
+  const [modelsLoaded, setModelsLoaded] = useState(false); // Track model loading status
+  const webcamManager = useRef(new WebcamManager());
 
   useEffect(() => {
-    loadModels();
-  }, []);
-
-  useEffect(() => {
-    if (!isModelLoaded) return;
-
-    let captureCanvas = document.createElement('canvas');
-    captureCanvas.id = 'capture-canvas';
-    captureCanvas.style.display = 'none'; // Hide this canvas
-    document.body.appendChild(captureCanvas);
-
-    const interval = setInterval(async () => {
-      const unityCanvas = document.getElementById(canvasId);
-      const overlayCanvas = overlayRef.current;
-      if (!unityCanvas || !overlayCanvas) {
-        console.error("Canvas elements are not ready");
-        return;
+    // Load face-api.js models
+    const loadModels = async () => {
+      try {
+        console.log('Loading models...');
+        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
+        await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
+        await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+        console.log('Models successfully loaded.');
+        setModelsLoaded(true); // Set modelsLoaded to true after loading models
+      } catch (error) {
+        console.error('Error loading models:', error);
       }
+    };
 
-      // Ensure the captureCanvas matches the dimensions of the Unity canvas
-      captureCanvas.width = unityCanvas.offsetWidth;
-      captureCanvas.height = unityCanvas.offsetHeight;
-
-      // Draw the content of the Unity WebGL canvas onto the captureCanvas
-      const captureContext = captureCanvas.getContext('2d');
-      captureContext.drawImage(unityCanvas, 0, 0, captureCanvas.width, captureCanvas.height);
-
-      // Perform face-api detection on the captureCanvas
-      const detections = await faceapi.detectAllFaces(captureCanvas, new faceapi.SsdMobilenetv1Options())
-                                        .withFaceLandmarks()
-                                        .withFaceExpressions();
-      
-      // Resize and clear overlay canvas
-      overlayCanvas.width = unityCanvas.offsetWidth;
-      overlayCanvas.height = unityCanvas.offsetHeight;
-      const context = overlayCanvas.getContext('2d');
-      const displaySize = { width: overlayCanvas.width, height: overlayCanvas.height };
-      faceapi.matchDimensions(overlayCanvas, displaySize);
-      context.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-
-      // Draw detections on the overlay canvas
-      const resizedDetections = faceapi.resizeResults(detections, displaySize);
-      faceapi.draw.drawDetections(overlayCanvas, resizedDetections);
-      faceapi.draw.drawFaceLandmarks(overlayCanvas, resizedDetections);
-      faceapi.draw.drawFaceExpressions(overlayCanvas, resizedDetections);
-
-    }, 100);
+    loadModels();
 
     return () => {
-      clearInterval(interval);
-      document.body.removeChild(captureCanvas); // Clean up
+      webcamManager.current.stop();
     };
-  }, [canvasId, isModelLoaded]);
+  }, []);
 
-  return <canvas ref={overlayRef} style={{ position: 'absolute', zIndex: 99, pointerEvents: 'none' }} />;
+  const handleStart = async () => {
+    console.log('Attempting to start webcam...');
+    try {
+      const permissionGranted = await webcamManager.current.initialize();
+      if (permissionGranted && modelsLoaded) {
+        console.log('Webcam permission granted and stream attached.');
+        setIsWebcamEnabled(true);
+      } else if (!permissionGranted) {
+        console.error('Webcam access denied or failed.');
+      } else if (!modelsLoaded) {
+        console.error('Models not yet loaded.');
+      }
+    } catch (error) {
+      console.error('Error initializing webcam:', error);
+    }
+  };
+
+  // Use useEffect to attach stream once videoRef is available
+  useEffect(() => {
+    if (isWebcamEnabled && videoRef.current) {
+      console.log('Attaching webcam stream to video element...');
+      webcamManager.current.attachStream(videoRef.current);
+      videoRef.current.onloadeddata = () => {
+        if (modelsLoaded) {
+          console.log('Starting face detection...');
+          startFaceDetection();
+        } else {
+          console.error('Models still not loaded when trying to start face detection.');
+        }
+      };
+    }
+  }, [isWebcamEnabled, modelsLoaded]);
+
+  const startFaceDetection = () => {
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+
+    const detectFace = async () => {
+      // Set canvas dimensions to match the video
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      setInterval(async () => {
+        if (modelsLoaded) {
+          const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
+          const resizedDetections = faceapi.resizeResults(detections, { width: video.videoWidth, height: video.videoHeight });
+
+          // Clear previous drawings
+          canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+
+          // Draw bounding boxes and landmarks on the canvas
+          faceapi.draw.drawDetections(canvas, resizedDetections); // Draw bounding boxes
+          faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // Draw facial landmarks
+
+          // Callback to parent component or app if needed
+          if (onFaceDetection) {
+            onFaceDetection(resizedDetections);
+          }
+        }
+      }, 100);
+    };
+
+    detectFace();
+  };
+
+  return (
+    <Box>
+      {!isWebcamEnabled && (
+        <Button colorScheme="teal" onClick={handleStart} style={{ fontFamily: 'Avenir' }}>
+          Enable Webcam
+        </Button>
+      )}
+
+      {isWebcamEnabled && (
+        <Box position="relative">
+          <video ref={videoRef} autoPlay muted style={{ width: '100%', height: 'auto' }} />
+          <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
+        </Box>
+      )}
+    </Box>
+  );
 };
 
 export default FaceDetection;
