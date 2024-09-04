@@ -9,7 +9,7 @@ export function start(animationManager, settings) {
 
     // Calculate the time between blinks by subtracting the blink duration from the speed
     const timeBetweenBlinks = speed;
-
+    
     // Clear any existing interval to avoid overlapping blinks
     if (blinkInterval) {
         clearInterval(blinkInterval);

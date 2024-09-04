@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Box, Button, IconButton, Text, Switch, Tooltip, Flex, Accordion, AccordionItem,
     AccordionButton, AccordionPanel, AccordionIcon
@@ -12,6 +12,7 @@ const AppsMenu = ({ animationManager, ml }) => {
     const [appSettings, setAppSettings] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const containerRef = useRef(null); // Reference to the container where apps will be rendered
 
     useEffect(() => {
         const initialSettings = {};
@@ -24,7 +25,12 @@ const AppsMenu = ({ animationManager, ml }) => {
     const handleSwitchChange = (app, isChecked) => {
         import(`../apps/${app.path}`).then(module => {
             if (isChecked) {
-                module.start(animationManager, appSettings[app.name]);
+                // Ensure the container element exists
+                if (!containerRef.current) {
+                    console.error('App container reference is invalid. Unable to start the app.');
+                    return;
+                }
+                module.start(animationManager, appSettings[app.name], containerRef);
             } else {
                 module.stop(animationManager);
             }
@@ -98,6 +104,7 @@ const AppsMenu = ({ animationManager, ml }) => {
                     ))}
                 </Accordion>
             )}
+            <Box ref={containerRef} id="app-container" /> {/* Container for the apps */}
             {selectedApp && (
                 <ConfigModal
                     isOpen={isModalOpen}
