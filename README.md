@@ -18,7 +18,7 @@ To install the system on your local machine, follow these steps based on your op
 
 ### Windows
 
-1. Install Git and Node.js using Chocolatey:
+1. Install Git and Node.js using Chocolatey (https://chocolatey.org/):
    ```bash
    choco install git nodejs
    ```
