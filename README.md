@@ -107,7 +107,6 @@ To install the system on your local machine, follow these steps based on your op
 2. The server will be available at `http://localhost:3000`.
 
 ## Deploying to GitHub Pages
-## Deploying to GitHub Pages
 
 ### 1. Enable GitHub Pages in the repository settings:
 
