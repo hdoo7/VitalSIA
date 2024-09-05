@@ -143,11 +143,7 @@ import AnimationManager from './src/VISOS/effectors/visualizers/AnimationManager
 const animationManager = new AnimationManager();
 // Use animationManager to control animations
 ```
-
-## Adding your own Module
-
-
-# Adding a New Module in EVA-Libre
+# Creating your own Module
 
 ## 1. Update `src/apps/config.js`
 
