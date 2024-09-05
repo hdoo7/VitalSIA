@@ -11,6 +11,7 @@
 4. [Animation Manager](#animation-manager)
 5. [Setting up an App](#setting-up-an-app)
 6. [Voice Manager and Speech Manager](#voice-manager-and-speech-manager)
+7. [Speech Processor](#speech-processor)
 
 ## Installation
 
@@ -267,4 +268,94 @@ const speechManager = new SpeechManager(voiceManager);
 speechManager.speak("Hello, this is a test using MS TTS.");
 ```
 
-For detailed documentation on additional components and usage, refer to the respective component documentation.
+# Speech Processor
+
+The **SpeechProcessor** class provides an easy-to-use API for detecting trigger phrases using speech recognition. It relies on the **Web Speech API** to continuously listen for spoken phrases, and it can trigger custom events when specific phrases are detected.
+
+## Features
+- **Trigger Phrase Detection**: Continuously listens for and detects predefined trigger phrases.
+- **Continuous Speech Recognition**: Automatically restarts if recognition stops unexpectedly.
+- **Custom Event Handling**: Executes a callback when a trigger phrase is detected.
+- **Error Handling and Recovery**: Automatically handles common speech recognition errors and attempts to restart.
+
+## Constructor
+
+```javascript
+constructor(triggerPhrases, onTriggerDetected)
+```
+
+- `triggerPhrases`: An array or a single string containing the phrases you want to detect. This will be converted into a regex for matching the speech results.
+- `onTriggerDetected`: A callback function that is executed when one of the trigger phrases is detected in the recognized speech.
+
+## Methods
+
+### `initializeRecognition()`
+
+Initializes the speech recognition functionality, checks for browser support, and sets up event handlers for speech recognition results, errors, and when recognition ends.
+
+### `prepareTriggerPhrasesRegex(phrases)`
+
+Converts the provided trigger phrases into a regular expression for more flexible matching. This ensures phrases can be detected even with slight variations in spacing.
+
+### `start()`
+
+Starts the speech recognition process. This method ensures that recognition is not started multiple times simultaneously.
+
+### `handleResult(event)`
+
+Handles speech recognition results. It listens for final speech results and checks if the recognized text matches any of the trigger phrases. If a match is found, it executes the `onTriggerDetected` callback.
+
+### `handleEnd()`
+
+Handles the end of the speech recognition session and attempts to restart recognition automatically to keep it running continuously.
+
+### `handleError(event)`
+
+Handles errors that occur during speech recognition, such as `no-speech` or `audio-capture` errors, and attempts to restart the recognition process after handling the error.
+
+### `restartRecognition()`
+
+Restarts the speech recognition process after a short delay to avoid potential infinite loops or browser throttling.
+
+## Example Usage
+
+```javascript
+import SpeechProcessor from './SpeechProcessor';
+
+// Define trigger phrases and a callback function
+const triggerPhrases = ['hello world', 'start process', 'stop listening'];
+const onTriggerDetected = (phrase) => {
+  console.log(`Trigger detected: ${phrase}`);
+  // Add any additional functionality here
+};
+
+// Initialize the SpeechProcessor
+const speechProcessor = new SpeechProcessor(triggerPhrases, onTriggerDetected);
+
+// Start listening for speech
+speechProcessor.start();
+```
+
+## Browser Compatibility
+
+This feature relies on the **Web Speech API**, which is supported in the following browsers:
+- Google Chrome (desktop and Android)
+- Microsoft Edge
+- Firefox (limited support)
+- Safari (macOS)
+
+## Error Handling and Automatic Recovery
+
+The **SpeechProcessor** class includes error handling and automatic recovery for common issues such as:
+- `no-speech`: No speech detected during recognition.
+- `audio-capture`: Issues with microphone access.
+
+In these cases, the recognition will automatically restart after a short delay.
+
+## Customization
+
+You can easily modify the recognition language or other parameters by adjusting the properties in the `initializeRecognition()` method. For example, to switch the recognition language:
+
+```javascript
+this.recognition.lang = 'es-ES'; // Switch to Spanish
+```
