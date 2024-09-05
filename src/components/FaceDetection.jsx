@@ -1,117 +1,70 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button } from '@chakra-ui/react';
+import React, { useRef, useEffect } from 'react';
 import * as faceapi from 'face-api.js';
-import WebcamManager from '../VISOS/sensors/video/WebcamManager';
 
-const FaceDetection = ({ onFaceDetection }) => {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [isWebcamEnabled, setIsWebcamEnabled] = useState(false);
-  const [modelsLoaded, setModelsLoaded] = useState(false); // Track model loading status
-  const webcamManager = useRef(new WebcamManager());
+const FaceDetection = () => {
+  const videoRef = useRef(); // Reference to the video element
+  const canvasRef = useRef(); // Reference to the canvas element
 
+  // Function to load Face API models
   useEffect(() => {
-    // Load face-api.js models
     const loadModels = async () => {
       try {
-        console.log('Loading models...');
-        await faceapi.nets.tinyFaceDetector.loadFromUri('/models');
-        await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-        await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
-        console.log('Models successfully loaded.');
-        setModelsLoaded(true); // Set modelsLoaded to true after loading models
+        const MODEL_URL = process.env.PUBLIC_URL + '/models';
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+
+        startVideo(); // Start webcam after models are loaded
       } catch (error) {
         console.error('Error loading models:', error);
       }
     };
 
     loadModels();
-
-    return () => {
-      webcamManager.current.stop();
-    };
   }, []);
 
-  const handleStart = async () => {
-    console.log('Attempting to start webcam...');
-    try {
-      const permissionGranted = await webcamManager.current.initialize();
-      if (permissionGranted && modelsLoaded) {
-        console.log('Webcam permission granted and stream attached.');
-        setIsWebcamEnabled(true);
-      } else if (!permissionGranted) {
-        console.error('Webcam access denied or failed.');
-      } else if (!modelsLoaded) {
-        console.error('Models not yet loaded.');
-      }
-    } catch (error) {
-      console.error('Error initializing webcam:', error);
-    }
+  // Function to start the webcam stream
+  const startVideo = () => {
+    navigator.mediaDevices
+      .getUserMedia({ video: {} })
+      .then((stream) => {
+        videoRef.current.srcObject = stream; // Attach the webcam stream to the video element
+      })
+      .catch((err) => console.error('Error accessing webcam:', err));
   };
 
-  // Use useEffect to attach stream once videoRef is available
-  useEffect(() => {
-    if (isWebcamEnabled && videoRef.current) {
-      console.log('Attaching webcam stream to video element...');
-      webcamManager.current.attachStream(videoRef.current);
-      videoRef.current.onloadeddata = () => {
-        if (modelsLoaded) {
-          console.log('Starting face detection...');
-          startFaceDetection();
-        } else {
-          console.error('Models still not loaded when trying to start face detection.');
-        }
-      };
-    }
-  }, [isWebcamEnabled, modelsLoaded]);
+  // Function to detect faces and draw bounding boxes
+  const detectFace = async () => {
+    // Detect faces with TinyFaceDetector
+    const detections = await faceapi.detectAllFaces(videoRef.current, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
 
-  const startFaceDetection = () => {
-    const video = videoRef.current;
+    // Clear the canvas before drawing
     const canvas = canvasRef.current;
+    const displaySize = { width: videoRef.current.width, height: videoRef.current.height };
 
-    const detectFace = async () => {
-      // Set canvas dimensions to match the video
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+    faceapi.matchDimensions(canvas, displaySize); // Match canvas size with video element
+    const resizedDetections = faceapi.resizeResults(detections, displaySize); // Resize detections to match video size
 
-      setInterval(async () => {
-        if (modelsLoaded) {
-          const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceDescriptors();
-          const resizedDetections = faceapi.resizeResults(detections, { width: video.videoWidth, height: video.videoHeight });
-
-          // Clear previous drawings
-          canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-
-          // Draw bounding boxes and landmarks on the canvas
-          faceapi.draw.drawDetections(canvas, resizedDetections); // Draw bounding boxes
-          faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // Draw facial landmarks
-
-          // Callback to parent component or app if needed
-          if (onFaceDetection) {
-            onFaceDetection(resizedDetections);
-          }
-        }
-      }, 100);
-    };
-
-    detectFace();
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height); // Clear previous drawings
+    faceapi.draw.drawDetections(canvas, resizedDetections); // Draw bounding boxes
+    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections); // Draw face landmarks (optional)
+    faceapi.draw.drawFaceExpressions(canvas, resizedDetections); // Draw expressions (optional)
   };
+
+  // Detect faces every 100 milliseconds
+  useEffect(() => {
+    videoRef.current?.addEventListener('play', () => {
+      const interval = setInterval(detectFace, 100); // Run face detection periodically
+      return () => clearInterval(interval); // Cleanup interval on unmount
+    });
+  }, []);
 
   return (
-    <Box>
-      {!isWebcamEnabled && (
-        <Button colorScheme="teal" onClick={handleStart} style={{ fontFamily: 'Avenir' }}>
-          Enable Webcam
-        </Button>
-      )}
-
-      {isWebcamEnabled && (
-        <Box position="relative">
-          <video ref={videoRef} autoPlay muted style={{ width: '100%', height: 'auto' }} />
-          <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' }} />
-        </Box>
-      )}
-    </Box>
+    <div style={{ position: 'relative' }}>
+      <video ref={videoRef} autoPlay muted width="720" height="560" style={{ position: 'relative' }} />
+      <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 0 }} />
+    </div>
   );
 };
 
