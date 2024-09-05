@@ -245,10 +245,10 @@ export function stop(animationManager) {
 
 ## Voice Manager and Speech Manager
 
-### Voice Manager
+### Voice Manager (Uses WebSpeech API, a feature offered in most common browsers based on an open-source standard).
 The Voice Manager handles the configuration and management of different voices within the system. It integrates with various text-to-speech (TTS) engines to provide natural and dynamic voice outputs.
 
-### Speech Manager (MS TTS)
+### Speech Manager (Microsoft Cognitive Services Text-To-Speech (TTS))
 The Speech Manager is specifically designed to work with Microsoft Text-to-Speech (TTS) services. It handles the conversion of text to speech using MS TTS, providing an interface for easy integration into applications.
 
 Example setup and usage:
