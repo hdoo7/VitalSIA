@@ -155,7 +155,7 @@ const animationManager = new AnimationManager();
 }
 ```
 
-To add a new app, for example a **"Blink"** app:
+Example 2: A **"Blink"** module:
 
 ```javascript
 {
