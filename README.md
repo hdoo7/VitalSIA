@@ -9,7 +9,7 @@
 2. [Running the Server](#running-the-server)
 3. [Deploying to GitHub Pages](#deploying-to-github-pages)
 4. [Animation Manager](#animation-manager)
-5. [Setting up an App](#setting-up-an-app)
+5. [Creating Your Own Module](#creating-your-own-module)
 6. [Voice Manager and Speech Manager](#voice-manager-and-speech-manager)
 7. [Speech Processor](#speech-processor)
 
@@ -144,7 +144,7 @@ const animationManager = new AnimationManager();
 // Use animationManager to control animations
 ```
 
-## Setting up a Module
+## Adding your own Module
 
 
 # Adding a New Module in EVA-Libre
