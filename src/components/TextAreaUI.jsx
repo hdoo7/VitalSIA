@@ -8,15 +8,24 @@ const TextAreaUI = ({ animationManager }) => {
     const [voices, setVoices] = useState([]);
     const [selectedVoice, setSelectedVoice] = useState('');
     const [pitchEnhance, setPitchEnhance] = useState(false);
+    const [showAllVoices, setShowAllVoices] = useState(false); // State to toggle between showing all voices or the best four
+    const [topVoices, setTopVoices] = useState([]); // State for the top voices
 
     useEffect(() => {
         if (animationManager && !voiceManager) {
             const vm = new VoiceManager(animationManager, pitchEnhance);
             setVoiceManager(vm);
             vm.onVoicesChanged = setVoices;
+
             setTimeout(() => {
-                setVoices(vm.getVoices());
-                setSelectedVoice(vm.voice ? vm.voice.name : '');
+                const availableVoices = vm.getVoices();
+                const bestVoices = availableVoices.filter(voice =>
+                    (voice.name.includes('Google') && (voice.lang === 'en-US' || voice.lang === 'en-GB' || voice.lang === 'en-US' || voice.lang === 'fr-FR'))
+                    || voice.name.includes('Samantha')
+                ).slice(0, 5); // Select the top 4 voices
+                setVoices(availableVoices);
+                setTopVoices(bestVoices);
+                setSelectedVoice(bestVoices[0]?.name || '');
             }, 500); // Add a delay to ensure voices are loaded
         }
     }, [animationManager, pitchEnhance]);
@@ -61,6 +70,10 @@ const TextAreaUI = ({ animationManager }) => {
         }
     };
 
+    const handleVoiceSwitchChange = (e) => {
+        setShowAllVoices(e.target.checked);
+    };
+
     return (
         <Box p={4}>
             <FormControl display="flex" alignItems="center" mb={4}>
@@ -68,25 +81,35 @@ const TextAreaUI = ({ animationManager }) => {
                     Voice
                 </FormLabel>
                 <Select id="voice" value={selectedVoice} onChange={handleVoiceChange}>
-                    {voices.map((voice, index) => (
+                    {(showAllVoices ? voices : topVoices).map((voice, index) => (
                         <option key={index} value={voice.name}>
-                            {voice.name}
+                            {voice.name} ({voice.lang})
                         </option>
                     ))}
                 </Select>
             </FormControl>
+
+            <FormControl display="flex" alignItems="center" mb={4}>
+                <FormLabel htmlFor="show-all-voices" mb="0">
+                    Show All Voices
+                </FormLabel>
+                <Switch id="show-all-voices" isChecked={showAllVoices} onChange={handleVoiceSwitchChange} />
+            </FormControl>
+
             <FormControl display="flex" alignItems="center" mb={4}>
                 <FormLabel htmlFor="pitch-enhance" mb="0">
                     Pitch Enhance Lip-Syncing
                 </FormLabel>
                 <Switch id="pitch-enhance" isChecked={pitchEnhance} onChange={handlePitchEnhanceChange} />
             </FormControl>
+
             <Textarea
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 mb={2}
                 placeholder="Type your text here..."
             />
+
             <Button colorScheme="teal" onClick={handleEnqueueText} mb={2}>
                 Enqueue Text
             </Button>
