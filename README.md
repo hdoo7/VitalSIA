@@ -1,4 +1,3 @@
-
 # EVA-libre
 
 ## Table of Contents
@@ -135,14 +134,157 @@ This will automatically deploy the site to the `gh-pages` branch of your reposit
 ## Animation Manager
 
 The Animation Manager is responsible for controlling the visual animations of characters. To use the Animation Manager, import it into your project and create an instance of it.
+---
 
-Example:
+### **Basic Usage**
+
+At its core, the `AnimationManager` allows you to control the avatar's facial expressions using action units (AUs). Each facial action is defined by an AU number, intensity (how strong the action is), duration (how long it lasts), and delay (when it starts).
+
 ```javascript
-import AnimationManager from './src/VISOS/effectors/visualizers/AnimationManager';
-
-const animationManager = new AnimationManager();
-// Use animationManager to control animations
+// Example 1: Trigger a simple smile
+export function smile(animationManager) {
+    animationManager.scheduleChange("12", 88, 250, 0); // AU 12 (lip corner puller) with intensity 88, for 250ms, no delay
+}
 ```
+
+In this example, AU12 is used to pull the lips upwards to create a smile. The `scheduleChange` method takes 4 parameters:
+- The AU code ("12" for smile)
+- The intensity of the action (range 0-100, where 100 is full intensity)
+- The duration in milliseconds (how long the action will last)
+- The delay before starting (how long to wait before triggering the action)
+
+---
+
+### **Advanced Usage with Promises**
+
+When managing multiple animations or needing precise control over animation sequences, it's helpful to use promises. The `AnimationManager` can return promises that resolve when all scheduled animations are complete, allowing for more complex and timed actions.
+
+```javascript
+// Example 2: Trigger a smile, wait for it to finish, then frown
+export function smileThenFrown(animationManager) {
+    smile(animationManager).then(() => {
+        frown(animationManager);
+    });
+}
+
+export function frown(animationManager) {
+    animationManager.scheduleChange("12", 0, 500, 250); // AU12 with 0 intensity (return to neutral) over 500ms, delayed by 250ms
+}
+```
+
+In this example, the smile happens first, and then the frown starts after the smile animation completes. You can chain animations this way to create more complex facial behavior.
+
+---
+
+### **Looping Animations**
+
+Looping is useful when you want continuous facial expressions or behaviors, such as blinking or alternating expressions.
+
+```javascript
+// Example 3: Loop smile and frown animations continuously
+export function loopSmileAndFrown(animationManager) {
+    setInterval(() => {
+        smile(animationManager);
+        setTimeout(() => frown(animationManager), 1000); // Wait 1 second before frowning
+    }, 2000); // Loop every 2 seconds
+}
+```
+
+This example triggers a smile, waits for 1 second, then frowns, and repeats the loop every 2 seconds.
+
+---
+
+### **Advanced Example: Combining Multiple Action Units**
+
+In this example, we'll combine several AUs to simulate a more complex facial movement, such as sticking the tongue out.
+
+```javascript
+// Example 4: Stick tongue out and bulge it
+export function stickTongueOut(animationManager) {
+    animationManager.scheduleChange("36", 180, 250, 0); // AU36 (tongue show) at full intensity
+    animationManager.scheduleChange("19", 180, 250, 250); // AU19 (tongue bulge) starting after 250ms
+}
+
+export function pullTongueIn(animationManager) {
+    animationManager.scheduleChange("36", 0, 250, 0); // Retract tongue (AU36 back to 0 intensity)
+    animationManager.scheduleChange("19", 0, 250, 250); // Retract bulge (AU19 back to 0 intensity)
+}
+```
+
+In this scenario, the tongue is first shown and then bulged out. Afterward, the tongue is pulled back in using the same AUs with 0 intensity.
+
+---
+
+### **Randomized Animations: Blinking**
+
+Blinking is an important aspect of making the avatar appear lifelike. Below is an example where we create random blinking intervals.
+
+```javascript
+// Example 5: Trigger a blink with randomness
+export function triggerBlink(animationManager) {
+    animationManager.scheduleChange("45", 100, 500, 0); // AU45 (blink) with 100 intensity for 500ms
+    animationManager.scheduleChange("45", 0, 500, 500); // Reset blink after 500ms
+}
+
+export function loopRandomBlink(animationManager) {
+    const startBlinking = () => {
+        triggerBlink(animationManager);
+
+        const nextBlinkInterval = 500 * (1 + Math.random() * 4) + 1000; // Random interval between 1 and 4 seconds
+        setTimeout(startBlinking, nextBlinkInterval); // Schedule the next blink
+    };
+    
+    startBlinking(); // Start the blink loop
+}
+```
+
+In this example, the blink happens randomly every 1 to 4 seconds. The `loopRandomBlink` function ensures the avatar blinks at unpredictable intervals, adding to realism.
+
+---
+
+### **Chained and Complex Animations**
+
+For more advanced animations, we can chain different facial expressions together and control their timing using promises and intervals.
+
+```javascript
+// Example 6: Alternate between smiling and sticking the tongue out
+export function loopSmileAndStickTongueOut(animationManager) {
+    let toggle = true; // Start with a smile
+
+    setInterval(() => {
+        if (toggle) {
+            smile(animationManager);
+            setTimeout(() => stickTongueOut(animationManager), 1000); // Stick tongue out after 1 second
+        } else {
+            pullTongueIn(animationManager);
+            setTimeout(() => frown(animationManager), 1000); // Frown after pulling tongue in
+        }
+        toggle = !toggle; // Switch to the next expression on the next interval
+    }, 2000); // Switch expressions every 2 seconds
+}
+```
+
+This example toggles between smiling and sticking the tongue out, then frowning and pulling the tongue back in. The interval is set for every 2 seconds, but you can adjust it to suit your needs.
+
+---
+
+### **Head Movements**
+
+You can also control more complex movements such as head tilts using the `AnimationManager`.
+
+```javascript
+// Example 7: Head movements
+export function headDown(animationManager) {
+    animationManager.scheduleChange("54", 100, 900, 0); // Tilt head down using AU54
+}
+
+export function headUp(animationManager) {
+    animationManager.scheduleChange("54", 0, 900, 0); // Tilt head up using AU54
+}
+```
+
+In this example, the head tilts down when the intensity is set to 100 and tilts back up when reset to 0.
+
 # Creating your own Module
 
 ## 1. Update `src/apps/config.js`
