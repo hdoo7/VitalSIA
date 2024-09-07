@@ -134,7 +134,7 @@ This will automatically deploy the site to the `gh-pages` branch of your reposit
 ## Animation Manager
 
 The Animation Manager is responsible for controlling the visual animations of characters. To use the Animation Manager, import it into your project and create an instance of it.
----
+
 
 ### **Basic Usage**
 
