@@ -1,42 +1,61 @@
-import SpeechProcessor from '../VISOS/sensors/audio/SpeechProcessor';
-import VoiceManager from '../VISOS/effectors/verbalizers/VoiceManager';
+import AudioToText from 'VISOS/perception/audio/AudioToText';
+import TextToListenerWithFollowUp from 'VISOS/perception/audio/TextToListenerWithFollowUp';
+import TextToGptReconciler from 'VISOS/cognition/TextToGptReconciler';
+import SpeechManager from 'VISOS/action/verbalizers/SpeechManager';
+import AnimationManager from 'VISOS/action/visualizers/AnimationManager';
 
-let speechProcessor;
-let voiceManager;
+let audioToText;
+let textToListener;
+let gptReconciler;
+let speechManager;
 
-function start(animationManager, settings) {
-  const { apiKey, triggerPhrases } = settings;
+const start = (animationManager, appSettings, containerRef) => {
+    // Initialize the necessary instances
+    audioToText = new AudioToText();
+    textToListener = new TextToListenerWithFollowUp([appSettings.triggerPhrases]);
+    gptReconciler = new TextToGptReconciler(appSettings.apiKey);
+    speechManager = SpeechManager.getInstance(animationManager);
 
-  voiceManager = new VoiceManager(animationManager);
+    // Start the process of listening and responding with GPT
+    const loop = () => {
+        audioToText.startContinuousRecognition()
+            .then(text => {
+                console.log(`Transcribed text: ${text}`);
+                return textToListener.listen(text);
+            })
+            .then(detectedPhrase => {
+                if (!detectedPhrase || !detectedPhrase.debounceText) {
+                    console.log('No detected phrase or debounce text');
+                    return;
+                }
+                return gptReconciler.processText(detectedPhrase.debounceText, 'Answer in a serious way:');
+            })
+            .then(gptResponse => {
+                if (gptResponse) {
+                    console.log(`GPT Response: ${gptResponse}`);
+                    speechManager.enqueueText(gptResponse);
+                }
+            })
+            .catch(error => {
+                console.error('Error in processing:', error);
+            })
+            .finally(() => {
+                // Recursively restart the loop after some delay
+                setTimeout(() => loop(), 3000);
+            });
+    };
 
-  speechProcessor = new SpeechProcessor(triggerPhrases, async (text) => {
-    console.log(`Detected text: ${text}`);
-    
-    // Implement the logic to send the text to GPT and get the response
-    const response = await fetchChatResponse(apiKey, text);
+    // Start the loop
+    loop();
+};
 
-    // Use voiceManager to speak the response
-    voiceManager.enqueueText(response);
-  });
-
-  // Start the speech recognition process
-  console.log("Starting speech recognition...");
-  speechProcessor.start();
-}
-
-function stop() {
-  if (speechProcessor) {
-    speechProcessor.stop();
-  }
-  if (voiceManager) {
-    voiceManager.stopSpeech();
-  }
-}
-
-async function fetchChatResponse(apiKey, text) {
-  // Implement the logic to fetch the response from GPT using the API key
-  // This is a placeholder function
-  return `Response to: ${text}`;
-}
+const stop = (animationManager) => {
+    if (audioToText) {
+        audioToText.stopContinuousRecognition();
+    }
+    if (speechManager) {
+        speechManager.stopSpeech();
+    }
+};
 
 export { start, stop };

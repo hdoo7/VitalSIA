@@ -7,6 +7,10 @@ import { InfoIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import appsConfig from '../apps/config';
 import ConfigModal from './ConfigModal';
 
+// Dynamically load the apps/modules using require.context
+const appModules = require.context('../apps', false, /\.js$/);
+const visosModules = require.context('../VISOS', true, /\.js$/);
+
 const AppsMenu = ({ animationManager, ml }) => {
     const [selectedApp, setSelectedApp] = useState(null);
     const [appSettings, setAppSettings] = useState({});
@@ -23,9 +27,13 @@ const AppsMenu = ({ animationManager, ml }) => {
     }, []);
 
     const handleSwitchChange = (app, isChecked) => {
-        import(`../apps/${app.path}`).then(module => {
+        const modulePath = `./${app.path}.js`;
+
+        // Dynamically load the app
+        if (appModules.keys().includes(modulePath)) {
+            const module = appModules(modulePath);
+
             if (isChecked) {
-                // Ensure the container element exists
                 if (!containerRef.current) {
                     console.error('App container reference is invalid. Unable to start the app.');
                     return;
@@ -34,7 +42,9 @@ const AppsMenu = ({ animationManager, ml }) => {
             } else {
                 module.stop(animationManager);
             }
-        });
+        } else {
+            console.error(`App module '${modulePath}' not found`);
+        }
     };
 
     const handleConfigClick = (app) => {
