@@ -1,7 +1,7 @@
-import AudioToText from './VISOS/sensors/audio/AudioToText';
-import TextToListener from './VISOS/sensors/audio/TextToListener';
-import { loopSmileAndStickTongueOut } from './VISOS/effectors/visualizers/facialExpressions';
-import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
+import AudioToText from './VISOS/perception/audio/AudioToText';
+import TextToListener from './VISOS/perception/audio/TextToListener';
+import { loopSmileAndStickTongueOut } from './VISOS/action/visualizers/facialExpressions';
+import AnimationManager from './VISOS/action/visualizers/AnimationManager';
 const audioToText = new AudioToText();
 const keyPhrases = ["stick out your tongue"]; // Example keyphrase(s)
 

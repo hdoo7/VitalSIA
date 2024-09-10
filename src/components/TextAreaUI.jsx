@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Box, Button, Textarea, Switch, FormControl, FormLabel, Select } from '@chakra-ui/react';
-import VoiceManager from '../VISOS/effectors/verbalizers/VoiceManager';
+import VoiceManager from '../VISOS/action/verbalizers/VoiceManager';
 
 const TextAreaUI = ({ animationManager }) => {
     const [text, setText] = useState('If you were to insist I was a robot, you might not consider me capable of love in some mystic human sense.');

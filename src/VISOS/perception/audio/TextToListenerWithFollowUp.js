@@ -1,4 +1,4 @@
-import TextToListener from './TextToListener'
+import TextToListener from './TextToListener';
 
 export default class TextToListenerWithFollowUp extends TextToListener {
     constructor(phrases) {
@@ -20,18 +20,15 @@ export default class TextToListenerWithFollowUp extends TextToListener {
                         this.awaitingFollowUp = true;
                         this.lastDetectedPhrase = detectedPhrase; // Store the detected phrase
                         console.log(`Detected phrase: ${detectedPhrase}, awaiting follow-up...`);
-                        // Resolve with null to indicate awaiting follow-up. This can be optional based on how you wish to handle flow.
                         resolve(null); 
                     } else {
-                        // No key phrase detected and not waiting for follow-up.
-                        // This could also resolve with null or could reject based on your error handling preference.
+                        console.log("No trigger phrase detected. Listening for follow-up...");
                         resolve(null); 
                     }
                 }).catch(error => {
-                    reject(error); // Propagate errors from the listen method
+                    reject(error);
                 });
             }
         });
     }
 }
-

@@ -10,7 +10,7 @@ if ('serviceWorker' in navigator) {
 }
 import  './unity/unitySettings'
 
-// import { loopSmileAndFrown } from './VISOS/effectors/facialExpressions'; // Adjust the path as necessary
+// import { loopSmileAndFrown } from './VISOS/action/facialExpressions'; // Adjust the path as necessary
 
 // // Start the loop of smile and frown animations
 // loopSmileAndFrown();git add *

@@ -1,7 +1,7 @@
-import SpeechProcessor from './VISOS/sensors/audio/SpeechProcessor';
-import TextToGptReconciler from './VISOS/reconcilers/TextToGptReconciler';
+import SpeechProcessor from './VISOS/perception/audio/SpeechProcessor';
+import TextToGptReconciler from './VISOS/cognition/TextToGptReconciler';
 import faces from './prompts/faces';
-import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpressions';
+import { headUp, headDown } from './VISOS/action/visualizers/facialExpressions';
 
 const gptReconciler = new TextToGptReconciler();
 

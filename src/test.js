@@ -1,4 +1,4 @@
-import SpeechProcessor from './VISOS/sensors/audio/SpeechProcessor.js';
+import SpeechProcessor from './VISOS/perception/audio/SpeechProcessor.js';
 const test = ()=>{
 const triggerPhrase = 'Hey GPT'; // Define your trigger phrase
 const onTriggerDetected = (text) => {

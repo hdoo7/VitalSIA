@@ -1,8 +1,8 @@
 
 
-import { zoomCameraOnLoad } from './VISOS/effectors/visualizers/zoomIn.js'
-import CameraInputControl from './VISOS/effectors/visualizers/CameraInputControl.js';
-import CameraControl from './VISOS/effectors/visualizers/CameraControl.js';
+import { zoomCameraOnLoad } from './VISOS/action/visualizers/zoomIn.js'
+import CameraInputControl from './VISOS/action/visualizers/CameraInputControl.js';
+import CameraControl from './VISOS/action/visualizers/CameraControl.js';
 
 const useCamera = (engine, animationManager) => {
     

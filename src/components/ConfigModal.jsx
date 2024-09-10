@@ -1,50 +1,56 @@
-import React from 'react';
-import {
-    Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody,
-    FormControl, FormLabel, Input, ModalFooter, NumberInput, NumberInputField,
-    NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper, Button
-} from '@chakra-ui/react';
-console.log()
-const ConfigModal = ({ isOpen, onClose, app, settings, handleSettingsChange, handleNumberInputChange }) => {
+// ConfigModal.jsx (or where the modal config is being handled)
+import { useState, useEffect } from 'react';
+import { Button, Input, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react';
+
+const ConfigModal = ({ isOpen, onClose, app, settings, handleInputChange }) => {
+    const [localSettings, setLocalSettings] = useState(settings);
+
+    useEffect(() => {
+        setLocalSettings(settings);
+    }, [settings]);
+
+    const handleSave = () => {
+        Object.keys(localSettings).forEach(key => {
+            handleInputChange({ target: { name: key, value: localSettings[key] } });
+        });
+        onClose();
+    };
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setLocalSettings(prevSettings => ({
+            ...prevSettings,
+            [name]: value,
+        }));
+    };
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>{app?.name} Settings</ModalHeader>
+                <ModalHeader>Configure {app.name}</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    {Object.keys(app?.settings || {}).map((setting, index) => (
-                        <FormControl key={index} mb={4}>
-                            <FormLabel>{app.settings[setting]?.description}</FormLabel>
-                            {app.settings[setting]?.type === 'number' ? (
-                                <NumberInput
-                                    name={app.settings[setting].name}
-                                    value={settings[app.settings[setting].name].default}
-                                    onChange={(valueString, valueNumber) => handleNumberInputChange(app.settings[setting].name, valueNumber)}
-                                    min={app.settings[setting].min || 0}  // Set the minimum value (default to 0 if undefined)
-                                    max={app.settings[setting].max || 10000}  // Set the maximum value (default to 10000 if undefined)
-                                >
-                                    <NumberInputField />
-                                    <NumberInputStepper>
-                                        <NumberIncrementStepper />
-                                        <NumberDecrementStepper />
-                                    </NumberInputStepper>
-                                </NumberInput>
-                            ) : (
-                                <Input
-                                    type={app.settings[setting].type}
-                                    name={app.settings[setting].name}
-                                    value={settings[app.settings[setting].name]}
-                                    onChange={handleSettingsChange}
-                                />
-                            )}
-                        </FormControl>
-                    ))}
+                    <Input
+                        name="apiKey"
+                        placeholder="API Key"
+                        value={localSettings.apiKey || ''}
+                        onChange={handleChange}
+                        mb={3}
+                    />
+                    <Input
+                        name="triggerPhrases"
+                        placeholder="Trigger Phrases"
+                        value={localSettings.triggerPhrases || ''}
+                        onChange={handleChange}
+                    />
                 </ModalBody>
                 <ModalFooter>
-                    <Button colorScheme="blue" mr={3} onClick={onClose}>
+                    <Button colorScheme="blue" onClick={handleSave}>
                         Save
+                    </Button>
+                    <Button variant="ghost" ml={3} onClick={onClose}>
+                        Cancel
                     </Button>
                 </ModalFooter>
             </ModalContent>

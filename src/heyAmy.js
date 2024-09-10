@@ -1,8 +1,8 @@
-import AudioToText from './VISOS/sensors/audio/AudioToText';
-import TextToListenerWithFollowUp from './VISOS/sensors/audio/TextToListenerWithFollowUp';
-import TextToGptReconciler from './VISOS/reconcilers/TextToGptReconciler';
-import SpeechManager from './VISOS/effectors/verbalizers/SpeechManager';
-import AnimationManager from './VISOS/effectors/visualizers/AnimationManager';
+import AudioToText from './VISOS/perception/audio/AudioToText';
+import TextToListenerWithFollowUp from './VISOS/perception/audio/TextToListenerWithFollowUp';
+import TextToGptReconciler from './VISOS/cognition/TextToGptReconciler';
+import SpeechManager from './VISOS/action/verbalizers/SpeechManager';
+import AnimationManager from './VISOS/action/visualizers/AnimationManager';
 
 
 const audioToText = new AudioToText();

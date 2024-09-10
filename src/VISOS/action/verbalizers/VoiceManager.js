@@ -4,6 +4,8 @@ import PitchAnalyzer from './PitchAnalyzer';
 import natural from 'natural';
 
 export default class VoiceManager {
+    static instance = null;  // Static instance for singleton
+
     constructor(animationManager, pitchEnhance = false) {
         this.animationManager = animationManager;
         this.queue = [];
@@ -17,13 +19,22 @@ export default class VoiceManager {
         this.initVoices();
     }
 
+    static getInstance(animationManager, pitchEnhance = false) {
+        if (!VoiceManager.instance) {
+            VoiceManager.instance = new VoiceManager(animationManager, pitchEnhance);
+        }
+        return VoiceManager.instance;
+    }
+
     initVoices() {
         this.synth.onvoiceschanged = () => {
             const voices = this.getVoices();
             if (!this.voice) {
                 this.voice = voices.find(voice => voice.name === 'Google US English' || voice.name === 'en-US') || voices[0];
             }
-            this.onVoicesChanged(voices);
+            if (typeof this.onVoicesChanged === 'function') {
+                this.onVoicesChanged(voices);
+            }
         };
     }
 

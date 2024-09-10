@@ -1,5 +1,5 @@
-import TextToGptReconciler from './VISOS/reconcilers/TextToGptReconciler';
-import { headUp, headDown } from './VISOS/effectors/visualizers/facialExpressions';
+import TextToGptReconciler from './VISOS/cognition/TextToGptReconciler';
+import { headUp, headDown } from './VISOS/action/visualizers/facialExpressions';
 import faces from './prompts/faces';
 
 const gptReconciler = new TextToGptReconciler();

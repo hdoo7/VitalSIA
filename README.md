@@ -126,7 +126,7 @@ The Animation Manager is responsible for controlling the visual animations of ch
 
 Example:
 ```javascript
-import AnimationManager from './src/VISOS/effectors/visualizers/AnimationManager';
+import AnimationManager from './src/VISOS/action/visualizers/AnimationManager';
 
 const animationManager = new AnimationManager();
 // Use animationManager to control animations
@@ -140,8 +140,8 @@ Example:
 ```javascript
 import React from 'react';
 import { ChakraProvider } from '@chakra-ui/react';
-import SmileControl from './src/VISOS/sensors/UI/SmileControl';
-import AnimationManager from './src/VISOS/effectors/visualizers/AnimationManager';
+import SmileControl from './src/VISOS/perception/UI/SmileControl';
+import AnimationManager from './src/VISOS/action/visualizers/AnimationManager';
 
 function App() {
   const animationManager = new AnimationManager();
@@ -171,8 +171,8 @@ The Speech Manager is specifically designed to work with Microsoft Text-to-Speec
 
 Example setup and usage:
 ```javascript
-import VoiceManager from './src/VISOS/effectors/verbalizers/VoiceManager';
-import SpeechManager from './src/VISOS/effectors/verbalizers/SpeechManager';
+import VoiceManager from './src/VISOS/action/verbalizers/VoiceManager';
+import SpeechManager from './src/VISOS/action/verbalizers/SpeechManager';
 
 // Initialize Voice and Speech Managers
 const voiceManager = new VoiceManager();
