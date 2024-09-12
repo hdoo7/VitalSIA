@@ -1,52 +1,125 @@
-export default class ContinuousTextListener {
-    constructor(phrases = [], bufferTime = 1000, waitForFollowUp = true) {
-        this.phrases = phrases.map(phrase => phrase.toLowerCase().trim());
-        this.bufferTime = bufferTime;
-        this.waitForFollowUp = waitForFollowUp; // Determines if we wait for a follow-up after a phrase is detected
-        this.debounceTimer = null;
-        this.listeningForAny = phrases.length === 0; // Listen for any utterance if no phrases specified
-    }
+import ReactDOMClient from 'react-dom/client';
+import React, { useState, useEffect } from 'react';
+import { useToast } from '@chakra-ui/react';
+import AudioToText from './../VISOS/perception/audio/AudioToText';
+import ContinuousTextListener from './../VISOS/perception/audio/ContinuousTextListener';
+import TextToGptReconciler from './../VISOS/cognition/TextToGptReconciler';
+import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
+import TrafficLightIndicator from '../components/TrafficLightIndicator';
 
-    async detectKeyPhrase(text) {
-        // Immediate return for non-empty text when listening for any utterance
-        if (this.listeningForAny && text.trim() !== "") {
-            return true;
+let audioToText;
+let continuousTextListener;
+let gptReconciler;
+let voiceManager;
+let conversationStarted = false;
+let speaking = false;
+let agentSpeech = '';  // Track agent's last spoken phrase
+let root = null;
+const listenBufferTime = 1000;  // Buffer time to resume listening after speaking
+
+// Initialize necessary modules
+const initializeModules = (animationManager, appSettings) => {
+    const triggerPhrases = appSettings.triggerPhrases;
+    const apiKey = appSettings.apiKey;
+
+    audioToText = new AudioToText('webspeech');
+    continuousTextListener = new ContinuousTextListener([triggerPhrases], listenBufferTime, true);
+    gptReconciler = new TextToGptReconciler(apiKey);
+    voiceManager = VoiceManager.getInstance(animationManager);  // Use shared instance
+};
+
+// Ensure the agent does not respond to its own speech
+const shouldIgnoreText = (text) => {
+    return agentSpeech && text.includes(agentSpeech);  // Prevent response to agent's own speech
+};
+
+// Start continuous listening using ContinuousTextListener
+const startContinuousListening = (setStatus, toast) => {
+    const textStream = async function* () {
+        while (true) {
+            yield await new Promise(resolve => {
+                audioToText.startContinuousRecognition(resolve);
+            });
         }
-        const lowerText = text.toLowerCase().trim();
-        // Check if any of the specified phrases is included in the input text
-        const detectedPhrase = this.phrases.find(phrase => lowerText.includes(phrase));
-        return !!detectedPhrase;
+    };
+
+    continuousTextListener.startContinuousListening(textStream()).then(() => {
+        setStatus('listening');
+        console.log('Listening for continuous text...');
+    });
+};
+
+// Handle the trigger phrase
+const handleTriggerPhrase = (text, setStatus, toast) => {
+    if (shouldIgnoreText(text)) {
+        console.log('Ignoring agent’s own speech.');
+        return;
     }
 
-    processText(text) {
-        return new Promise(resolve => {
-            if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    console.log(`Trigger phrase detected: ${text}`);
+    agentSpeech = "Let me check that for you...";
+    speaking = true;
+    voiceManager.enqueueText(agentSpeech);
+    setStatus('talking');
 
-            this.debounceTimer = setTimeout(async () => {
-                const detected = await this.detectKeyPhrase(text);
-                if (detected && !this.waitForFollowUp) {
-                    console.log(`Detected phrase and returning immediately: ${text}`);
-                    resolve(text); // Resolves with the text if a phrase is detected and not waiting for follow-up
-                } else if (detected) {
-                    console.log(`Detected phrase: ${text}`);
-                    // No further action here, but since a phrase was detected, could be a place to set up for the next step
-                    resolve(null); // Resolves with null to indicate waiting for further input
-                } else {
-                    // If no phrase was detected, resolve with null immediately
-                    resolve(null);
-                }
-            }, this.bufferTime);
-        });
-    }
-
-    async startContinuousListening(textStreamGenerator) {
-        for await (const text of textStreamGenerator) {
-            const result = await this.processText(text);
-            if (result !== null) {
-                // Additional processing can be done here with the result
-                // This block will only execute if waitForFollowUp is false and a phrase was detected
-                console.log(`Processing result: ${result}`);
+    gptReconciler.processText(text, 'Answer seriously:')
+        .then(response => {
+            if (response) {
+                voiceManager.enqueueText(response);
+                agentSpeech = response;
             }
-        }
+
+            setStatus('idle');
+            setTimeout(() => {
+                speaking = false;
+                setStatus('listening');
+                startContinuousListening(setStatus, toast);
+            }, listenBufferTime);
+        });
+};
+
+// React component for ChatApp
+export const start = (animationManager, appSettings, containerRef) => {
+    if (!containerRef || !containerRef.current) {
+        console.error('Invalid container reference');
+        return;
     }
-}
+
+    // Initialize modules
+    initializeModules(animationManager, appSettings);
+
+    const ChatApp = () => {
+        const [status, setStatus] = useState('idle');
+        const toast = useToast();
+
+        useEffect(() => {
+            startContinuousListening(setStatus, toast);
+
+            return () => {
+                audioToText.stopRecognition();
+            };
+        }, [setStatus, toast]);
+
+        return <TrafficLightIndicator status={status} />;
+    };
+
+    if (!root) {
+        root = ReactDOMClient.createRoot(containerRef.current);
+    }
+
+    root.render(<ChatApp />);
+};
+
+// Stop function to unmount ChatApp and stop processes
+export const stop = () => {
+    if (audioToText) {
+        audioToText.stopRecognition();
+    }
+    if (voiceManager) {
+        voiceManager.stopSpeech();
+    }
+    if (root) {
+        root.unmount();
+        root = null;
+    }
+};

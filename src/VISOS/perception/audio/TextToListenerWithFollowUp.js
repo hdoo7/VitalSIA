@@ -1,22 +1,30 @@
 import TextToListener from './TextToListener';
 
 export default class TextToListenerWithFollowUp extends TextToListener {
-    constructor(triggerPhrases) {
+    constructor(triggerPhrases, bufferTime = 1000, audioToText) {
         super(triggerPhrases);
         this.awaitingFollowUp = false;
         this.lastDetectedPhrase = null;
+        this.audioToText = audioToText;  // Pass the AudioToText instance
+        this.debounceTimer = null;
+        this.bufferTime = bufferTime;  // Buffer time to debounce follow-up detection
     }
 
-    // Update the class to handle streams of text
+    startListening(onRecognizedCallback) {
+        this.audioToText.startContinuousRecognition(onRecognizedCallback);
+    }
+
+    stopListening() {
+        this.audioToText.stopRecognition();
+    }
+
     listenForStream(text) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             if (this.awaitingFollowUp) {
-                // Handle the follow-up text
                 this.awaitingFollowUp = false;
                 resolve({ phrase: this.lastDetectedPhrase, followUp: text });
                 this.lastDetectedPhrase = null;
             } else {
-                // Detect trigger phrases and listen for follow-up
                 super.listen(text)
                     .then(detectedPhrase => {
                         if (detectedPhrase) {
@@ -26,9 +34,16 @@ export default class TextToListenerWithFollowUp extends TextToListener {
                         } else {
                             resolve(null);
                         }
-                    })
-                    .catch(error => reject(error));
+                    });
             }
         });
+    }
+
+    // Add the resumeListeningAfterResponse method
+    resumeListeningAfterResponse(setStatus, onRecognizedCallback) {
+        setTimeout(() => {
+            setStatus('listening');  // Update the UI to show that it's listening
+            this.startListening(onRecognizedCallback);  // Resume listening
+        }, this.bufferTime);  // Resume listening after the specified buffer time
     }
 }
