@@ -15,13 +15,16 @@ let speaking = false; // Track whether the agent is speaking
 let root = null; // To hold the React DOM root for rendering the chat
 const listenBufferTime = 1000; // Buffer time (in ms) after speaking before resuming listening
 
-// Helper function to initialize modules
 const initializeModules = (animationManager, appSettings) => {
-  const triggerPhrases = appSettings.triggerPhrases;
+  const triggerPhrases = appSettings.triggerPhrases; // Make sure this is a string or array of strings
   const apiKey = appSettings.apiKey;
 
+  if (!Array.isArray(triggerPhrases) && typeof triggerPhrases !== 'string') {
+    throw new Error('triggerPhrases must be a string or array of strings');
+  }
+
   audioToText = new AudioToText('webspeech');
-  textToListenerWithFollowUp = new TextToListenerWithFollowUp(triggerPhrases); // Simplified
+  textToListenerWithFollowUp = new TextToListenerWithFollowUp(triggerPhrases);
   gptReconciler = new TextToGptReconciler(apiKey);
   voiceManager = VoiceManager.getInstance(animationManager);
 };

@@ -71,28 +71,11 @@ const ModulesMenu = ({ animationManager }) => {
         setSelectedModule(null);
     };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
+    const handleSaveConfig = (updatedSettings) => {
         setModuleSettings(prevSettings => ({
             ...prevSettings,
-            [selectedModule.name]: {
-                ...prevSettings[selectedModule.name],
-                [name]: value,
-            },
+            [selectedModule.name]: updatedSettings,
         }));
-    };
-
-    const handleNumberInputChange = (name, value) => {
-        setModuleSettings(prevSettings => ({
-            ...prevSettings,
-            [selectedModule.name]: {
-                ...prevSettings[selectedModule.name],
-                [name]: value,
-            },
-        }));
-    };
-
-    const handleSaveConfig = () => {
         saveSettingsToLocalStorage();
         setIsModalOpen(false);
     };
@@ -156,8 +139,6 @@ const ModulesMenu = ({ animationManager }) => {
                     onSave={handleSaveConfig} // Save on button click
                     module={selectedModule}
                     settings={moduleSettings[selectedModule.name]}
-                    handleInputChange={handleInputChange}
-                    handleNumberInputChange={handleNumberInputChange}
                 />
             )}
         </Box>
