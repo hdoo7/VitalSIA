@@ -1,5 +1,5 @@
-const appsConfig = {
-  apps: [
+const modulesConfig = {
+  modules: [
     {
       name: "Blink",
       description: "This app controls the blinking speed of the avatar.",
@@ -48,4 +48,4 @@ const appsConfig = {
   ],
 };
 
-export default appsConfig;
+export default modulesConfig;

@@ -1,76 +1,92 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
     Box, Button, IconButton, Text, Switch, Tooltip, Flex, Accordion, AccordionItem,
-    AccordionButton, AccordionPanel, AccordionIcon
+    AccordionButton, AccordionPanel, AccordionIcon, Alert, AlertIcon, useToast
 } from '@chakra-ui/react';
 import { InfoIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import appsConfig from '../modules/config';
+import modulesConfig from '../modules/config'; // Ensure this is properly structured
 import ConfigModal from './ConfigModal';
 
 const ModulesMenu = ({ animationManager }) => {
-    const [selectedApp, setSelectedApp] = useState(null);
-    const [appSettings, setAppSettings] = useState({});
+    const [selectedModule, setSelectedModule] = useState(null);
+    const [moduleSettings, setModuleSettings] = useState({});
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [error, setError] = useState(''); // State to handle errors
     const containerRef = useRef(null);
+    const toast = useToast(); // Initialize the toast function
 
     // Load settings from localStorage or use default from config
     useEffect(() => {
-        const initialSettings = {};
-        appsConfig.apps.forEach(app => {
-            const storedSettings = localStorage.getItem(app.name);
-            initialSettings[app.name] = storedSettings ? JSON.parse(storedSettings) : { ...app.settings };
-        });
-        setAppSettings(initialSettings);
+        if (modulesConfig && modulesConfig.modules && Array.isArray(modulesConfig.modules)) {
+            const initialSettings = {};
+            modulesConfig.modules.forEach(module => {
+                const storedSettings = localStorage.getItem(module.name);
+                initialSettings[module.name] = storedSettings ? JSON.parse(storedSettings) : { ...module.settings };
+            });
+            setModuleSettings(initialSettings);
+        } else {
+            setError("Modules configuration is missing or incorrectly formatted.");
+        }
     }, []);
 
     // Save settings to localStorage
     const saveSettingsToLocalStorage = () => {
-        Object.keys(appSettings).forEach(appName => {
-            localStorage.setItem(appName, JSON.stringify(appSettings[appName]));
+        Object.keys(moduleSettings).forEach(moduleName => {
+            localStorage.setItem(moduleName, JSON.stringify(moduleSettings[moduleName]));
         });
     };
 
-    const handleSwitchChange = (app, isChecked) => {
-        import(`../modules/${app.path}`).then(module => {
+    const handleSwitchChange = (module, isChecked) => {
+        import(`../modules/${module.path}`).then(moduleInstance => {
             if (isChecked) {
                 if (!containerRef.current) {
-                    console.error('App container reference is invalid. Unable to start the app.');
+                    console.error('Module container reference is invalid. Unable to start the module.');
+                    setError('Module container reference is invalid. Unable to start the module.');
                     return;
                 }
-                module.start(animationManager, appSettings[app.name], containerRef);
+                setError(''); // Clear any previous error
+                moduleInstance.start(animationManager, moduleSettings[module.name], containerRef, toast);
             } else {
-                module.stop(animationManager);
+                moduleInstance.stop(animationManager);
             }
+        }).catch(err => {
+            console.error(`Failed to load the module: ${module.name}`, err);
+            setError(`Failed to load the module: ${module.name}`);
         });
     };
 
-    const handleConfigClick = (app) => {
-        setSelectedApp(app);
-        setIsModalOpen(true);
+    const handleConfigClick = (module) => {
+        if (moduleSettings[module.name]) {
+            setSelectedModule(module);
+            setIsModalOpen(true);
+        } else {
+            console.error("Settings not found for the selected module.");
+            setError("Settings not found for the selected module.");
+        }
     };
 
     const handleModalClose = () => {
         setIsModalOpen(false);
-        setSelectedApp(null);
+        setSelectedModule(null);
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setAppSettings(prevSettings => ({
+        setModuleSettings(prevSettings => ({
             ...prevSettings,
-            [selectedApp.name]: {
-                ...prevSettings[selectedApp.name],
+            [selectedModule.name]: {
+                ...prevSettings[selectedModule.name],
                 [name]: value,
             },
         }));
     };
 
     const handleNumberInputChange = (name, value) => {
-        setAppSettings(prevSettings => ({
+        setModuleSettings(prevSettings => ({
             ...prevSettings,
-            [selectedApp.name]: {
-                ...prevSettings[selectedApp.name],
+            [selectedModule.name]: {
+                ...prevSettings[selectedModule.name],
                 [name]: value,
             },
         }));
@@ -96,35 +112,50 @@ const ModulesMenu = ({ animationManager }) => {
                     size="sm"
                 />
             </Flex>
+
+            {/* Display error message */}
+            {error && (
+                <Alert status="error" mb={4}>
+                    <AlertIcon />
+                    {error}
+                </Alert>
+            )}
+
             {isMenuOpen && (
                 <Accordion allowMultiple>
-                    {appsConfig.apps.map((app, index) => (
-                        <AccordionItem key={index}>
-                            <AccordionButton>
-                                <Box flex="1" textAlign="left">{app.name}</Box>
-                                <AccordionIcon />
-                            </AccordionButton>
-                            <AccordionPanel pb={4}>
-                                <Flex align="center" justify="space-between" mb={2}>
-                                    <Tooltip label={app.description} placement="top">
-                                        <InfoIcon />
-                                    </Tooltip>
-                                    <Switch onChange={(e) => handleSwitchChange(app, e.target.checked)} />
-                                    <Button size="sm" onClick={() => handleConfigClick(app)}>Config</Button>
-                                </Flex>
-                            </AccordionPanel>
-                        </AccordionItem>
-                    ))}
+                    {modulesConfig.modules && modulesConfig.modules.length > 0 ? (
+                        modulesConfig.modules.map((module, index) => (
+                            <AccordionItem key={index}>
+                                <AccordionButton>
+                                    <Box flex="1" textAlign="left">{module.name}</Box>
+                                    <AccordionIcon />
+                                </AccordionButton>
+                                <AccordionPanel pb={4}>
+                                    <Flex align="center" justify="space-between" mb={2}>
+                                        <Tooltip label={module.description} placement="top">
+                                            <InfoIcon />
+                                        </Tooltip>
+                                        <Switch onChange={(e) => handleSwitchChange(module, e.target.checked)} />
+                                        <Button size="sm" onClick={() => handleConfigClick(module)}>Config</Button>
+                                    </Flex>
+                                </AccordionPanel>
+                            </AccordionItem>
+                        ))
+                    ) : (
+                        <Text>No modules available.</Text>
+                    )}
                 </Accordion>
             )}
-            <Box ref={containerRef} id="app-container" /> {/* Container for the apps */}
-            {selectedApp && (
+
+            <Box ref={containerRef} id="module-container" /> {/* Container for the modules */}
+            
+            {selectedModule && (
                 <ConfigModal
                     isOpen={isModalOpen}
                     onClose={handleModalClose}
                     onSave={handleSaveConfig} // Save on button click
-                    app={selectedApp}
-                    settings={appSettings[selectedApp.name]}
+                    module={selectedModule}
+                    settings={moduleSettings[selectedModule.name]}
                     handleInputChange={handleInputChange}
                     handleNumberInputChange={handleNumberInputChange}
                 />

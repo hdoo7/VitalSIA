@@ -1,57 +1,50 @@
-// ConfigModal.jsx (or where the modal config is being handled)
-import { useState, useEffect } from 'react';
-import { Button, Input, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, ModalFooter } from '@chakra-ui/react';
+import React from 'react';
+import {
+    Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter,
+    ModalBody, ModalCloseButton, Button, FormControl, FormLabel, Input
+} from '@chakra-ui/react';
 
-const ConfigModal = ({ isOpen, onClose, app, settings, handleInputChange }) => {
-    const [localSettings, setLocalSettings] = useState(settings);
-
-    useEffect(() => {
-        setLocalSettings(settings);
-    }, [settings]);
-
-    const handleSave = () => {
-        Object.keys(localSettings).forEach(key => {
-            handleInputChange({ target: { name: key, value: localSettings[key] } });
-        });
-        onClose();
-    };
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setLocalSettings(prevSettings => ({
-            ...prevSettings,
-            [name]: value,
-        }));
-    };
-
+const ConfigModal = ({
+    isOpen,
+    onClose,
+    onSave,
+    module,
+    settings,
+    handleInputChange,
+    handleNumberInputChange
+}) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose}>
             <ModalOverlay />
             <ModalContent>
-                <ModalHeader>Configure {app.name}</ModalHeader>
+                <ModalHeader>{module.name} Module Configuration</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    <Input
-                        name="apiKey"
-                        placeholder="API Key"
-                        value={localSettings.apiKey || ''}
-                        onChange={handleChange}
-                        mb={3}
-                    />
-                    <Input
-                        name="triggerPhrases"
-                        placeholder="Trigger Phrases"
-                        value={localSettings.triggerPhrases || ''}
-                        onChange={handleChange}
-                    />
+                    {Object.keys(settings).map((key) => (
+                        <FormControl key={key} mb={4}>
+                            <FormLabel>{key}</FormLabel>
+                            {typeof settings[key] === 'number' ? (
+                                <Input
+                                    type="number"
+                                    value={settings[key]}
+                                    onChange={(e) => handleNumberInputChange(key, parseFloat(e.target.value))}
+                                />
+                            ) : (
+                                <Input
+                                    type="text"
+                                    value={settings[key]}
+                                    name={key}
+                                    onChange={handleInputChange}
+                                />
+                            )}
+                        </FormControl>
+                    ))}
                 </ModalBody>
                 <ModalFooter>
-                    <Button colorScheme="blue" onClick={handleSave}>
+                    <Button colorScheme="blue" mr={3} onClick={onSave}>
                         Save
                     </Button>
-                    <Button variant="ghost" ml={3} onClick={onClose}>
-                        Cancel
-                    </Button>
+                    <Button variant="ghost" onClick={onClose}>Cancel</Button>
                 </ModalFooter>
             </ModalContent>
         </Modal>
