@@ -1,2 +1,0 @@
-"use strict";(self.webpackChunkEVA_libre=self.webpackChunkEVA_libre||[]).push([[490],{81490:(e,r,n)=>{n.r(r),n.d(r,{start:()=>l,stop:()=>c});var t=n(84391),o=(n(65043),n(72204)),a=n(70579);let s=null;const l=(e,r,n)=>{n&&n.current?(s||(s=t.createRoot(n.current)),s.render((0,a.jsx)(o.A,{animationManager:e,settings:r}))):console.error("Container reference not provided or invalid. Unable to start FaceDetectionApp.")},c=()=>{s&&(s.unmount(),s=null)}}}]);
-//# sourceMappingURL=490.3c44c495.chunk.js.map
