@@ -1,28 +1,34 @@
-// TextToListenerWithFollowUp.js
 import TextToListener from './TextToListener';
 
 export default class TextToListenerWithFollowUp extends TextToListener {
-  constructor(phrases) {
-    super(phrases); // Use the parent class constructor
-    this.awaitingFollowUp = false;
-  }
-
-  listenForFollowUp(text) {
-    return new Promise((resolve, reject) => {
-      if (this.awaitingFollowUp) {
+    constructor(triggerPhrases) {
+        super(triggerPhrases);
         this.awaitingFollowUp = false;
-        resolve({ phrase: this.lastDetectedPhrase, followUp: text });
-        this.lastDetectedPhrase = null; // Clear the last detected phrase
-      } else {
-        super.listen(text).then(detectedPhrase => {
-          if (detectedPhrase) {
-            this.awaitingFollowUp = true;
-            resolve({ phrase: detectedPhrase, followUp: null });
-          } else {
-            resolve(null); // No trigger detected
-          }
-        }).catch(error => reject(error));
-      }
-    });
-  }
+        this.lastDetectedPhrase = null;
+    }
+
+    // Update the class to handle streams of text
+    listenForStream(text) {
+        return new Promise((resolve, reject) => {
+            if (this.awaitingFollowUp) {
+                // Handle the follow-up text
+                this.awaitingFollowUp = false;
+                resolve({ phrase: this.lastDetectedPhrase, followUp: text });
+                this.lastDetectedPhrase = null;
+            } else {
+                // Detect trigger phrases and listen for follow-up
+                super.listen(text)
+                    .then(detectedPhrase => {
+                        if (detectedPhrase) {
+                            this.awaitingFollowUp = true;
+                            this.lastDetectedPhrase = detectedPhrase;
+                            resolve({ phrase: detectedPhrase, followUp: null });
+                        } else {
+                            resolve(null);
+                        }
+                    })
+                    .catch(error => reject(error));
+            }
+        });
+    }
 }

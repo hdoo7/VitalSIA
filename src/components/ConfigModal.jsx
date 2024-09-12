@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
     Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton,
-    Button, Input, FormControl, FormLabel, NumberInput, NumberInputField, Switch, Select, Slider,
-    SliderTrack, SliderFilledTrack, SliderThumb, Tooltip
+    Button, Input, FormControl, FormLabel, NumberInput, NumberInputField, Textarea, Switch, Select
 } from '@chakra-ui/react';
 
-const voices = ['Voice1', 'Voice2', 'Voice3', 'Voice4', 'Tessa']; // List of predefined voices
-
-const ConfigModal = ({ isOpen, onClose, onSave, module, settings, handleInputChange}) => {
+const ConfigModal = ({ isOpen, onClose, onSave, module, settings, handleInputChange, handleNumberInputChange }) => {
     const [localSettings, setLocalSettings] = useState({});
 
+    // Load the settings when the modal opens
     useEffect(() => {
         if (settings) {
             setLocalSettings(settings);
@@ -18,11 +16,12 @@ const ConfigModal = ({ isOpen, onClose, onSave, module, settings, handleInputCha
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+        const parsedValue = tryParseValue(value);
         setLocalSettings(prev => ({
             ...prev,
-            [name]: value,
+            [name]: parsedValue,
         }));
-        handleInputChange(e);
+        handleInputChange(e);  // Update the parent's state
     };
 
     const handleBooleanChange = (key, checked) => {
@@ -32,19 +31,67 @@ const ConfigModal = ({ isOpen, onClose, onSave, module, settings, handleInputCha
         }));
     };
 
-    const handleNumberInputChange = (name, value) => {
+    const handleArrayChange = (e, key) => {
+        const options = Array.from(e.target.selectedOptions, option => option.value); // Extract selected options
         setLocalSettings(prev => ({
             ...prev,
-            [name]: value,
+            [key]: options, // Update the selected voices
         }));
     };
 
-    const handleArrayChange = (e, key) => {
-        const options = Array.from(e.target.selectedOptions, option => option.value);
-        setLocalSettings(prev => ({
-            ...prev,
-            [key]: options,
-        }));
+    // Helper function to parse JSON or return the value directly for inputs
+    const tryParseValue = (value) => {
+        try {
+            return JSON.parse(value); // Try to parse if it's an object
+        } catch (e) {
+            return value; // Otherwise, return it as a string
+        }
+    };
+
+    const renderInputField = (key, field) => {
+        switch (field.type) {
+            case 'number':
+                return (
+                    <NumberInput
+                        value={localSettings[key]}
+                        min={field.min}
+                        max={field.max}
+                        onChange={(val) => handleNumberInputChange(key, parseFloat(val))}
+                    >
+                        <NumberInputField name={key} />
+                    </NumberInput>
+                );
+            case 'boolean':
+                return (
+                    <Switch
+                        isChecked={localSettings[key]}
+                        onChange={(e) => handleBooleanChange(key, e.target.checked)}
+                    />
+                );
+            case 'array':
+                return (
+                    <Select
+                        multiple
+                        placeholder="Select Voices"
+                        value={localSettings[key] || []}
+                        onChange={(e) => handleArrayChange(e, key)} // Handle multi-select changes
+                    >
+                        {field.options.map((option, idx) => (
+                            <option key={idx} value={option}>
+                                {option}
+                            </option>
+                        ))}
+                    </Select>
+                );
+            default:
+                return (
+                    <Input
+                        name={key}
+                        value={localSettings[key]}
+                        onChange={handleChange}
+                    />
+                );
+        }
     };
 
     return (
@@ -54,74 +101,14 @@ const ConfigModal = ({ isOpen, onClose, onSave, module, settings, handleInputCha
                 <ModalHeader>Configure {module.name}</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                    {localSettings && Object.keys(localSettings).map((key) => {
-                        const setting = localSettings[key];
-                        
-                        // If the setting object has a "type" field
-                        switch (setting.type) {
-                            case 'boolean':
-                                return (
-                                    <FormControl key={key} mb={4}>
-                                        <FormLabel>{setting.name}</FormLabel>
-                                        <Switch
-                                            isChecked={setting.default}
-                                            onChange={(e) => handleBooleanChange(key, e.target.checked)}
-                                        />
-                                    </FormControl>
-                                );
-                            case 'number':
-                                return (
-                                    <FormControl key={key} mb={4}>
-                                        <FormLabel>{setting.name}</FormLabel>
-                                        <Slider
-                                            aria-label={setting.name}
-                                            value={setting.default}
-                                            min={setting.min}
-                                            max={setting.max}
-                                            step={100}
-                                            onChange={(val) => handleNumberInputChange(key, val)}
-                                        >
-                                            <SliderTrack>
-                                                <SliderFilledTrack />
-                                            </SliderTrack>
-                                            <Tooltip label={setting.default}>
-                                                <SliderThumb />
-                                            </Tooltip>
-                                        </Slider>
-                                    </FormControl>
-                                );
-                            case 'text':
-                                return (
-                                    <FormControl key={key} mb={4}>
-                                        <FormLabel>{setting.name}</FormLabel>
-                                        <Input
-                                            name={key}
-                                            value={setting.default}
-                                            onChange={handleChange}
-                                        />
-                                    </FormControl>
-                                );
-                            case 'voice':
-                                return (
-                                    <FormControl key={key} mb={4}>
-                                        <FormLabel>Select Voice</FormLabel>
-                                        <Select
-                                            multiple
-                                            placeholder="Select Voices"
-                                            value={setting.default}
-                                            onChange={(e) => handleArrayChange(e, key)}
-                                        >
-                                            {voices.map((voice, idx) => (
-                                                <option key={idx} value={voice}>
-                                                    {voice}
-                                                </option>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                );
-                            default:
-                                return null;
-                        }
+                    {module.settings && Object.keys(module.settings).map((key) => {
+                        const field = module.settings[key]; // Get the field config
+                        return (
+                            <FormControl key={key} mb={4}>
+                                <FormLabel>{field.description || key}</FormLabel>
+                                {renderInputField(key, field)}
+                            </FormControl>
+                        );
                     })}
                 </ModalBody>
                 <ModalFooter>

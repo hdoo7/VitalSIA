@@ -4,7 +4,7 @@ import {
     AccordionButton, AccordionPanel, AccordionIcon, Alert, AlertIcon, useToast
 } from '@chakra-ui/react';
 import { InfoIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
-import modulesConfig from '../modules/config'; // Ensure this is properly structured
+import modulesConfig from '../modules/config'; // Correct reference to modules
 import ConfigModal from './ConfigModal';
 
 const ModulesMenu = ({ animationManager }) => {
@@ -18,16 +18,12 @@ const ModulesMenu = ({ animationManager }) => {
 
     // Load settings from localStorage or use default from config
     useEffect(() => {
-        if (modulesConfig && modulesConfig.modules && Array.isArray(modulesConfig.modules)) {
-            const initialSettings = {};
-            modulesConfig.modules.forEach(module => {
-                const storedSettings = localStorage.getItem(module.name);
-                initialSettings[module.name] = storedSettings ? JSON.parse(storedSettings) : { ...module.settings };
-            });
-            setModuleSettings(initialSettings);
-        } else {
-            setError("Modules configuration is missing or incorrectly formatted.");
-        }
+        const initialSettings = {};
+        modulesConfig.modules.forEach(module => {
+            const storedSettings = localStorage.getItem(module.name);
+            initialSettings[module.name] = storedSettings ? JSON.parse(storedSettings) : { ...module.settings };
+        });
+        setModuleSettings(initialSettings);
     }, []);
 
     // Save settings to localStorage
@@ -46,6 +42,8 @@ const ModulesMenu = ({ animationManager }) => {
                     return;
                 }
                 setError(''); // Clear any previous error
+
+                // Start the module and pass the toast function as a prop
                 moduleInstance.start(animationManager, moduleSettings[module.name], containerRef, toast);
             } else {
                 moduleInstance.stop(animationManager);
@@ -71,11 +69,28 @@ const ModulesMenu = ({ animationManager }) => {
         setSelectedModule(null);
     };
 
-    const handleSaveConfig = (updatedSettings) => {
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
         setModuleSettings(prevSettings => ({
             ...prevSettings,
-            [selectedModule.name]: updatedSettings,
+            [selectedModule.name]: {
+                ...prevSettings[selectedModule.name],
+                [name]: value,
+            },
         }));
+    };
+
+    const handleNumberInputChange = (name, value) => {
+        setModuleSettings(prevSettings => ({
+            ...prevSettings,
+            [selectedModule.name]: {
+                ...prevSettings[selectedModule.name],
+                [name]: value,
+            },
+        }));
+    };
+
+    const handleSaveConfig = () => {
         saveSettingsToLocalStorage();
         setIsModalOpen(false);
     };
@@ -106,27 +121,23 @@ const ModulesMenu = ({ animationManager }) => {
 
             {isMenuOpen && (
                 <Accordion allowMultiple>
-                    {modulesConfig.modules && modulesConfig.modules.length > 0 ? (
-                        modulesConfig.modules.map((module, index) => (
-                            <AccordionItem key={index}>
-                                <AccordionButton>
-                                    <Box flex="1" textAlign="left">{module.name}</Box>
-                                    <AccordionIcon />
-                                </AccordionButton>
-                                <AccordionPanel pb={4}>
-                                    <Flex align="center" justify="space-between" mb={2}>
-                                        <Tooltip label={module.description} placement="top">
-                                            <InfoIcon />
-                                        </Tooltip>
-                                        <Switch onChange={(e) => handleSwitchChange(module, e.target.checked)} />
-                                        <Button size="sm" onClick={() => handleConfigClick(module)}>Config</Button>
-                                    </Flex>
-                                </AccordionPanel>
-                            </AccordionItem>
-                        ))
-                    ) : (
-                        <Text>No modules available.</Text>
-                    )}
+                    {modulesConfig.modules.map((module, index) => (
+                        <AccordionItem key={index}>
+                            <AccordionButton>
+                                <Box flex="1" textAlign="left">{module.name}</Box>
+                                <AccordionIcon />
+                            </AccordionButton>
+                            <AccordionPanel pb={4}>
+                                <Flex align="center" justify="space-between" mb={2}>
+                                    <Tooltip label={module.description} placement="top">
+                                        <InfoIcon />
+                                    </Tooltip>
+                                    <Switch onChange={(e) => handleSwitchChange(module, e.target.checked)} />
+                                    <Button size="sm" onClick={() => handleConfigClick(module)}>Config</Button>
+                                </Flex>
+                            </AccordionPanel>
+                        </AccordionItem>
+                    ))}
                 </Accordion>
             )}
 
@@ -139,6 +150,8 @@ const ModulesMenu = ({ animationManager }) => {
                     onSave={handleSaveConfig} // Save on button click
                     module={selectedModule}
                     settings={moduleSettings[selectedModule.name]}
+                    handleInputChange={handleInputChange}
+                    handleNumberInputChange={handleNumberInputChange}
                 />
             )}
         </Box>
