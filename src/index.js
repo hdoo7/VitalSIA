@@ -1,6 +1,5 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import AppSurvey from './components/AppSurvey';
 import App from './components/App';
 import { ChakraProvider } from '@chakra-ui/react';
 import './unity/unitySettings';

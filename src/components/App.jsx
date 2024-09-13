@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Loader from './Loader';
 import SliderDrawer from './SliderDrawer';
 import { useUnityState } from '../unityMiddleware';
-import AnimationManager from '../VISOS/effectors/visualizers/AnimationManager';
-import { loopRandomBlink, smile } from '../VISOS/effectors/visualizers/facialExpressions';
+import AnimationManager from '../VISOS/action/visualizers/AnimationManager';
+import { loopRandomBlink, smile } from '../VISOS/action/visualizers/facialExpressions';
 // import faceMaker from '../faceMaker';
 import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
 import { useToast, Box, Button, Textarea } from '@chakra-ui/react';
 import GameText from './GameText';
-import AppsMenu from './AppsMenu';
+import ModulesMenu from './ModulesMenu';
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
@@ -52,7 +52,7 @@ function App() {
                         drawerControls={drawerControls}
                         setDrawerControls={setDrawerControls}
                     />
-                    <AppsMenu animationManager={animationManager} />
+                    <ModulesMenu animationManager={animationManager} />
 
                     {isRequestLoading && (<GameText />)}
                     
