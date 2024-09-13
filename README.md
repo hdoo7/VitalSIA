@@ -185,4 +185,3 @@ speechManager.speak("Hello, this is a test using MS TTS.");
 
 For detailed documentation on additional components and usage, refer to the respective component documentation.
 
-© 2024 Christine Lisetti, Visage Labs. All rights reserved.
