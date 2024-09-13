@@ -1,5 +1,6 @@
 
-# EVA-libre
+# eEVA Workbench.
+eEVA Workbench is based off of the orignal eEVA software develoved by Dr. Christine Lisetti, at The Knight Foundation School of Computing and information Scienes, and was engineered and archected by Jonathan Sutton Fields while volunteering at Visage Labs. All code, assets and other materials, are subject to the End User License Agreement (EULA).
 
 ## Table of Contents
 1. [Installation](#installation)
@@ -183,3 +184,5 @@ speechManager.speak("Hello, this is a test using MS TTS.");
 ```
 
 For detailed documentation on additional components and usage, refer to the respective component documentation.
+
+© 2024 Christine Lisetti, Visage Labs. All rights reserved.

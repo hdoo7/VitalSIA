@@ -18,6 +18,25 @@ let root = null;
 const listenBufferTime = 2000; // Buffer time to resume listening after speaking
 const maxUtteranceLength = 120; // Max characters per utterance
 
+// Function to set the voice to a specific voice and ensure it's available
+const setVoice = (voiceName) => {
+    return new Promise((resolve) => {
+        console.log(`Attempting to set the voice to ${voiceName}...`);
+        const checkVoices = () => {
+            const selectedVoice = voiceManager.getVoices().find(voice => voice.name.includes(voiceName));
+            if (selectedVoice) {
+                voiceManager.setVoice(selectedVoice.name);
+                console.log(`Voice set: ${selectedVoice.name}`);
+                resolve();
+            } else {
+                console.log(`${voiceName} voice not found, retrying...`);
+                setTimeout(checkVoices, 500);  // Retry until the voice is available
+            }
+        };
+        checkVoices();
+    });
+};
+
 // Initialize necessary modules
 const initializeModules = (animationManager, appSettings) => {
     const triggerPhrases = appSettings.triggerPhrases || [];
@@ -28,14 +47,8 @@ const initializeModules = (animationManager, appSettings) => {
     gptReconciler = new TextToGptReconciler(apiKey);
     voiceManager = VoiceManager.getInstance(animationManager);
 
-    // Ensure the voice is set correctly (e.g., Tessa)
-    const tessaVoice = voiceManager.getVoices().find(voice => voice.name.includes('Tessa'));
-    if (tessaVoice) {
-        voiceManager.setVoice(tessaVoice.name);
-        console.log('Voice set to Tessa.');
-    } else {
-        console.warn('Tessa voice not found, using default.');
-    }
+    // Set the voice to "Samantha" (or whatever voice is preferred)
+    return setVoice('Samantha');
 };
 
 // Ensure the agent does not respond to its own speech
@@ -95,6 +108,7 @@ const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
 
     textToListenerWithFollowUp.stopListening();
 
+    // Use the currently selected voice from the VoiceManager
     voiceManager.enqueueText(agentSpeech);
     setStatus('talking');
 
@@ -110,6 +124,7 @@ const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
             if (response) {
                 const utterances = breakResponseIntoChunks(response);
                 utterances.forEach(utterance => {
+                    // Use the currently selected voice for each utterance
                     voiceManager.enqueueText(utterance);
                 });
                 agentSpeech = response;
@@ -139,6 +154,7 @@ const handleFollowUp = (followUpText, setStatus, toast) => {
             if (response) {
                 const utterances = breakResponseIntoChunks(response);
                 utterances.forEach(utterance => {
+                    // Use the currently selected voice for each utterance
                     voiceManager.enqueueText(utterance);
                 });
                 agentSpeech = response;
@@ -165,28 +181,29 @@ export const start = (animationManager, appSettings, containerRef) => {
         return;
     }
 
-    initializeModules(animationManager, appSettings);
+    initializeModules(animationManager, appSettings)
+        .then(() => {
+            const ChatApp = () => {
+                const [status, setStatus] = useState('idle');
+                const toast = useToast();
 
-    const ChatApp = () => {
-        const [status, setStatus] = useState('idle');
-        const toast = useToast();
+                useEffect(() => {
+                    textToListenerWithFollowUp.startListening((text) => handleTranscribedText(text, setStatus, toast));
 
-        useEffect(() => {
-            textToListenerWithFollowUp.startListening((text) => handleTranscribedText(text, setStatus, toast));
+                    return () => {
+                        audioToText.stopRecognition();
+                    };
+                }, [setStatus, toast]);
 
-            return () => {
-                audioToText.stopRecognition();
+                return <TrafficLightIndicator status={status} />;
             };
-        }, [setStatus, toast]);
 
-        return <TrafficLightIndicator status={status} />;
-    };
+            if (!root) {
+                root = ReactDOMClient.createRoot(containerRef.current);
+            }
 
-    if (!root) {
-        root = ReactDOMClient.createRoot(containerRef.current);
-    }
-
-    root.render(<ChatApp />);
+            root.render(<ChatApp />);
+        });
 };
 
 // Stop the chat app

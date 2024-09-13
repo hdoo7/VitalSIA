@@ -1,7 +1,7 @@
 import ReactDOMClient from 'react-dom/client';
 import React, { useEffect } from 'react';
-import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
 import AudioToText from './../VISOS/perception/audio/AudioToText';
+import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
 
 let voiceManager = null;
 let audioToText = null;

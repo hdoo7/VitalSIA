@@ -12,11 +12,11 @@ export default class VoiceManager {
         this.isSpeaking = false;
         this.pitchEnhance = pitchEnhance;
         this.synth = window.speechSynthesis;
-        this.voice = null;
+        this.voice = null; // Currently selected voice
         this.phonemeExtractor = new PhonemeExtractor();
         this.visemeMapper = new VisemeMapper();
         this.pitchAnalyzer = new PitchAnalyzer();
-        this.initVoices();
+        this.voicesLoadedPromise = this.initVoices(); // Store the voices loading promise
     }
 
     static getInstance(animationManager, pitchEnhance = false) {
@@ -27,19 +27,34 @@ export default class VoiceManager {
     }
 
     initVoices() {
-        this.synth.onvoiceschanged = () => {
-            const voices = this.getVoices();
-            if (!this.voice) {
-                this.voice = voices.find(voice => voice.name === 'Google US English' || voice.name === 'en-US') || voices[0];
-            }
-            if (typeof this.onVoicesChanged === 'function') {
-                this.onVoicesChanged(voices);
-            }
-        };
+        return new Promise((resolve) => {
+            this.synth.onvoiceschanged = () => {
+                const voices = this.getVoices();
+                if (!this.voice) {
+                    this.voice = voices.find(voice => voice.name === 'Google US English' || voice.name === 'en-US') || voices[0];
+                }
+                resolve(voices);
+            };
+        });
     }
 
     getVoices() {
         return this.synth.getVoices();
+    }
+
+    findAndSetVoice(voiceName) {
+        return new Promise((resolve, reject) => {
+            const voices = this.getVoices();
+            const foundVoice = voices.find(v => v.name.includes(voiceName));
+            if (foundVoice) {
+                this.setVoice(foundVoice.name);
+                console.log(`Voice set to: ${foundVoice.name}`);
+                resolve(); // Resolve once the voice is set
+            } else {
+                console.warn(`Voice "${voiceName}" not found.`);
+                reject(`Voice "${voiceName}" not found.`);
+            }
+        });
     }
 
     setVoice(voiceName) {
@@ -47,6 +62,10 @@ export default class VoiceManager {
         if (voice) {
             this.voice = voice;
         }
+    }
+
+    getSelectedVoice() {
+        return this.voice;
     }
 
     setPitchEnhance(pitchEnhance) {
@@ -85,7 +104,7 @@ export default class VoiceManager {
             utterThis.onerror = (e) => {
                 console.error("Error during speech synthesis:", e);
                 this.animationManager.setVisemeToNeutral();
-                resolve(); // Resolve to continue processing the queue
+                resolve();
             };
 
             if (this.voice && this.voice.name.includes('Google')) {

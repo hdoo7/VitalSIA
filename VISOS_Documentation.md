@@ -1,187 +1,234 @@
 
 # VISOS Documentation
 
+This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions like virtual agents or conversational AI systems.
+
+VISOS is based off of the orignal eEVA's "mainframe" archecture, developed by Dr. Ubbo Visser of Universtity of Miami's RoboCanes Robotics lab, in collaboration with VIsage Laboratory. All code and Archecture courtesy of Jonathan Sutton Fields while voluntering at Visage Labs.
+---
+
 ## Table of Contents
-1. [Introduction to VISOS](#introduction-to-visos)
-2. [Perception-Action-Cognition Pattern](#perception-action-cognition-pattern)
-3. [Reactive Programming and Stream Processing](#reactive-programming-and-stream-processing)
-4. [VISOS Core Classes](#visos-core-classes)
-   - [VoiceManager](#voicemanager)
-   - [AudioToText](#audiototext)
-   - [PhonemeExtractor](#phonemeextractor)
-   - [VisemeMapper](#visememapper)
-5. [Basic Examples](#basic-examples)
-   - [Speech Synthesis with VoiceManager](#speech-synthesis-with-voicemanager)
-   - [Listening and Speech Recognition with AudioToText](#listening-and-speech-recognition-with-audiototext)
-6. [Advanced Examples](#advanced-examples)
-   - [Switching Between Multiple Voices](#switching-between-multiple-voices)
-   - [Handling Viseme Animations](#handling-viseme-animations)
-   - [Continuous Listening and Immediate Feedback](#continuous-listening-and-immediate-feedback)
-7. [TextToListener and TextToListenerWithFollowUp](#texttolistener-and-texttolistenerwithfollowup)
-8. [Related VISOS Classes](#related-visos-classes)
+- [Introduction](#introduction)
+- [Perception](#perception)
+  - [AudioToText](#audiototext)
+  - [ContinuousTextListener](#continuoustextlistener)
+  - [TextToListener](#texttolistener)
+  - [TextToListenerWithFollowUp](#texttolistenerwithfollowup)
+  - [WebcamManager](#webcammanager)
+  - [SmileControl](#smilecontrol)
+- [Cognition](#cognition)
+  - [TextToGptReconciler](#texttogptreconciler)
+- [Action](#action)
+  - [VoiceManager](#voicemanager)
+  - [SpeechManager](#speechmanager)
+  - [AnimationManager](#animationmanager)
+  - [EffectorManager](#effectormanager)
+  - [Facial Expressions and Visualizers](#facial-expressions-and-visualizers)
 
 ---
 
-## Introduction to VISOS
+## Introduction
 
-The **VISOS** framework provides a structure for building interactive voice, speech recognition, and animation-based applications. It is designed to support dynamic interaction between a user and an application, allowing for speech synthesis, speech recognition, and synchronized animation (such as lip-sync) based on the speech input or output.
+The **VISOS** framework is built around the **Perception-Action-Cognition** pattern, enabling responsive systems to capture input, process it intelligently, and respond appropriately. VISOS is designed for applications that involve continuous conversation, such as virtual agents, speech synthesis, and animation-based systems.
 
-The core components of VISOS revolve around handling the flow of information through perception, action, and cognition, enabling systems that are highly reactive and capable of stream-based processing.
-
----
-
-## Perception-Action-Cognition Pattern
-
-At the heart of VISOS is the **Perception-Action-Cognition (PAC)** pattern, which mirrors the way humans perceive stimuli, take action, and think about decisions. This pattern is used throughout VISOS to enable responsive, real-time interaction in applications.
-
-- **Perception**: Collects and processes sensory input (e.g., speech recognition via **`AudioToText`**).
-- **Action**: Executes behaviors based on the input (e.g., speech output via **`VoiceManager`** or animation actions).
-- **Cognition**: Handles the decision-making or processing logic (e.g., determining the next response or adjusting speech timing).
-
-In VISOS, these three components interact continuously to form a loop of perception, action, and cognition. For example, an application can perceive the user’s speech, decide the appropriate response (cognition), and then use speech synthesis to provide a vocal response (action).
+This documentation details both the classes and ES6 modules that make up VISOS and provides examples of their usage.
 
 ---
 
-## Reactive Programming and Stream Processing
+## Perception
 
-VISOS adopts **reactive programming** principles, where applications react to changes in streams of data (such as user input or speech). This means that instead of traditional request-response patterns, VISOS components continuously process and respond to incoming streams of data, enabling a fluid and real-time interaction model.
+### **AudioToText**
 
-In VISOS:
-- **Streams** represent continuous flows of data (e.g., voice input or speech synthesis).
-- **Events** trigger reactions (e.g., receiving text from the **`AudioToText`** stream and reacting by generating speech).
-- **Reactive Handlers** are used to process incoming streams and trigger specific actions.
+This class handles continuous speech recognition using the **Web Speech API**.
 
-**Example:**
-In the case of the **`FrenchVocabularyQuiz`** module, once a question is spoken, the system immediately starts listening for a user response (perception), processes the response (cognition), and gives feedback through speech synthesis (action). The entire flow is stream-based and event-driven.
+#### **Properties**:
+- `recognition`: The `webkitSpeechRecognition` instance that manages the recognition process.
+- `isListening`: Boolean indicating whether recognition is currently active.
 
----
+#### **Methods**:
+- **`initializeRecognizer()`**
+  - Initializes the Web Speech API.
+  - Example:
+    ```javascript
+    const audioToText = new AudioToText();
+    audioToText.initializeRecognizer();
+    ```
 
-## VISOS Core Classes
+- **`startContinuousRecognition(onRecognizedCallback)`**
+  - Starts continuous recognition and calls the provided callback with the recognized text.
+  - Example:
+    ```javascript
+    audioToText.startContinuousRecognition((recognizedText) => {
+        console.log("Recognized:", recognizedText);
+    });
+    ```
 
-### VoiceManager
-
-The **`VoiceManager`** class manages the voice synthesis and handles text-to-speech (TTS). It can control different voices, manage speech queues, and integrate with animations like viseme synchronization for lip-syncing.
-
-#### Methods:
-
-1. **`getInstance(animationManager, pitchEnhance = false)`**
-   - Returns the singleton instance of `VoiceManager`.
-   - **Example Usage:**
-   ```javascript
-   const voiceManager = VoiceManager.getInstance(animationManager);
-   ```
-
-2. **`setVoice(voiceName)`**
-   - Sets the active voice used by the speech synthesis engine.
-   - **Example Usage:**
-   ```javascript
-   voiceManager.setVoice('Google français');
-   ```
-
-3. **`enqueueText(text)`**
-   - Adds text to the queue to be spoken sequentially.
-   - **Example Usage:**
-   ```javascript
-   voiceManager.enqueueText('Bonjour, comment allez-vous ?');
-   ```
-
-4. **`synthesizeSpeech(text)`**
-   - Synthesizes and speaks the provided text, returning a promise that resolves when the speech is completed.
-   - **Example Usage:**
-   ```javascript
-   voiceManager.synthesizeSpeech('Merci beaucoup!').then(() => {
-       console.log('Speech complete!');
-   });
-   ```
-
-5. **`stopSpeech()`**
-   - Stops all ongoing speech and clears the speech queue.
+- **`stopRecognition()`**
+  - Stops the recognition process.
+  - Example:
+    ```javascript
+    audioToText.stopRecognition();
+    ```
 
 ---
 
-### AudioToText
+### **ContinuousTextListener**
 
-The **`AudioToText`** class handles speech recognition. It continuously listens for spoken input and converts it into transcribed text. It is used primarily in scenarios where the application needs to understand and process spoken words from a user.
+Handles continuous listening for trigger phrases and integrates with **AudioToText** for transcription.
 
-#### Methods:
+#### **Properties**:
+- `audioToText`: Instance of `AudioToText`.
+- `bufferTime`: Time delay before resuming listening after speaking.
 
-1. **`startContinuousRecognition(callback)`**
-   - Starts continuously listening for speech input and invokes the provided callback with the transcribed text.
-   - **Example Usage:**
-   ```javascript
-   audioToText.startContinuousRecognition((transcribedText) => {
-       console.log('User said:', transcribedText);
-   });
-   ```
+#### **Methods**:
+- **`startContinuousListening(setStatus, toast)`**
+  - Starts listening for text and processes it in a loop.
+  - Example:
+    ```javascript
+    continuousTextListener.startContinuousListening(setStatus, toast);
+    ```
 
-2. **`stopRecognition()`**
-   - Stops the ongoing speech recognition process.
-   - **Example Usage:**
-   ```javascript
-   audioToText.stopRecognition();
-   ```
-
----
-
-### TextToListener and TextToListenerWithFollowUp
-
-#### TextToListener
-
-The **`TextToListener`** class listens for specific key phrases in a stream of text. It processes the input, checks if any of the predefined phrases are detected, and triggers appropriate actions when a match is found.
-
-#### Methods:
-
-1. **`detectKeyPhrase(text)`**
-   - **Example Usage:**
-   ```javascript
-   const listener = new TextToListener(['hello', 'start']);
-   const detectedPhrase = listener.detectKeyPhrase('hello there!');
-   ```
-
-2. **`listenForStream(text)`**
-   - Processes a stream of text input and returns a promise that resolves with the detected phrase.
-   - **Example Usage:**
-   ```javascript
-   listener.listenForStream('hello there!').then((phrase) => {
-       console.log(`Trigger detected: ${phrase}`);
-   });
-   ```
+- **`handleTriggerPhrase(text, setStatus, toast)`**
+  - Handles trigger phrases by checking for specific phrases and generating responses.
+  - Example:
+    ```javascript
+    handleTriggerPhrase('Hey Amy', setStatus, toast);
+    ```
 
 ---
 
-#### TextToListenerWithFollowUp
+### **TextToListener**
 
-**`TextToListenerWithFollowUp`** extends **`TextToListener`** to handle more complex listening scenarios, particularly those requiring follow-up interactions after a phrase is detected.
+Detects and listens for key phrases in recognized text.
 
-#### Methods:
-
-1. **`listenForFollowUp(text)`**
-   - Listens for follow-up phrases or responses after the initial trigger phrase is detected.
-   - **Example Usage:**
-   ```javascript
-   textToListenerWithFollowUp.listenForFollowUp('yes, continue').then((followUp) => {
-       console.log('Follow-up detected:', followUp);
-   });
-   ```
-
-2. **`resumeListeningAfterResponse()`**
-   - Resumes listening for more responses or follow-ups after an initial user input has been processed.
-   - **Example Usage:**
-   ```javascript
-   textToListenerWithFollowUp.resumeListeningAfterResponse();
-   ```
+#### **Methods**:
+- **`listen(text)`**
+  - Listens for key phrases in the provided text.
+  - Example:
+    ```javascript
+    const listener = new TextToListener(['Hey Amy']);
+    listener.listen('Hey Amy, how are you?');
+    ```
 
 ---
 
-## Related VISOS Classes
+### **TextToListenerWithFollowUp**
 
-1. **PhonemeExtractor**
-   - Extracts phonemes from spoken text to assist in lip-syncing animations.
+Extends `TextToListener` to support follow-up interactions.
 
-2. **VisemeMapper**
-   - Maps phonemes to corresponding visemes for smoother and more accurate visual speech animations.
-
-3. **PitchAnalyzer**
-   - Analyzes pitch in speech to apply pitch-based animations or modifications.
+#### **Methods**:
+- **`listenForStream(text)`**
+  - Processes a stream of text and listens for trigger phrases and follow-ups.
+  - Example:
+    ```javascript
+    listenerWithFollowUp.listenForStream('Hey Amy, tell me a story');
+    ```
 
 ---
+
+### **WebcamManager**
+
+Manages video capture from a webcam for visual input.
+
+---
+
+### **SmileControl**
+
+Detects facial expressions such as smiles using webcam input.
+
+---
+
+## Cognition
+
+### **TextToGptReconciler**
+
+Sends input text to OpenAI’s GPT models and receives responses.
+
+#### **Methods**:
+- **`processText(text, instruction)`**
+  - Processes text and sends it to GPT for a response.
+  - Example:
+    ```javascript
+    const reconciler = new TextToGptReconciler('your-api-key');
+    reconciler.processText('Tell me a joke');
+    ```
+
+---
+
+## Action
+
+### **VoiceManager**
+
+Manages speech synthesis using the browser's built-in Web Speech API.
+
+#### **Methods**:
+- **`setVoice(voiceName)`**
+  - Sets the voice to a specific speech synthesis voice.
+  - Example:
+    ```javascript
+    voiceManager.setVoice('Google UK English Female');
+    ```
+
+- **`enqueueText(text)`**
+  - Adds text to the speech queue for synthesis.
+  - Example:
+    ```javascript
+    voiceManager.enqueueText('Hello, how are you?');
+    ```
+
+---
+
+### **SpeechManager**
+
+Handles speech synthesis and controls speech output, including managing visemes for facial animations.
+
+#### **Methods**:
+- **`initSynthesizer()`**
+  - Initializes the speech synthesizer.
+  - Example:
+    ```javascript
+    const speechManager = new SpeechManager(animationManager);
+    speechManager.initSynthesizer();
+    ```
+
+- **`enqueueText(text)`**
+  - Adds text to the speech queue for synthesis.
+  - Example:
+    ```javascript
+    speechManager.enqueueText('Let’s start the presentation.');
+    ```
+
+---
+
+### **AnimationManager**
+
+Handles facial animations and applies visemes during speech.
+
+#### **Methods**:
+- **`applyAUChange(AU, targetIntensity, duration)`**
+  - Applies action unit (AU) changes for facial animation.
+  - Example:
+    ```javascript
+    animationManager.applyAUChange('AU01', 80, 1000);
+    ```
+
+---
+
+### **EffectorManager**
+
+Coordinates the various **Effectors** within the system, managing outputs like animations, sounds, and more.
+
+---
+
+### **Facial Expressions and Visualizers**
+
+#### **ComplexEmotion**
+
+Represents complex emotional states and translates them into facial expressions.
+
+---
+
+## Conclusion
+
+This documentation outlines both the ES6 modules and classes within VISOS, offering examples of how they work and how to integrate them into a conversation-based application. With the **Perception**, **Cognition**, and **Action** layers, VISOS provides a complete solution for developing dynamic, real-time interactive agents.
+
+© 2024 Christine Lisetti, Visage Labs. All rights reserved.
