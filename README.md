@@ -1,7 +1,7 @@
 
 # eEVA Workbench.
-eEVA Workbench is based off of the orignal eEVA software develoved by Dr. Christine Lisetti, at The Knight Foundation School of Computing and information Scienes, and was engineered and archected by Jonathan Sutton Fields while volunteering at Visage Labs. All code, assets and other materials, are subject to the End User License Agreement (EULA).
-
+_eEVA Workbench is based off of the orignal eEVA software develoved by Dr. Christine Lisetti, at The Knight Foundation School of Computing and information Scienes, and was engineered and archected by Jonathan Sutton Fields while volunteering at Visage Labs. All code, assets and other materials, are subject to the End User License Agreement (EULA).
+_
 ## Table of Contents
 1. [Installation](#installation)
    - [Windows](#windows)
