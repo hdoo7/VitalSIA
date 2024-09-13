@@ -3,7 +3,7 @@
 
 This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions like virtual agents or conversational AI systems.
 
-/VISOS is based off of the orignal eEVA's "mainframe" archecture, developed by Dr. Ubbo Visser of Universtity of Miami's RoboCanes Robotics lab, in collaboration with VIsage Laboratory. All code and Archecture courtesy of Jonathan Sutton Fields while voluntering at Visage Labs./
+_VISOS is based off of the orignal eEVA's "mainframe" archecture, developed by Dr. Ubbo Visser of Universtity of Miami's RoboCanes Robotics lab, in collaboration with VIsage Laboratory. All code and Archecture courtesy of Jonathan Sutton Fields while voluntering at Visage Labs._
 
 
 ## Table of Contents
