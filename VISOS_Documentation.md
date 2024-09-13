@@ -73,7 +73,7 @@ This class handles continuous speech recognition using the **Web Speech API**.
 
 ### **ContinuousTextListener**
 
-Handles continuous listening for trigger phrases and integrates with **AudioToText** for transcription.
+Handles continuous listening for trigger phrases. Thus combining the more complicated steamProcessing approach, which is use full for responding to a given trigger prhase or set of trigger phrases when no follow up listenning is required--as would be the case in a more complicated conversation. with **AudioToText** for transcription.
 
 #### **Properties**:
 - `audioToText`: Instance of `AudioToText`.
