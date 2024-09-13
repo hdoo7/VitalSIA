@@ -11,9 +11,9 @@ export default class AudioToText {
         }
 
         this.recognition = new window.webkitSpeechRecognition();
-        this.recognition.continuous = true;
-        this.recognition.interimResults = false;
-        this.recognition.lang = 'en-US'; // You can change the language as needed
+        this.recognition.continuous = true;  // Continuous listening mode
+        this.recognition.interimResults = false;  // Final results only
+        this.recognition.lang = 'en-US';  // Set language
 
         return Promise.resolve();
     }
@@ -36,12 +36,21 @@ export default class AudioToText {
 
                 this.recognition.onerror = (event) => {
                     console.error('Speech recognition error:', event.error);
-                    reject(event.error);
+                    // Handle specific error types
+                    if (event.error === 'no-speech') {
+                        console.warn('No speech detected, resuming listening...');
+                        setTimeout(() => {
+                            this.recognition.start(); // Restart recognition after a short delay
+                        }, 1000); // Adjust delay as necessary
+                    } else {
+                        reject(event.error);
+                    }
                 };
 
                 this.recognition.onend = () => {
+                    console.log('Speech recognition ended, restarting...');
                     if (this.isListening) {
-                        this.recognition.start(); // Restart if recognition ends
+                        this.recognition.start(); // Restart if recognition stops
                     }
                 };
 

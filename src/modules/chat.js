@@ -11,12 +11,12 @@ let audioToText;
 let textToListenerWithFollowUp;
 let gptReconciler;
 let voiceManager;
-let conversationStarted = false;
+let conversationStarted = false; // Track conversation state
 let speaking = false;
-let agentSpeech = '';  // Track agent's last spoken phrase
+let agentSpeech = ''; // Track agent's last spoken phrase
 let root = null;
-const listenBufferTime = 2000;  // Buffer time to resume listening after speaking
-const maxUtteranceLength = 120;  // Max characters per utterance
+const listenBufferTime = 2000; // Buffer time to resume listening after speaking
+const maxUtteranceLength = 120; // Max characters per utterance
 
 // Initialize necessary modules
 const initializeModules = (animationManager, appSettings) => {
@@ -27,11 +27,20 @@ const initializeModules = (animationManager, appSettings) => {
     textToListenerWithFollowUp = new TextToListenerWithFollowUp(triggerPhrases, listenBufferTime, audioToText);
     gptReconciler = new TextToGptReconciler(apiKey);
     voiceManager = VoiceManager.getInstance(animationManager);
+
+    // Ensure the voice is set correctly (e.g., Tessa)
+    const tessaVoice = voiceManager.getVoices().find(voice => voice.name.includes('Tessa'));
+    if (tessaVoice) {
+        voiceManager.setVoice(tessaVoice.name);
+        console.log('Voice set to Tessa.');
+    } else {
+        console.warn('Tessa voice not found, using default.');
+    }
 };
 
 // Ensure the agent does not respond to its own speech
 const shouldIgnoreText = (text) => {
-    return agentSpeech && text.includes(agentSpeech);  // Prevent response to agent's own speech
+    return agentSpeech && text.includes(agentSpeech);
 };
 
 // Break response into smaller utterances
@@ -55,7 +64,7 @@ const breakResponseIntoChunks = (response) => {
     return chunks;
 };
 
-// Handle transcribed text and start/stop listening
+// Handle transcribed text and restart listening
 const handleTranscribedText = (text, setStatus, toast) => {
     if (shouldIgnoreText(text)) {
         console.log('Ignoring agent’s own speech.');
@@ -70,39 +79,20 @@ const handleTranscribedText = (text, setStatus, toast) => {
         duration: 2000,
     });
 
-    if (speaking) {
-        voiceManager.stopSpeech();
-        setStatus('idle');
+    // Handle trigger and follow-ups differently
+    if (!conversationStarted) {
+        handleTriggerPhrase(text, setStatus, toast);
+    } else {
+        handleFollowUp(text, setStatus, toast);
     }
-
-    textToListenerWithFollowUp.listenForStream(text)
-        .then(result => {
-            // Ensure result is not null or undefined
-            if (!result) {
-                console.error("No result returned from listening.");
-                return;
-            }
-
-            if (result.phrase && !conversationStarted) {
-                handleTriggerPhrase(result.phrase, setStatus, toast);
-            } else if (result.followUp && conversationStarted) {
-                handleFollowUp(result.followUp, setStatus, toast);
-            } else {
-                console.error("Unexpected result format:", result);
-            }
-        })
-        .catch(error => {
-            console.error("Error processing text:", error);
-        });
 };
 
-// Handle the trigger phrase
+// Handle the initial trigger phrase and start the conversation
 const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
-    conversationStarted = true;
+    conversationStarted = true; // Mark conversation as started
     agentSpeech = "Let me check that for you...";
     speaking = true;
 
-    // Stop listening to avoid transcribing agent's speech
     textToListenerWithFollowUp.stopListening();
 
     voiceManager.enqueueText(agentSpeech);
@@ -110,7 +100,7 @@ const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
 
     toast({
         title: 'Trigger Detected',
-        description: `You said: "${triggerPhrase}". Processing...`,
+        description: `You said: \"${triggerPhrase}\". Processing...`,
         status: 'success',
         duration: 3000,
     });
@@ -120,7 +110,7 @@ const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
             if (response) {
                 const utterances = breakResponseIntoChunks(response);
                 utterances.forEach(utterance => {
-                    voiceManager.enqueueText(utterance);  // Speak each chunk
+                    voiceManager.enqueueText(utterance);
                 });
                 agentSpeech = response;
             }
@@ -128,17 +118,21 @@ const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
             setStatus('idle');
             speaking = false;
 
-            // Resume listening after the agent finishes speaking
+            setTimeout(() => {
+                console.log("Resuming listening after trigger response...");
+                textToListenerWithFollowUp.resumeListeningAfterResponse(setStatus, (text) => handleTranscribedText(text, setStatus, toast));
+            }, listenBufferTime); // Adjust buffer time if necessary
+        })
+        .catch(error => {
+            console.error("Error processing trigger phrase:", error);
             textToListenerWithFollowUp.resumeListeningAfterResponse(setStatus, (text) => handleTranscribedText(text, setStatus, toast));
         });
 };
 
-// Handle follow-up text
+// Handle follow-up text after the conversation has started
 const handleFollowUp = (followUpText, setStatus, toast) => {
     speaking = true;
     textToListenerWithFollowUp.stopListening();
-
-    setStatus('talking');
 
     gptReconciler.processText(followUpText, 'Answer seriously:')
         .then(response => {
@@ -153,12 +147,18 @@ const handleFollowUp = (followUpText, setStatus, toast) => {
             setStatus('idle');
             speaking = false;
 
-            // Ensure continuous listening
+            setTimeout(() => {
+                console.log("Resuming listening after follow-up...");
+                textToListenerWithFollowUp.resumeListeningAfterResponse(setStatus, (text) => handleTranscribedText(text, setStatus, toast));
+            }, listenBufferTime); // Adjust buffer time if necessary
+        })
+        .catch(error => {
+            console.error("Error processing follow-up:", error);
             textToListenerWithFollowUp.resumeListeningAfterResponse(setStatus, (text) => handleTranscribedText(text, setStatus, toast));
         });
 };
 
-// Start function to initialize and render the ChatApp using ReactDOM
+// Start the chat app
 export const start = (animationManager, appSettings, containerRef) => {
     if (!containerRef || !containerRef.current) {
         console.error('Invalid container reference');
@@ -189,7 +189,7 @@ export const start = (animationManager, appSettings, containerRef) => {
     root.render(<ChatApp />);
 };
 
-// Stop function to unmount ChatApp and stop processes
+// Stop the chat app
 export const stop = () => {
     if (audioToText) {
         audioToText.stopRecognition();
