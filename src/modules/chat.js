@@ -77,10 +77,18 @@ const handleTranscribedText = (text, setStatus, toast) => {
 
     textToListenerWithFollowUp.listenForStream(text)
         .then(result => {
+            // Ensure result is not null or undefined
+            if (!result) {
+                console.error("No result returned from listening.");
+                return;
+            }
+
             if (result.phrase && !conversationStarted) {
                 handleTriggerPhrase(result.phrase, setStatus, toast);
             } else if (result.followUp && conversationStarted) {
                 handleFollowUp(result.followUp, setStatus, toast);
+            } else {
+                console.error("Unexpected result format:", result);
             }
         })
         .catch(error => {
@@ -97,7 +105,6 @@ const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
     // Stop listening to avoid transcribing agent's speech
     textToListenerWithFollowUp.stopListening();
 
-
     voiceManager.enqueueText(agentSpeech);
     setStatus('talking');
 
@@ -111,7 +118,6 @@ const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
     gptReconciler.processText(triggerPhrase, 'Answer seriously:')
         .then(response => {
             if (response) {
-                // voiceManager.setVoice(currentVoice.name);  // Ensure correct voice
                 const utterances = breakResponseIntoChunks(response);
                 utterances.forEach(utterance => {
                     voiceManager.enqueueText(utterance);  // Speak each chunk
@@ -121,6 +127,8 @@ const handleTriggerPhrase = (triggerPhrase, setStatus, toast) => {
 
             setStatus('idle');
             speaking = false;
+
+            // Resume listening after the agent finishes speaking
             textToListenerWithFollowUp.resumeListeningAfterResponse(setStatus, (text) => handleTranscribedText(text, setStatus, toast));
         });
 };
@@ -135,8 +143,6 @@ const handleFollowUp = (followUpText, setStatus, toast) => {
     gptReconciler.processText(followUpText, 'Answer seriously:')
         .then(response => {
             if (response) {
-                // const currentVoice = voiceManager.voice;
-                // voiceManager.setVoice(currentVoice.name);
                 const utterances = breakResponseIntoChunks(response);
                 utterances.forEach(utterance => {
                     voiceManager.enqueueText(utterance);
@@ -146,6 +152,8 @@ const handleFollowUp = (followUpText, setStatus, toast) => {
 
             setStatus('idle');
             speaking = false;
+
+            // Ensure continuous listening
             textToListenerWithFollowUp.resumeListeningAfterResponse(setStatus, (text) => handleTranscribedText(text, setStatus, toast));
         });
 };
