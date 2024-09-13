@@ -1,188 +1,234 @@
 
-# eEVA Workbench.
-eEVA Workbench is based off of the orignal eEVA software develoved by Dr. Christine Lisetti, at The Knight Foundation School of Computing and information Scienes, and was engineered and archected by Jonathan Sutton Fields while volunteering at Visage Labs. All code, assets and other materials, are subject to the End User License Agreement (EULA).
+# VISOS Documentation
+
+This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions like virtual agents or conversational AI systems.
+
+**VISOS is based off of the orignal eEVA's "mainframe" archecture, developed by Dr. Ubbo Visser of Universtity of Miami's RoboCanes Robotics lab, in collaboration with VIsage Laboratory. All code and Archecture courtesy of Jonathan Sutton Fields while voluntering at Visage Labs.
+**---
 
 ## Table of Contents
-1. [Installation](#installation)
-   - [Windows](#windows)
-   - [macOS](#macos)
-   - [Linux](#linux)
-2. [Running the Server](#running-the-server)
-3. [Deploying to GitHub Pages](#deploying-to-github-pages)
-4. [Animation Manager](#animation-manager)
-5. [Setting up an App](#setting-up-an-app)
-6. [Voice Manager and Speech Manager](#voice-manager-and-speech-manager)
+- [Introduction](#introduction)
+- [Perception](#perception)
+  - [AudioToText](#audiototext)
+  - [ContinuousTextListener](#continuoustextlistener)
+  - [TextToListener](#texttolistener)
+  - [TextToListenerWithFollowUp](#texttolistenerwithfollowup)
+  - [WebcamManager](#webcammanager)
+  - [SmileControl](#smilecontrol)
+- [Cognition](#cognition)
+  - [TextToGptReconciler](#texttogptreconciler)
+- [Action](#action)
+  - [VoiceManager](#voicemanager)
+  - [SpeechManager](#speechmanager)
+  - [AnimationManager](#animationmanager)
+  - [EffectorManager](#effectormanager)
+  - [Facial Expressions and Visualizers](#facial-expressions-and-visualizers)
 
-## Installation
+---
 
-To install the system on your local machine, follow these steps based on your operating system.
+## Introduction
 
-### Windows
+The **VISOS** framework is built around the **Perception-Action-Cognition** pattern, enabling responsive systems to capture input, process it intelligently, and respond appropriately. VISOS is designed for applications that involve continuous conversation, such as virtual agents, speech synthesis, and animation-based systems.
 
-1. Install Git and Node.js using Chocolatey:
-   ```bash
-   choco install git nodejs
-   ```
+This documentation details both the classes and ES6 modules that make up VISOS and provides examples of their usage.
 
-2. Install Yarn using npm:
-   ```bash
-   npm install -g yarn
-   ```
+---
 
-3. Fork the repository on GitHub and then clone your forked repository:
-   ```bash
-   git clone https://github.com/<your-username>/EVA-libre.git
-   ```
+## Perception
 
-4. Navigate to the project directory:
-   ```bash
-   cd EVA-libre
-   ```
+### **AudioToText**
 
-5. Install dependencies:
-   ```bash
-   yarn install
-   ```
+This class handles continuous speech recognition using the **Web Speech API**.
 
-### macOS
+#### **Properties**:
+- `recognition`: The `webkitSpeechRecognition` instance that manages the recognition process.
+- `isListening`: Boolean indicating whether recognition is currently active.
 
-1. Install Git and Node.js using Homebrew:
-   ```bash
-   brew install git node
-   ```
+#### **Methods**:
+- **`initializeRecognizer()`**
+  - Initializes the Web Speech API.
+  - Example:
+    ```javascript
+    const audioToText = new AudioToText();
+    audioToText.initializeRecognizer();
+    ```
 
-2. Install Yarn using npm:
-   ```bash
-   npm install -g yarn
-   ```
+- **`startContinuousRecognition(onRecognizedCallback)`**
+  - Starts continuous recognition and calls the provided callback with the recognized text.
+  - Example:
+    ```javascript
+    audioToText.startContinuousRecognition((recognizedText) => {
+        console.log("Recognized:", recognizedText);
+    });
+    ```
 
-3. Fork the repository on GitHub and then clone your forked repository:
-   ```bash
-   git clone https://github.com/<your-username>/EVA-libre.git
-   ```
+- **`stopRecognition()`**
+  - Stops the recognition process.
+  - Example:
+    ```javascript
+    audioToText.stopRecognition();
+    ```
 
-4. Navigate to the project directory:
-   ```bash
-   cd EVA-libre
-   ```
+---
 
-5. Install dependencies:
-   ```bash
-   yarn install
-   ```
+### **ContinuousTextListener**
 
-### Linux
+Handles continuous listening for trigger phrases and integrates with **AudioToText** for transcription.
 
-1. Install Git, Node.js, and npm using your package manager (e.g., apt for Debian/Ubuntu):
-   ```bash
-   sudo apt update && sudo apt install git nodejs npm
-   ```
+#### **Properties**:
+- `audioToText`: Instance of `AudioToText`.
+- `bufferTime`: Time delay before resuming listening after speaking.
 
-2. Install Yarn using npm:
-   ```bash
-   npm install -g yarn
-   ```
+#### **Methods**:
+- **`startContinuousListening(setStatus, toast)`**
+  - Starts listening for text and processes it in a loop.
+  - Example:
+    ```javascript
+    continuousTextListener.startContinuousListening(setStatus, toast);
+    ```
 
-3. Fork the repository on GitHub and then clone your forked repository:
-   ```bash
-   git clone https://github.com/<your-username>/EVA-libre.git
-   ```
+- **`handleTriggerPhrase(text, setStatus, toast)`**
+  - Handles trigger phrases by checking for specific phrases and generating responses.
+  - Example:
+    ```javascript
+    handleTriggerPhrase('Hey Amy', setStatus, toast);
+    ```
 
-4. Navigate to the project directory:
-   ```bash
-   cd EVA-libre
-   ```
+---
 
-5. Install dependencies:
-   ```bash
-   yarn install
-   ```
+### **TextToListener**
 
-## Running the Server
+Detects and listens for key phrases in recognized text.
 
-1. Start the development server:
-   ```bash
-   yarn start
-   ```
+#### **Methods**:
+- **`listen(text)`**
+  - Listens for key phrases in the provided text.
+  - Example:
+    ```javascript
+    const listener = new TextToListener(['Hey Amy']);
+    listener.listen('Hey Amy, how are you?');
+    ```
 
-2. The server will be available at `http://localhost:3000`.
+---
 
-## Deploying to GitHub Pages
+### **TextToListenerWithFollowUp**
 
-1. Build the project:
-   ```bash
-   yarn build
-   ```
+Extends `TextToListener` to support follow-up interactions.
 
-2. Deploy the build to GitHub Pages:
-   ```bash
-   yarn deploy
-   ```
+#### **Methods**:
+- **`listenForStream(text)`**
+  - Processes a stream of text and listens for trigger phrases and follow-ups.
+  - Example:
+    ```javascript
+    listenerWithFollowUp.listenForStream('Hey Amy, tell me a story');
+    ```
 
-This will automatically deploy the site to the `gh-pages` branch of your repository, making it available at `https://<your-username>.github.io/EVA-libre`.
+---
 
-## Animation Manager
+### **WebcamManager**
 
-The Animation Manager is responsible for controlling the visual animations of characters. To use the Animation Manager, import it into your project and create an instance of it.
+Manages video capture from a webcam for visual input.
 
-Example:
-```javascript
-import AnimationManager from './src/VISOS/action/visualizers/AnimationManager';
+---
 
-const animationManager = new AnimationManager();
-// Use animationManager to control animations
-```
+### **SmileControl**
 
-## Setting up an App
+Detects facial expressions such as smiles using webcam input.
 
-In `app.js`, you can set up the initial environment and include the main components of the system, such as the Animation Manager and the newly added UI sensor components.
+---
 
-Example:
-```javascript
-import React from 'react';
-import { ChakraProvider } from '@chakra-ui/react';
-import SmileControl from './src/VISOS/perception/UI/SmileControl';
-import AnimationManager from './src/VISOS/action/visualizers/AnimationManager';
+## Cognition
 
-function App() {
-  const animationManager = new AnimationManager();
-  // Setup and use animationManager as needed
+### **TextToGptReconciler**
 
-  return (
-    <ChakraProvider>
-      <div className="App">
-        <h1>EVA-libre System</h1>
-        <SmileControl />
-        {/* Include other UI components as needed */}
-      </div>
-    </ChakraProvider>
-  );
-}
+Sends input text to OpenAI’s GPT models and receives responses.
 
-export default App;
-```
+#### **Methods**:
+- **`processText(text, instruction)`**
+  - Processes text and sends it to GPT for a response.
+  - Example:
+    ```javascript
+    const reconciler = new TextToGptReconciler('your-api-key');
+    reconciler.processText('Tell me a joke');
+    ```
 
-## Voice Manager and Speech Manager
+---
 
-### Voice Manager
-The Voice Manager handles the configuration and management of different voices within the system. It integrates with various text-to-speech (TTS) engines to provide natural and dynamic voice outputs.
+## Action
 
-### Speech Manager (MS TTS)
-The Speech Manager is specifically designed to work with Microsoft Text-to-Speech (TTS) services. It handles the conversion of text to speech using MS TTS, providing an interface for easy integration into applications.
+### **VoiceManager**
 
-Example setup and usage:
-```javascript
-import VoiceManager from './src/VISOS/action/verbalizers/VoiceManager';
-import SpeechManager from './src/VISOS/action/verbalizers/SpeechManager';
+Manages speech synthesis using the browser's built-in Web Speech API.
 
-// Initialize Voice and Speech Managers
-const voiceManager = new VoiceManager();
-const speechManager = new SpeechManager(voiceManager);
+#### **Methods**:
+- **`setVoice(voiceName)`**
+  - Sets the voice to a specific speech synthesis voice.
+  - Example:
+    ```javascript
+    voiceManager.setVoice('Google UK English Female');
+    ```
 
-// Use speechManager to convert text to speech
-speechManager.speak("Hello, this is a test using MS TTS.");
-```
+- **`enqueueText(text)`**
+  - Adds text to the speech queue for synthesis.
+  - Example:
+    ```javascript
+    voiceManager.enqueueText('Hello, how are you?');
+    ```
 
-For detailed documentation on additional components and usage, refer to the respective component documentation.
+---
+
+### **SpeechManager**
+
+Handles speech synthesis and controls speech output, including managing visemes for facial animations.
+
+#### **Methods**:
+- **`initSynthesizer()`**
+  - Initializes the speech synthesizer.
+  - Example:
+    ```javascript
+    const speechManager = new SpeechManager(animationManager);
+    speechManager.initSynthesizer();
+    ```
+
+- **`enqueueText(text)`**
+  - Adds text to the speech queue for synthesis.
+  - Example:
+    ```javascript
+    speechManager.enqueueText('Let’s start the presentation.');
+    ```
+
+---
+
+### **AnimationManager**
+
+Handles facial animations and applies visemes during speech.
+
+#### **Methods**:
+- **`applyAUChange(AU, targetIntensity, duration)`**
+  - Applies action unit (AU) changes for facial animation.
+  - Example:
+    ```javascript
+    animationManager.applyAUChange('AU01', 80, 1000);
+    ```
+
+---
+
+### **EffectorManager**
+
+Coordinates the various **Effectors** within the system, managing outputs like animations, sounds, and more.
+
+---
+
+### **Facial Expressions and Visualizers**
+
+#### **ComplexEmotion**
+
+Represents complex emotional states and translates them into facial expressions.
+
+---
+
+## Conclusion
+
+This documentation outlines both the ES6 modules and classes within VISOS, offering examples of how they work and how to integrate them into a conversation-based application. With the **Perception**, **Cognition**, and **Action** layers, VISOS provides a complete solution for developing dynamic, real-time interactive agents.
 
 © 2024 Christine Lisetti, Visage Labs. All rights reserved.

@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.js": "/EVA-libre/static/js/main.6abc039c.js",
+    "main.js": "/EVA-libre/static/js/main.e29a08bb.js",
     "static/js/132.2786efa0.chunk.js": "/EVA-libre/static/js/132.2786efa0.chunk.js",
-    "static/js/312.0ed77570.chunk.js": "/EVA-libre/static/js/312.0ed77570.chunk.js",
+    "static/js/312.3f467a3c.chunk.js": "/EVA-libre/static/js/312.3f467a3c.chunk.js",
     "static/js/820.96345a7a.chunk.js": "/EVA-libre/static/js/820.96345a7a.chunk.js",
-    "static/js/513.f097e49a.chunk.js": "/EVA-libre/static/js/513.f097e49a.chunk.js",
+    "static/js/513.485223a4.chunk.js": "/EVA-libre/static/js/513.485223a4.chunk.js",
     "static/js/127.92c37ebc.chunk.js": "/EVA-libre/static/js/127.92c37ebc.chunk.js",
     "static/js/336.8a7b852b.chunk.js": "/EVA-libre/static/js/336.8a7b852b.chunk.js",
     "index.html": "/EVA-libre/index.html",
-    "main.6abc039c.js.map": "/EVA-libre/static/js/main.6abc039c.js.map",
+    "main.e29a08bb.js.map": "/EVA-libre/static/js/main.e29a08bb.js.map",
     "132.2786efa0.chunk.js.map": "/EVA-libre/static/js/132.2786efa0.chunk.js.map",
-    "312.0ed77570.chunk.js.map": "/EVA-libre/static/js/312.0ed77570.chunk.js.map",
+    "312.3f467a3c.chunk.js.map": "/EVA-libre/static/js/312.3f467a3c.chunk.js.map",
     "820.96345a7a.chunk.js.map": "/EVA-libre/static/js/820.96345a7a.chunk.js.map",
-    "513.f097e49a.chunk.js.map": "/EVA-libre/static/js/513.f097e49a.chunk.js.map",
+    "513.485223a4.chunk.js.map": "/EVA-libre/static/js/513.485223a4.chunk.js.map",
     "127.92c37ebc.chunk.js.map": "/EVA-libre/static/js/127.92c37ebc.chunk.js.map",
     "336.8a7b852b.chunk.js.map": "/EVA-libre/static/js/336.8a7b852b.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/main.6abc039c.js"
+    "static/js/main.e29a08bb.js"
   ]
 }
