@@ -1,10 +1,9 @@
 
 # VISOS Documentation
 
-This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions like virtual agents or conversational AI systems.
+This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve the artificial intelligent (AI) agent real-time loop architecture of **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions with virtual socially interactive agents or virtual humans, i.e. 3-dimensional (3D) digital characters that look and autonomoulsy act like humans for specific contexts, but in a virtual environment.
 
-_VISOS is based off of the orignal eEVA's "mainframe" archecture, developed by Dr. Ubbo Visser of Universtity of Miami's RoboCanes Robotics lab, in collaboration with VIsage Laboratory. All code and Archecture courtesy of Jonathan Sutton Fields while voluntering at Visage Labs._
-
+_VISOS is a derivative of Dr. Lisetti's eEVA mainframe architecture developed by Dr. Lisetti. The code was developed by Jonathan Sutton Fields for his Master Thesis with Dr. Lisetti.  It is to be used for educational and research purposes only by students registered in Dr. Lisetti's courses or involved with Dr. Lisetti's VISAGE research laboratory.  It is copyrighted and protected under the Proprietary Software License Agreement provided (see license.txt).
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -28,7 +27,7 @@ _VISOS is based off of the orignal eEVA's "mainframe" archecture, developed by D
 
 ## Introduction
 
-The **VISOS** framework is built around the **Perception-Action-Cognition** pattern, enabling responsive systems to capture input, process it intelligently, and respond appropriately. VISOS is designed for applications that involve continuous conversation, such as virtual agents, speech synthesis, and animation-based systems.
+The **VISOS** framework is built based on the artificial intelligent (AI) agent real-time loop of **Perception-Action-Cognition** architecture, enabling responsive systems to perceive socially relevant input via sensors (e.g. speech, facial expressions), process these input intelligently to make socially appropriate decisions, and respond with 3D actuators in a socially appropriate manner (e.g. synthesized speech, facial animations). VISOS is designed to create prototypes of virtual socially interactive agents or virtual humans, i.e. 3-dimensional digital characters that look and act like humans for specific contexts, but in a virtual environment.  
 
 This documentation details both the classes and ES6 modules that make up VISOS and provides examples of their usage.
 
