@@ -13,9 +13,8 @@ bound by the terms of this Agreement. If Licensee does not agree to these terms,
 install, copy, or use the Software.
 
 1. Grant of License Licensor grants Licensee a non-exclusive, non-transferable, revocable, limited
-license to use the Software solely for personal or internal business purposes. Licensee is not
-permitted to:
-- Modify, distribute, sell, sublicense, or lease the Software.
+license to use the Software solely for educational purposes related to Dr. Lisetti's course assignments and research activities. Licensee is not permitted to:
+- Distribute, sell, sublicense, or lease the Software.
 - Reverse engineer, decompile, or disassemble the Software, except as expressly permitted by
   applicable law.
 - Use the Software in any manner that violates applicable laws or regulations.
