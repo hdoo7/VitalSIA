@@ -1,6 +1,7 @@
 
 # eEVA Workbench.
-_eEVA Workbench is based off of the orignal eEVA software develoved by Dr. Christine Lisetti, at The Knight Foundation School of Computing and information Scienes, and was engineered and archected by Jonathan Sutton Fields while volunteering at Visage Labs. All code, assets and other materials, are subject to the End User License Agreement (EULA)._
+
+_eEVA Workbench is a derivative of Dr. Lisetti's eEVA mainframe architecture developed by Dr. Lisetti. The code was developed by Jonathan Sutton Fields for his Master Thesis with Dr. Lisetti.  It is to be used for educational and research purposes only by students registered in Dr. Lisetti's courses or involved with Dr. Lisetti's VISAGE research laboratory.  It is copyrighted and protected under the Proprietary Software License Agreement provided (see license).
 
 ## Table of Contents
 1. [Installation](#installation)
