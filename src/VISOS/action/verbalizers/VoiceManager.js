@@ -16,7 +16,8 @@ export default class VoiceManager {
         this.phonemeExtractor = new PhonemeExtractor();
         this.visemeMapper = new VisemeMapper();
         this.pitchAnalyzer = new PitchAnalyzer();
-        this.voicesLoadedPromise = this.initVoices(); // Store the voices loading promise
+        this.sentenceTokenizer = new natural.SentenceTokenizer(); // Initialize sentence tokenizer
+        this.initVoices();
     }
 
     static getInstance(animationManager, pitchEnhance = false) {
@@ -27,33 +28,41 @@ export default class VoiceManager {
     }
 
     initVoices() {
-        return new Promise((resolve) => {
-            this.synth.onvoiceschanged = () => {
-                const voices = this.getVoices();
-                if (!this.voice) {
-                    this.voice = voices.find(voice => voice.name === 'Google US English' || voice.name === 'en-US') || voices[0];
-                }
-                resolve(voices);
-            };
-        });
+        this.synth.onvoiceschanged = () => {
+            const voices = this.getVoices();
+            if (!this.voice) {
+                this.voice = voices.find(voice => voice.name === 'Google US English' || voice.name === 'en-US') || voices[0];
+            }
+            if (typeof this.onVoicesChanged === 'function') {
+                this.onVoicesChanged(voices);
+            }
+        };
     }
 
     getVoices() {
         return this.synth.getVoices();
     }
 
+    // New method to get the currently selected voice
+    getSelectedVoice() {
+        return this.voice;
+    }
+
+    // New method to find and set a voice by name, with a promise for async handling
     findAndSetVoice(voiceName) {
-        return new Promise((resolve, reject) => {
-            const voices = this.getVoices();
-            const foundVoice = voices.find(v => v.name.includes(voiceName));
-            if (foundVoice) {
-                this.setVoice(foundVoice.name);
-                console.log(`Voice set to: ${foundVoice.name}`);
-                resolve(); // Resolve once the voice is set
-            } else {
-                console.warn(`Voice "${voiceName}" not found.`);
-                reject(`Voice "${voiceName}" not found.`);
-            }
+        return new Promise((resolve) => {
+            const checkVoices = () => {
+                const foundVoice = this.getVoices().find(voice => voice.name.includes(voiceName));
+                if (foundVoice) {
+                    this.setVoice(foundVoice.name);
+                    console.log(`Voice set to: ${foundVoice.name}`);
+                    resolve(foundVoice);  // Resolve when voice is successfully set
+                } else {
+                    console.log(`Voice "${voiceName}" not found, retrying...`);
+                    setTimeout(checkVoices, 500);  // Retry after a short delay
+                }
+            };
+            checkVoices();
         });
     }
 
@@ -64,16 +73,18 @@ export default class VoiceManager {
         }
     }
 
-    getSelectedVoice() {
-        return this.voice;
-    }
-
     setPitchEnhance(pitchEnhance) {
         this.pitchEnhance = pitchEnhance;
     }
 
+    // Chunk text into sentences using natural's SentenceTokenizer
+    chunkifyText(text) {
+        return this.sentenceTokenizer.tokenize(text);  // Split into sentences
+    }
+
     enqueueText(text) {
-        this.queue.push(text);
+        const sentences = this.chunkifyText(text);  // Chunkify the text into sentences
+        this.queue.push(...sentences);  // Push sentences into the queue
         if (!this.isSpeaking) {
             this.processQueue();
         }
@@ -86,12 +97,12 @@ export default class VoiceManager {
         }
 
         this.isSpeaking = true;
-        const text = this.queue.shift();
-        this.synthesizeSpeech(text).then(() => this.processQueue());
+        const sentence = this.queue.shift();  // Take one sentence at a time
+        this.synthesizeSpeech(sentence).then(() => this.processQueue());
     }
 
     synthesizeSpeech(text) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const utterThis = new SpeechSynthesisUtterance(text);
             utterThis.voice = this.voice;
 
@@ -104,7 +115,7 @@ export default class VoiceManager {
             utterThis.onerror = (e) => {
                 console.error("Error during speech synthesis:", e);
                 this.animationManager.setVisemeToNeutral();
-                resolve();
+                resolve(); // Resolve to continue processing the queue
             };
 
             if (this.voice && this.voice.name.includes('Google')) {

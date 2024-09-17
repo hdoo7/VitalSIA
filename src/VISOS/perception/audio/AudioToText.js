@@ -1,74 +1,64 @@
 export default class AudioToText {
-    constructor() {
+    constructor(recognitionType = 'webspeech') {
         this.recognition = null;
-        this.isListening = false;
+        this.initRecognition(recognitionType);
     }
 
-    initializeRecognizer() {
-        if (!('webkitSpeechRecognition' in window)) {
-            console.error('Web Speech API not supported in this browser.');
-            return Promise.reject('Web Speech API not supported');
+    initRecognition(recognitionType) {
+        if (recognitionType === 'webspeech') {
+            this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            this.recognition.interimResults = false;
+            this.recognition.continuous = true;
+            this.recognition.lang = 'en-US';
+        } else {
+            console.error("Unsupported recognition type");
         }
-
-        this.recognition = new window.webkitSpeechRecognition();
-        this.recognition.continuous = true;  // Continuous listening mode
-        this.recognition.interimResults = false;  // Final results only
-        this.recognition.lang = 'en-US';  // Set language
-
-        return Promise.resolve();
     }
 
-    startContinuousRecognition(onRecognizedCallback) {
-        if (this.isListening) {
-            console.warn('Recognition is already running.');
-            return;
-        }
-
+    startRecognition() {
         return new Promise((resolve, reject) => {
-            this.initializeRecognizer().then(() => {
-                this.recognition.onresult = (event) => {
-                    const transcript = Array.from(event.results)
-                        .map(result => result[0].transcript)
-                        .join('');
-                    console.log(`RECOGNIZED: ${transcript.trim()}`);
-                    onRecognizedCallback(transcript.trim());
-                };
-
-                this.recognition.onerror = (event) => {
-                    console.error('Speech recognition error:', event.error);
-                    // Handle specific error types
-                    if (event.error === 'no-speech') {
-                        console.warn('No speech detected, resuming listening...');
-                        setTimeout(() => {
-                            this.recognition.start(); // Restart recognition after a short delay
-                        }, 1000); // Adjust delay as necessary
-                    } else {
-                        reject(event.error);
+            const finalTranscript = [];
+            this.recognition.onresult = (event) => {
+                const results = event.results;
+                for (let i = event.resultIndex; i < results.length; i++) {
+                    if (results[i].isFinal) {
+                        finalTranscript.push(results[i][0].transcript.trim());
                     }
-                };
+                }
 
-                this.recognition.onend = () => {
-                    console.log('Speech recognition ended, restarting...');
-                    if (this.isListening) {
-                        this.recognition.start(); // Restart if recognition stops
-                    }
-                };
+                const chunkedResponses = this.chunkify(finalTranscript.join(' ')); // Chunk the transcript
+                resolve(chunkedResponses);
+            };
 
-                this.isListening = true;
-                this.recognition.start();
-                resolve();
-            }).catch(error => {
-                console.error('Error initializing speech recognition:', error);
-                reject(error);
-            });
+            this.recognition.onerror = (event) => reject(event.error);
+            this.recognition.onend = () => console.log("Speech recognition ended.");
+            this.recognition.start();
         });
+    }
+
+    chunkify(response, maxLength = 120) {
+        const chunks = [];
+        let currentChunk = '';
+
+        response.split(' ').forEach(word => {
+            if (currentChunk.length + word.length + 1 > maxLength) {
+                chunks.push(currentChunk);
+                currentChunk = word;
+            } else {
+                currentChunk += (currentChunk.length === 0 ? '' : ' ') + word;
+            }
+        });
+
+        if (currentChunk.length > 0) {
+            chunks.push(currentChunk);
+        }
+
+        return chunks;
     }
 
     stopRecognition() {
         if (this.recognition) {
-            this.isListening = false;
             this.recognition.stop();
-            console.log('Recognition stopped.');
         }
     }
 }

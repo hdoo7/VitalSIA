@@ -1,72 +1,55 @@
+import ContinuousTextListener from './ContinuousTextListener';
 import TextToListener from './TextToListener';
 
 export default class TextToListenerWithFollowUp extends TextToListener {
     constructor(triggerPhrases, bufferTime = 1000, audioToText) {
-        super(triggerPhrases);
-        this.awaitingFollowUp = false;
-        this.lastDetectedPhrase = null;
-        this.audioToText = audioToText;  // Pass the AudioToText instance
-        this.debounceTimer = null;
-        this.bufferTime = bufferTime;  // Buffer time to debounce follow-up detection
+        super(triggerPhrases, bufferTime);
+        this.audioToText = audioToText;
+        this.continuousListener = new ContinuousTextListener(triggerPhrases, bufferTime, true);
     }
 
-    startListening(onRecognizedCallback) {
-        this.audioToText.startContinuousRecognition(onRecognizedCallback);
+    async startListening(callback) {
+        try {
+            const textStreamGenerator = this.audioToText.startRecognition(); // Start recognition and get the text stream
+            this.continuousListener.startContinuousListening(textStreamGenerator)
+                .then(async (text) => {
+                    const result = await this.processDetectedPhrase(text);
+                    callback(result);  // Pass the result back to the chat module
+                });
+        } catch (error) {
+            console.error('Error starting continuous listening:', error);
+        }
+    }
+
+    async processDetectedPhrase(text) {
+        const detectedPhrase = await this.continuousListener.detectKeyPhrase(text);
+        
+        if (detectedPhrase) {
+            console.log(`Detected trigger phrase: ${detectedPhrase}`);
+            
+            // Check if there is follow-up text
+            const followUpText = text.trim().replace(detectedPhrase, '').trim();
+            if (followUpText) {
+                console.log(`Detected follow-up text: ${followUpText}`);
+                return { type: 'follow-up', phrase: followUpText };
+            } else {
+                console.log("No follow-up text detected after trigger phrase.");
+                return { type: 'trigger-with-no-follow-up', phrase: detectedPhrase };
+            }
+        } else {
+            console.log(`Detected follow-up: ${text}`);
+            return { type: 'follow-up', phrase: text };
+        }
     }
 
     stopListening() {
+        // Stop audio recognition when needed
         this.audioToText.stopRecognition();
+        console.log('Stopped listening for input.');
     }
 
-    // Handle the incoming utterances as a stream
-    listenForStream(text) {
-        return new Promise((resolve) => {
-            if (this.awaitingFollowUp) {
-                this.awaitingFollowUp = false;
-                resolve({ phrase: this.lastDetectedPhrase, followUp: text });
-                this.lastDetectedPhrase = null;
-            } else {
-                super.listen(text)
-                    .then(detectedPhrase => {
-                        if (detectedPhrase) {
-                            this.awaitingFollowUp = true;
-                            this.lastDetectedPhrase = detectedPhrase;
-                            resolve({ phrase: detectedPhrase, followUp: null });
-                        } else {
-                            resolve(null);
-                        }
-                    });
-            }
-        });
-    }
-
-    // Add the resumeListeningAfterResponse method
-    resumeListeningAfterResponse(setStatus, onRecognizedCallback) {
-        setTimeout(() => {
-            setStatus('listening');  // Update the UI to show that it's listening
-            this.startListening(onRecognizedCallback);  // Resume listening
-        }, this.bufferTime);  // Resume listening after the specified buffer time
-    }
-
-    // Handle long responses by splitting them into smaller utterances
-    processUtterance(utterance) {
-        const maxLength = 120;  // Define the max length for each chunk
-        const utteranceChunks = [];
-        let currentChunk = '';
-
-        utterance.split(' ').forEach(word => {
-            if (currentChunk.length + word.length + 1 > maxLength) {
-                utteranceChunks.push(currentChunk);
-                currentChunk = word;
-            } else {
-                currentChunk += (currentChunk.length === 0 ? '' : ' ') + word;
-            }
-        });
-
-        if (currentChunk.length > 0) {
-            utteranceChunks.push(currentChunk);
-        }
-
-        return utteranceChunks;
+    resumeListeningAfterResponse(callback) {
+        console.log('Resuming listening after response...');
+        this.startListening(callback);
     }
 }
