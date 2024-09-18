@@ -8,37 +8,29 @@ export default class TextToListenerWithFollowUp extends TextToListener {
         this.continuousListener = new ContinuousTextListener(triggerPhrases, bufferTime, true);
     }
 
+    // Start listening and pass detected phrases to the callback
     async startListening(callback) {
         try {
-            const textStreamGenerator = this.audioToText.startRecognition(); // Start recognition and get the text stream
-            this.continuousListener.startContinuousListening(textStreamGenerator)
-                .then(async (text) => {
-                    const result = await this.processDetectedPhrase(text);
-                    callback(result);  // Pass the result back to the chat module
-                });
+            const textStreamGenerator = this.audioToText.startRecognition();  // Using the generator for transcribed text
+            for await (const text of textStreamGenerator) {
+                const result = await this.processText(text, true);  // Process each transcribed text chunk
+                if (result) {
+                    callback(result);  // Pass the result (if any) to the chat module for further handling
+                }
+            }
         } catch (error) {
-            console.error('Error starting continuous listening:', error);
+            console.error('Error during continuous listening:', error);
         }
     }
 
     async processDetectedPhrase(text) {
         const detectedPhrase = await this.continuousListener.detectKeyPhrase(text);
-        
         if (detectedPhrase) {
-            console.log(`Detected trigger phrase: ${detectedPhrase}`);
-            
-            // Check if there is follow-up text
-            const followUpText = text.trim().replace(detectedPhrase, '').trim();
-            if (followUpText) {
-                console.log(`Detected follow-up text: ${followUpText}`);
-                return { type: 'follow-up', phrase: followUpText };
-            } else {
-                console.log("No follow-up text detected after trigger phrase.");
-                return { type: 'trigger-with-no-follow-up', phrase: detectedPhrase };
-            }
+            console.log(`Detected trigger phrase: ${text}`);
+            return text;  // Handle detected trigger phrase
         } else {
-            console.log(`Detected follow-up: ${text}`);
-            return { type: 'follow-up', phrase: text };
+            console.log('Waiting for follow-up...');
+            return null;  // Continue listening for follow-up
         }
     }
 
