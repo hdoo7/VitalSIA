@@ -26,8 +26,11 @@ const askNextQuestion = (setStatus) => {
         voiceManager.enqueueText(questionText).then(() => {
             setStatus('listening');
             console.log("Listening for user response...");
-            conversationManager.startListening((transcribedText) => {
+            // Using promise-based startListening instead of a callback
+            conversationManager.startListening().then((transcribedText) => {
                 processAnswer(transcribedText, setStatus);
+            }).catch((error) => {
+                console.error("Error during listening:", error);
             });
         });
     } else {
@@ -68,7 +71,7 @@ export const start = (animationManager) => {
     console.log("Initializing French Vocabulary Quiz...");
     voiceManager = VoiceManager.getInstance(animationManager);
     audioToText = new AudioToText('webspeech');
-    conversationManager = new ConversationManager(1000, audioToText); // Updated instance
+    conversationManager = new ConversationManager(1000, audioToText, voiceManager); // Pass voiceManager
 
     currentQuestionIndex = 0;
     correctAnswers = 0;

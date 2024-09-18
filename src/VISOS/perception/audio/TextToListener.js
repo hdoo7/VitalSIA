@@ -33,21 +33,27 @@ export default class TextToListener {
         });
     }
 
-    // Start listening to the transcribed text (to be used by subclasses)
-    async startListening(textStreamGenerator, onRecognizedCallback) {
-        for await (let text of textStreamGenerator) {
+    // Start listening to the transcribed text using callback instead of generator
+    startListening(onTranscribedTextCallback, onRecognizedCallback) {
+        console.log('Starting to listen...');
+        onTranscribedTextCallback((text) => {
             this.utteranceQueue.push(text); // Add new text to the queue
             if (this.utteranceQueue.length > 0) {
                 const latestUtterance = this.utteranceQueue[this.utteranceQueue.length - 1]; // Get the latest utterance
 
-                const result = await this.processText(latestUtterance);
-                if (result) {
-                    console.log(`Processing detected phrase: ${result.phrase}`);
-                    this.clearUtteranceQueue(); // Clear the queue after processing the latest utterance
-                    onRecognizedCallback(result);
-                }
+                this.processText(latestUtterance)
+                    .then((result) => {
+                        if (result) {
+                            console.log(`Processing detected phrase: ${result.phrase}`);
+                            this.clearUtteranceQueue(); // Clear the queue after processing the latest utterance
+                            onRecognizedCallback(result);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error processing text:', error);
+                    });
             }
-        }
+        });
     }
 
     // Clear the accumulated utterances after processing
