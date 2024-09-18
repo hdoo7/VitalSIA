@@ -17,6 +17,7 @@ export default class VoiceManager {
         this.visemeMapper = new VisemeMapper();
         this.pitchAnalyzer = new PitchAnalyzer();
         this.voicesLoadedPromise = this.initVoices(); // Store the voices loading promise
+        this.sentenceTokenizer = new natural.SentenceTokenizer(); // Initialize sentence tokenizer
     }
 
     static getInstance(animationManager, pitchEnhance = false) {
@@ -42,23 +43,34 @@ export default class VoiceManager {
         return this.synth.getVoices();
     }
 
-    findAndSetVoice(voiceName) {
-        return new Promise((resolve, reject) => {
-            const voices = this.getVoices();
-            const foundVoice = voices.find(v => v.name.includes(voiceName));
-            if (foundVoice) {
-                this.setVoice(foundVoice.name);
-                console.log(`Voice set to: ${foundVoice.name}`);
-                resolve(); // Resolve once the voice is set
+    waitForVoices() {
+        return new Promise((resolve) => {
+            let voices = this.synth.getVoices();
+            if (voices.length !== 0) {
+                resolve(voices);
             } else {
-                console.warn(`Voice "${voiceName}" not found.`);
-                reject(`Voice "${voiceName}" not found.`);
+                this.synth.onvoiceschanged = () => {
+                    voices = this.synth.getVoices();
+                    resolve(voices);
+                };
             }
         });
     }
 
+    // Updated method to find and set a voice by name, waiting for voices to load if necessary
+    async findAndSetVoice(voiceName) {
+        const voices = await this.waitForVoices();
+        const foundVoice = voices.find(v => v.name.includes(voiceName));
+        if (foundVoice) {
+            this.setVoice(foundVoice.name);
+            console.log(`Voice set to: ${foundVoice.name}`);
+        } else {
+            console.warn(`Voice "${voiceName}" not found.`);
+        }
+    }
+
     setVoice(voiceName) {
-        const voice = this.getVoices().find(v => v.name === voiceName);
+        const voice = this.synth.getVoices().find(v => v.name === voiceName);
         if (voice) {
             this.voice = voice;
         }
@@ -72,11 +84,17 @@ export default class VoiceManager {
         this.pitchEnhance = pitchEnhance;
     }
 
+    // Updated enqueueText to break text into sentences and return a promise when finished
     enqueueText(text) {
-        this.queue.push(text);
-        if (!this.isSpeaking) {
-            this.processQueue();
-        }
+        return new Promise((resolve) => {
+            const sentences = this.sentenceTokenizer.tokenize(text);  // Break text into sentences
+            sentences.forEach((sentence) => {
+                this.queue.push({ text: sentence, resolve });
+            });
+            if (!this.isSpeaking) {
+                this.processQueue();
+            }
+        });
     }
 
     processQueue() {
@@ -86,8 +104,11 @@ export default class VoiceManager {
         }
 
         this.isSpeaking = true;
-        const text = this.queue.shift();
-        this.synthesizeSpeech(text).then(() => this.processQueue());
+        const { text, resolve } = this.queue.shift();
+        this.synthesizeSpeech(text).then(() => {
+            resolve();  // Resolve the promise when this text finishes
+            this.processQueue();  // Process the next text in the queue
+        });
     }
 
     synthesizeSpeech(text) {
@@ -104,7 +125,7 @@ export default class VoiceManager {
             utterThis.onerror = (e) => {
                 console.error("Error during speech synthesis:", e);
                 this.animationManager.setVisemeToNeutral();
-                resolve();
+                resolve();  // Resolve to continue processing the queue
             };
 
             if (this.voice && this.voice.name.includes('Google')) {

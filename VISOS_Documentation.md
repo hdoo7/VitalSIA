@@ -3,7 +3,10 @@
 
 This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve the artificial intelligent (AI) agent real-time loop architecture of **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions with virtual socially interactive agents or virtual humans, i.e. 3-dimensional (3D) digital characters that look and autonomoulsy act like humans for specific contexts, but in a virtual environment.
 
-_VISOS is a derivative of Dr. Lisetti's eEVA mainframe architecture developed by Dr. Lisetti. The code was developed by Jonathan Sutton Fields for his Master Thesis with Dr. Lisetti.  It is to be used for educational and research purposes only by students registered in Dr. Lisetti's courses or involved with Dr. Lisetti's VISAGE research laboratory.  It is copyrighted and protected under the Proprietary Software License Agreement provided (see license.txt).
+
+**VISOS is based off of the original eEVA's "mainframe" architecture, developed by Dr. Ubbo Visser of the University of Miami's RoboCanes Robotics lab, in collaboration with Visage Laboratory. All code and architecture courtesy of Jonathan Sutton Fields while volunteering at Visage Labs.**
+
+
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -16,6 +19,7 @@ _VISOS is a derivative of Dr. Lisetti's eEVA mainframe architecture developed by
   - [SmileControl](#smilecontrol)
 - [Cognition](#cognition)
   - [TextToGptReconciler](#texttogptreconciler)
+  - [ConversationManager](#conversationmanager)
 - [Action](#action)
   - [VoiceManager](#voicemanager)
   - [SpeechManager](#speechmanager)
@@ -149,6 +153,59 @@ Sends input text to OpenAI’s GPT models and receives responses.
     ```javascript
     const reconciler = new TextToGptReconciler('your-api-key');
     reconciler.processText('Tell me a joke');
+    ```
+
+---
+
+### **ConversationManager**
+
+Handles conversation flow by managing the transitions between listening, speaking, and interrupting.
+
+#### **Properties**:
+- `audioToText`: Instance of `AudioToText`.
+- `voiceManager`: Instance of `VoiceManager`.
+- `wordThreshold`: Number of words spoken by the user to trigger interruption.
+
+#### **Methods**:
+- **`startListening()`**
+  - Starts the listening session and returns a promise with the transcribed text.
+  - Example:
+    ```javascript
+    conversationManager.startListening().then((text) => {
+        console.log("Recognized:", text);
+    });
+    ```
+
+- **`stopListening()`**
+  - Stops the current listening session.
+  - Example:
+    ```javascript
+    conversationManager.stopListening();
+    ```
+
+- **`enqueueText(text)`**
+  - Speaks the given text and resumes listening afterward.
+  - Example:
+    ```javascript
+    conversationManager.enqueueText('Hello! How can I help you?').then(() => {
+        console.log("Finished speaking");
+    });
+    ```
+
+- **`resumeListening()`**
+  - Resumes the listening session after speaking or an action.
+  - Example:
+    ```javascript
+    conversationManager.resumeListening();
+    ```
+
+- **`detectInterruption(text)`**
+  - Detects if the user has spoken more than a predefined number of words (word threshold) during the agent's speech.
+  - Example:
+    ```javascript
+    if (conversationManager.detectInterruption('I need help now')) {
+        console.log("Interruption detected");
+    }
     ```
 
 ---

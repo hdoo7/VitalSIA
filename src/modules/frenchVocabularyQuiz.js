@@ -1,119 +1,89 @@
-import ReactDOMClient from 'react-dom/client';
-import React, { useEffect } from 'react';
 import AudioToText from './../VISOS/perception/audio/AudioToText';
+import ConversationManager from './../VISOS/cognition/ConversationManager';
 import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
+ // Updated import
 
 let voiceManager = null;
 let audioToText = null;
+let conversationManager = null;
 let currentQuestionIndex = 0;
 let correctAnswers = 0;
-let root = null;
 
 let questions = [
     { french: "Bonjour", english: "Hello" },
     { french: "Merci", english: "Thank you" },
     { french: "Chat", english: "Cat" },
-    { french: "Chien", english: "Dog" },
+    { french: "Tet", english: "Head" },
     { french: "Maison", english: "House" },
 ];
 
-// Function to set the voice to French and ensure it's available
-const setFrenchVoice = () => {
-    return new Promise((resolve) => {
-        console.log("Attempting to set the voice to French...");
-        const checkVoices = () => {
-            const frenchVoice = voiceManager.getVoices().find(voice => voice.name.includes("Google français"));
-            if (frenchVoice) {
-                voiceManager.setVoice(frenchVoice.name);
-                console.log(`French voice set: ${frenchVoice.name}`);
-                resolve();
-            } else {
-                console.log("French voice not found, retrying...");
-                setTimeout(checkVoices, 500);  // Retry until the voice is available
-            }
-        };
-        checkVoices();
-    });
-};
-
 // Function to ask the next question
-const askNextQuestion = () => {
+const askNextQuestion = (setStatus) => {
     if (currentQuestionIndex < questions.length) {
         const currentQuestion = questions[currentQuestionIndex];
         const questionText = `Que veut dire ${currentQuestion.french} en anglais ?`;
-        console.log(`Asking question: ${questionText}`);
-        voiceManager.enqueueText(questionText);
 
-        // Wait for the question to be spoken before starting to listen
-        voiceManager.synthesizeSpeech(questionText).then(() => {
-            console.log("Question spoken. Starting to listen for an answer...");
-            audioToText.startContinuousRecognition((transcribedText) => {
-                processAnswer(transcribedText);
+        setStatus('talking');
+        voiceManager.enqueueText(questionText).then(() => {
+            setStatus('listening');
+            console.log("Listening for user response...");
+            // Using promise-based startListening instead of a callback
+            conversationManager.startListening().then((transcribedText) => {
+                processAnswer(transcribedText, setStatus);
+            }).catch((error) => {
+                console.error("Error during listening:", error);
             });
         });
     } else {
-        endQuiz();
+        endQuiz(setStatus);
     }
 };
 
 // Function to process the user's answer
-const processAnswer = (transcribedText) => {
+const processAnswer = (transcribedText, setStatus) => {
     const currentQuestion = questions[currentQuestionIndex];
     const userAnswer = transcribedText.trim().toLowerCase();
     const correctAnswer = currentQuestion.english.toLowerCase();
 
     console.log(`User answered: ${userAnswer}`);
 
-    if (userAnswer === correctAnswer) {
+    if (userAnswer.includes(correctAnswer)) {
         correctAnswers++;
-        console.log("Correct answer!");
+        console.log("Correct!");
         voiceManager.enqueueText("Correct !");
     } else {
-        console.log(`Incorrect answer. The correct answer is: ${currentQuestion.english}`);
-        voiceManager.enqueueText(`Incorrect. La bonne réponse est ${currentQuestion.english}`);
+        console.log(`Incorrect. The correct answer is: ${currentQuestion.english}`);
+        voiceManager.enqueueText(`Incorrect. La réponse correcte est: ${currentQuestion.english}`);
     }
 
     currentQuestionIndex++;
-    askNextQuestion();  // Move to the next question
+    askNextQuestion(setStatus);  // Move to the next question
 };
 
 // Function to end the quiz
-const endQuiz = () => {
+const endQuiz = (setStatus) => {
     console.log(`Quiz ended. You got ${correctAnswers} out of ${questions.length} correct.`);
     voiceManager.enqueueText(`Vous avez terminé le quiz ! Vous avez obtenu ${correctAnswers} bonnes réponses sur ${questions.length}.`);
+    setStatus('idle');
 };
 
-// React component for FrenchQuizApp
-const FrenchQuizApp = () => {
-    useEffect(() => {
-        console.log("Starting French quiz...");
-        audioToText.startContinuousRecognition((text) => askNextQuestion());
-
-        return () => {
-            console.log("Stopping recognition...");
-            audioToText.stopRecognition();  // Clean up when component unmounts
-        };
-    }, []);
-
-    return null; // No need for a visible UI component
-};
-
-// Start the quiz
+// Start function
 export const start = (animationManager) => {
     console.log("Initializing French Vocabulary Quiz...");
     voiceManager = VoiceManager.getInstance(animationManager);
-    audioToText = new AudioToText('webspeech');  // Initialize AudioToText
+    audioToText = new AudioToText('webspeech');
+    conversationManager = new ConversationManager(1000, audioToText, voiceManager); // Pass voiceManager
+
     currentQuestionIndex = 0;
     correctAnswers = 0;
-
-    setFrenchVoice().then(() => {
+    voiceManager.findAndSetVoice("Google français").then(() => {
         console.log("Starting the quiz with the first question...");
         voiceManager.enqueueText("Commençons le quiz de vocabulaire en français !");
-        askNextQuestion();  // Ask the first question
+        askNextQuestion(() => {});  // Start asking questions
     });
 };
 
-// Stop the quiz
+// Stop function
 export const stop = () => {
     console.log("Stopping French Vocabulary Quiz...");
     if (audioToText) {

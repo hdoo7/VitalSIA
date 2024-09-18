@@ -23,7 +23,6 @@ class PhonemeExtractor {
                 phonemes.push(this.getPauseForChar(' '));
             }
         });
-        console.log(phonemes);
         return phonemes;
     }
 

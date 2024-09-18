@@ -48,7 +48,6 @@ export default class AnimationManager {
     }
 
     applyVisemeChange(visemeId, intensity, duration) {
-        console.log(`Applying viseme change: ${visemeId} at ${intensity}% intensity for ${duration}ms.`);
         this.facsLib.setTargetViseme(visemeId, intensity, duration);
         this.facsLib.updateEngine();
         this.setVisemeStates(prevVisemeStates => ({
