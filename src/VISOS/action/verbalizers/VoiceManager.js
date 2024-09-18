@@ -17,6 +17,7 @@ export default class VoiceManager {
         this.visemeMapper = new VisemeMapper();
         this.pitchAnalyzer = new PitchAnalyzer();
         this.voicesLoadedPromise = this.initVoices(); // Store the voices loading promise
+        this.sentenceTokenizer = new natural.SentenceTokenizer(); // Initialize sentence tokenizer
     }
 
     static getInstance(animationManager, pitchEnhance = false) {
@@ -83,10 +84,13 @@ export default class VoiceManager {
         this.pitchEnhance = pitchEnhance;
     }
 
-    // Updated enqueueText to return a promise when the speaking finishes
+    // Updated enqueueText to break text into sentences and return a promise when finished
     enqueueText(text) {
         return new Promise((resolve) => {
-            this.queue.push({ text, resolve });
+            const sentences = this.sentenceTokenizer.tokenize(text);  // Break text into sentences
+            sentences.forEach((sentence) => {
+                this.queue.push({ text: sentence, resolve });
+            });
             if (!this.isSpeaking) {
                 this.processQueue();
             }
