@@ -1,6 +1,7 @@
 import AudioToText from './../VISOS/perception/audio/AudioToText';
+import ConversationManager from './../VISOS/cognition/ConversationManager';
 import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
-import ConversationManager from './../VISOS/cognition/ConversationManager'; // Updated import
+ // Updated import
 
 let voiceManager = null;
 let audioToText = null;
