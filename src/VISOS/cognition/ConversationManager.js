@@ -1,8 +1,5 @@
-import TextToListener from './TextToListener';
-
-export default class TextToListenerWithFollowUp extends TextToListener {
-    constructor(triggerPhrases, bufferTime = 1000, audioToText) {
-        super(triggerPhrases);
+export default class ConversationManager {
+    constructor(bufferTime = 1000, audioToText) {
         this.awaitingFollowUp = false;
         this.lastDetectedPhrase = null;
         this.audioToText = audioToText;  // Pass the AudioToText instance
@@ -10,7 +7,9 @@ export default class TextToListenerWithFollowUp extends TextToListener {
         this.bufferTime = bufferTime;  // Buffer time to debounce follow-up detection
     }
 
+    // Start listening and handle the incoming utterances as a stream
     startListening(onRecognizedCallback) {
+        console.log("Starting listening session...");
         this.audioToText.startContinuousRecognition(onRecognizedCallback);
     }
 
@@ -18,24 +17,18 @@ export default class TextToListenerWithFollowUp extends TextToListener {
         this.audioToText.stopRecognition();
     }
 
-    // Handle the incoming utterances as a stream
-    listenForStream(text) {
+    // Process the detected utterances and return follow-up as needed
+    async listenForStream(text) {
         return new Promise((resolve) => {
             if (this.awaitingFollowUp) {
                 this.awaitingFollowUp = false;
                 resolve({ phrase: this.lastDetectedPhrase, followUp: text });
                 this.lastDetectedPhrase = null;
             } else {
-                super.listen(text)
-                    .then(detectedPhrase => {
-                        if (detectedPhrase) {
-                            this.awaitingFollowUp = true;
-                            this.lastDetectedPhrase = detectedPhrase;
-                            resolve({ phrase: detectedPhrase, followUp: null });
-                        } else {
-                            resolve(null);
-                        }
-                    });
+                console.log(`Detected phrase: ${text}`);
+                this.awaitingFollowUp = true;
+                this.lastDetectedPhrase = text;
+                resolve({ phrase: text, followUp: null });
             }
         });
     }

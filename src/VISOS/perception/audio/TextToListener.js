@@ -3,6 +3,7 @@ export default class TextToListener {
         this.triggerPhrases = triggerPhrases.map(phrase => phrase.toLowerCase().trim());
         this.bufferTime = bufferTime;
         this.debounceTimer = null;
+        this.utteranceQueue = []; // Queue to accumulate the latest utterances
     }
 
     // Check if any trigger phrase is detected in the text
@@ -14,7 +15,7 @@ export default class TextToListener {
 
     // Process the text to detect phrases or follow-ups, allowing subclasses to extend it
     async processText(text, waitForFollowUp = false) {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             if (this.debounceTimer) clearTimeout(this.debounceTimer);
 
             this.debounceTimer = setTimeout(async () => {
@@ -33,14 +34,25 @@ export default class TextToListener {
     }
 
     // Start listening to the transcribed text (to be used by subclasses)
-    async *startListening(textStreamGenerator) {
+    async startListening(textStreamGenerator, onRecognizedCallback) {
         for await (let text of textStreamGenerator) {
-            const result = await this.processText(text);
-            if (result) {
-                console.log(`Processing detected phrase: ${result.phrase}`);
-                yield result;
+            this.utteranceQueue.push(text); // Add new text to the queue
+            if (this.utteranceQueue.length > 0) {
+                const latestUtterance = this.utteranceQueue[this.utteranceQueue.length - 1]; // Get the latest utterance
+
+                const result = await this.processText(latestUtterance);
+                if (result) {
+                    console.log(`Processing detected phrase: ${result.phrase}`);
+                    this.clearUtteranceQueue(); // Clear the queue after processing the latest utterance
+                    onRecognizedCallback(result);
+                }
             }
         }
+    }
+
+    // Clear the accumulated utterances after processing
+    clearUtteranceQueue() {
+        this.utteranceQueue = [];
     }
 
     stopListening() {
