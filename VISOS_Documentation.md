@@ -1,11 +1,12 @@
 
 # VISOS Documentation
 
-This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions like virtual agents or conversational AI systems.
+This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve the artificial intelligent (AI) agent real-time loop architecture of **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions with virtual socially interactive agents or virtual humans, i.e. 3-dimensional (3D) digital characters that look and autonomoulsy act like humans for specific contexts, but in a virtual environment.
+
 
 **VISOS is based off of the original eEVA's "mainframe" architecture, developed by Dr. Ubbo Visser of the University of Miami's RoboCanes Robotics lab, in collaboration with Visage Laboratory. All code and architecture courtesy of Jonathan Sutton Fields while volunteering at Visage Labs.**
 
----
+
 
 ## Table of Contents
 - [Introduction](#introduction)
@@ -30,7 +31,7 @@ This documentation outlines the key ES6 modules and classes within the **VISOS**
 
 ## Introduction
 
-The **VISOS** framework is built around the **Perception-Action-Cognition** pattern, enabling responsive systems to capture input, process it intelligently, and respond appropriately. VISOS is designed for applications that involve continuous conversation, such as virtual agents, speech synthesis, and animation-based systems.
+The **VISOS** framework is built based on the artificial intelligent (AI) agent real-time loop of **Perception-Action-Cognition** architecture, enabling responsive systems to perceive socially relevant input via sensors (e.g. speech, facial expressions), process these input intelligently to make socially appropriate decisions, and respond with 3D actuators in a socially appropriate manner (e.g. synthesized speech, facial animations). VISOS is designed to create prototypes of virtual socially interactive agents or virtual humans, i.e. 3-dimensional digital characters that look and act like humans for specific contexts, but in a virtual environment.  
 
 This documentation details both the classes and ES6 modules that make up VISOS and provides examples of their usage.
 
@@ -75,7 +76,7 @@ This class handles continuous speech recognition using the **Web Speech API**.
 
 ### **ContinuousTextListener**
 
-Handles continuous listening for trigger phrases and integrates with **AudioToText** for transcription.
+Handles continuous listening for trigger phrases. Thus combining the more complicated steamProcessing approach, which is use full for responding to a given trigger prhase or set of trigger phrases when no follow up listenning is required--as would be the case in a more complicated conversation. with **AudioToText** for transcription.
 
 #### **Properties**:
 - `audioToText`: Instance of `AudioToText`.
