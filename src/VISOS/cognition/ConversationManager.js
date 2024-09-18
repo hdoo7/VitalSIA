@@ -1,39 +1,30 @@
 export default class ConversationManager {
     constructor(bufferTime = 1000, audioToText) {
-        this.awaitingFollowUp = false;
-        this.lastDetectedPhrase = null;
         this.audioToText = audioToText;  // Pass the AudioToText instance
-        this.debounceTimer = null;
-        this.bufferTime = bufferTime;  // Buffer time to debounce follow-up detection
+        this.bufferTime = bufferTime;    // Buffer time to debounce follow-up detection
     }
 
     // Start listening and handle the incoming utterances as a stream
     startListening(onRecognizedCallback) {
         console.log("Starting listening session...");
-        this.audioToText.startContinuousRecognition(onRecognizedCallback);
+        this.audioToText.startContinuousRecognition((text) => {
+            this.processTextStream(text).then(onRecognizedCallback);
+        });
     }
 
     stopListening() {
         this.audioToText.stopRecognition();
     }
 
-    // Process the detected utterances and return follow-up as needed
-    async listenForStream(text) {
+    // Process the detected utterances as a simple stream of text
+    async processTextStream(text) {
         return new Promise((resolve) => {
-            if (this.awaitingFollowUp) {
-                this.awaitingFollowUp = false;
-                resolve({ phrase: this.lastDetectedPhrase, followUp: text });
-                this.lastDetectedPhrase = null;
-            } else {
-                console.log(`Detected phrase: ${text}`);
-                this.awaitingFollowUp = true;
-                this.lastDetectedPhrase = text;
-                resolve({ phrase: text, followUp: null });
-            }
+            console.log(`Detected phrase: ${text}`);
+            resolve(text);  // Simply resolve with the detected text
         });
     }
 
-    // Add the resumeListeningAfterResponse method
+    // Resume listening after a response with a delay (debounce)
     resumeListeningAfterResponse(setStatus, onRecognizedCallback) {
         setTimeout(() => {
             setStatus('listening');  // Update the UI to show that it's listening

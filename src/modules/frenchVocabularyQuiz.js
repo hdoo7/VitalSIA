@@ -12,7 +12,7 @@ let questions = [
     { french: "Bonjour", english: "Hello" },
     { french: "Merci", english: "Thank you" },
     { french: "Chat", english: "Cat" },
-    { french: "Chien", english: "Dog" },
+    { french: "Tet", english: "Head" },
     { french: "Maison", english: "House" },
 ];
 
@@ -46,8 +46,10 @@ const processAnswer = (transcribedText, setStatus) => {
     if (userAnswer.includes(correctAnswer)) {
         correctAnswers++;
         console.log("Correct!");
+        voiceManager.enqueueText("Correct !");
     } else {
         console.log(`Incorrect. The correct answer is: ${currentQuestion.english}`);
+        voiceManager.enqueueText(`Incorrect. La réponse correcte est: ${currentQuestion.english}`);
     }
 
     currentQuestionIndex++;

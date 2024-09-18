@@ -2,6 +2,7 @@ export default class AudioToText {
     constructor(recognitionType = 'webspeech') {
         this.recognition = null;
         this.isRecognizing = false;
+        this.isManuallyStopped = false; // New flag to track manual stopping
         this.initRecognition(recognitionType);
     }
 
@@ -27,6 +28,7 @@ export default class AudioToText {
             this.stopRecognition();
         } else {
             // Start recognition directly if it is not already running
+            this.isManuallyStopped = false; // Reset manual stop flag
             this.startRecognitionProcess(onRecognizedCallback);
         }
     }
@@ -46,14 +48,24 @@ export default class AudioToText {
             onRecognizedCallback(finalTranscript.join(' ')); // Send the transcription result
         };
 
+        // Handle recognition errors
         this.recognition.onerror = (event) => {
-            console.error("Recognition error:", event.error);
+            if (event.error === 'not-allowed') {
+                console.error("Recognition error: Microphone access was not allowed.");
+                alert("Please allow microphone access to use the speech recognition feature.");
+            } else {
+                console.error("Recognition error:", event.error);
+            }
             this.stopRecognition(); // Stop recognition on error
         };
 
         this.recognition.onend = () => {
             console.log("Speech recognition ended.");
             this.isRecognizing = false; // Reset the flag when recognition ends
+            if (!this.isManuallyStopped) {
+                console.log("Restarting speech recognition...");
+                this.startRecognitionProcess(onRecognizedCallback); // Automatically restart recognition if not manually stopped
+            }
         };
 
         this.recognition.start(); // Start recognition
@@ -63,8 +75,9 @@ export default class AudioToText {
     // Stop recognition if it is running
     stopRecognition() {
         if (this.isRecognizing) {
+            this.isManuallyStopped = true; // Set the manual stop flag
             this.recognition.stop();
-            console.log("Speech recognition stopped.");
+            console.log("Speech recognition stopped manually.");
             this.isRecognizing = false;
         }
     }
