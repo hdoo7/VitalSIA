@@ -1,5 +1,5 @@
 
-# VISOS Documentation
+# 🇨🇭VISOS Documentation
 
 This documentation outlines the key ES6 modules and classes within the **VISOS** framework. The VISOS system is designed for interactive systems that involve the artificial intelligent (AI) agent real-time loop architecture of **Perception**, **Cognition**, and **Action** to create reactive, stream-based interactions with virtual socially interactive agents or virtual humans, i.e. 3-dimensional (3D) digital characters that look and autonomoulsy act like humans for specific contexts, but in a virtual environment.
 
