@@ -31,7 +31,7 @@ const initializeModules = async (animationManager, appSettings) => {
     voiceManager = VoiceManager.getInstance(animationManager);
     conversationManager = new ConversationManager(1000, audioToText, voiceManager);
     gptReconciler = new TextToGptReconciler(apiKey);
-    await setVoice(preferredVoice || 'Samantha');
+    await setVoice(preferredVoice || 'Bubbles');
 };
 
 // Function to handle conversation responses
@@ -48,11 +48,12 @@ const handleResponse = async (text, setStatus, toast) => {
     const response = await gptReconciler.processText(text, 'Answer thoughtfully:');
     
     setStatus('talking');  // Set to talking while agent speaks
-    await voiceManager.enqueueText(response, setStatus, toast);
+    await voiceManager.enqueueText(response);
 
-    setStatus('listening');  // Return to listening after response
-    conversationManager.resumeListeningAfterResponse(setStatus).then((newText) => {
-        handleResponse(newText, setStatus, toast);
+    // After speaking, set to listening and restart recognition
+    setStatus('listening');
+    conversationManager.startListening().then((newText) => {
+        handleResponse(newText, setStatus, toast);  // Continue the conversation loop
     });
 };
 
@@ -61,11 +62,12 @@ const introduceAgent = async (setStatus, toast) => {
     const intro = "Hello! I'm your virtual assistant. How can I help you today?";
     
     setStatus('talking');  // Set status to talking during introduction
-    await voiceManager.enqueueText(intro, setStatus, toast);
+    await voiceManager.enqueueText(intro);
     
-    setStatus('listening');  // Set status to listening after introduction
+    // After the introduction, start listening
+    setStatus('listening');
     conversationManager.startListening().then((text) => {
-        handleResponse(text, setStatus, toast);
+        handleResponse(text, setStatus, toast);  // Handle the first user response
     });
 };
 

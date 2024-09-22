@@ -20,8 +20,8 @@ class TextToGptReconciler {
           { role: 'system', content: instruction },
           { role: 'user', content: text }
         ],
-        max_tokens: 120,  // Adjust as necessary
-        temperature: 0.7
+        max_tokens: 20,  // Adjust as necessary
+        temperature: 0.99
       };
   
       try {
