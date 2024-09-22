@@ -6,6 +6,7 @@ import {
 import { InfoIcon, ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons';
 import modulesConfig from '../modules/config'; // Correct reference to modules
 import ConfigModal from './ConfigModal';
+import { ModulesProvider } from './ModulesContext';  // Ensure you import ModulesProvider
 
 const ModulesMenu = ({ animationManager }) => {
     const [selectedModule, setSelectedModule] = useState(null);
@@ -43,7 +44,18 @@ const ModulesMenu = ({ animationManager }) => {
                 }
                 setError(''); // Clear any previous error
 
-                // Start the module and pass the toast function as a prop
+                // Ensure the dynamic module is wrapped with `ModulesProvider`
+                const ModuleComponent = () => (
+                    <ModulesProvider>
+                        <moduleInstance.start 
+                            animationManager={animationManager} 
+                            moduleSettings={moduleSettings[module.name]} 
+                            containerRef={containerRef} 
+                            toast={toast}
+                        />
+                    </ModulesProvider>
+                );
+
                 moduleInstance.start(animationManager, moduleSettings[module.name], containerRef, toast);
             } else {
                 moduleInstance.stop(animationManager);

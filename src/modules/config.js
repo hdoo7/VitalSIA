@@ -47,7 +47,7 @@ const modulesConfig = {
     {
       name: "French Vocabulary Quiz",  // Add the new quiz module here
       description: "A quiz that asks questions in French and expects answers in English.",
-      path: "frenchVocabularyQuiz",  // The path to the module
+      path: "reactiveQuiz",  // The path to the module
     },
     // Add other apps as necessary
   ],
