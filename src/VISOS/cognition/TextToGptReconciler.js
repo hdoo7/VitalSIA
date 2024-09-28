@@ -21,7 +21,7 @@ class TextToGptReconciler {
           { role: 'user', content: text }
         ],
         max_tokens: 20,  // Adjust as necessary
-        temperature: 0.99
+        temperature: 0.88
       };
   
       try {
