@@ -1,75 +1,27 @@
 import ReactDOMClient from 'react-dom/client';
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useToast } from '@chakra-ui/react';
 import AudioToText from './../VISOS/perception/audio/AudioToText';
-import ConversationManager from './../VISOS/cognition/ConversationManager';
-import TextToGptReconciler from './../VISOS/cognition/TextToGptReconciler';
 import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
 import TrafficLightIndicator from '../components/TrafficLightIndicator';
+import useConvo from './../hooks/useConvo';
+import TextToGptReconciler from './../VISOS/cognition/TextToGptReconciler';
 
 let voiceManager;
 let audioToText;
-let conversationManager;
 let gptReconciler;
 let root = null;
 
-// Function to set the voice
-const setVoice = async (voiceName) => {
-    try {
-        await voiceManager.findAndSetVoice(voiceName);
-        console.log(`Voice set: ${voiceName}`);
-    } catch {
-        console.log(`Voice not found: ${voiceName}`);
-    }
-};
-
-// Initialize core modules
 const initializeModules = async (animationManager, appSettings) => {
     const { apiKey, preferredVoice } = appSettings;
 
     audioToText = new AudioToText('webspeech');
     voiceManager = VoiceManager.getInstance(animationManager);
-    conversationManager = new ConversationManager(1000, audioToText, voiceManager);
     gptReconciler = new TextToGptReconciler(apiKey);
-    await setVoice(preferredVoice || 'Samantha');
+
+    await voiceManager.findAndSetVoice(preferredVoice || 'Bubbles');
 };
 
-// Function to handle conversation responses
-const handleResponse = async (text, setStatus, toast) => {
-    toast({
-        title: 'Transcribed Text',
-        description: text,
-        status: 'info',
-        duration: 2000,
-    });
-
-    setStatus('thinking');  // Set to thinking while GPT processes the response
-
-    const response = await gptReconciler.processText(text, 'Answer thoughtfully:');
-    
-    setStatus('talking');  // Set to talking while agent speaks
-    await voiceManager.enqueueText(response, setStatus, toast);
-
-    setStatus('listening');  // Return to listening after response
-    conversationManager.resumeListeningAfterResponse(setStatus).then((newText) => {
-        handleResponse(newText, setStatus, toast);
-    });
-};
-
-// Agent introduction
-const introduceAgent = async (setStatus, toast) => {
-    const intro = "Hello! I'm your virtual assistant. How can I help you today?";
-    
-    setStatus('talking');  // Set status to talking during introduction
-    await voiceManager.enqueueText(intro, setStatus, toast);
-    
-    setStatus('listening');  // Set status to listening after introduction
-    conversationManager.startListening().then((text) => {
-        handleResponse(text, setStatus, toast);
-    });
-};
-
-// Start the chat app
 export const start = async (animationManager, appSettings, containerRef) => {
     if (!containerRef || !containerRef.current) {
         console.error('Invalid container reference');
@@ -79,17 +31,33 @@ export const start = async (animationManager, appSettings, containerRef) => {
     await initializeModules(animationManager, appSettings);
 
     const ChatApp = () => {
-        const [status, setStatus] = useState('listening'); // Initialize with listening state
+        const { conversationState, startConversation, stopConversation } = useConvo(audioToText, voiceManager, gptReconciler);
         const toast = useToast();
 
         useEffect(() => {
-            introduceAgent(setStatus, toast);
-            return () => {
-                audioToText.stopRecognition();
-            };
-        }, [setStatus, toast]);
+            startConversation();
+            return () => stopConversation();
+        }, [startConversation, stopConversation]);
 
-        return <TrafficLightIndicator status={status} />;  // Pass status to the TrafficLightIndicator
+        useEffect(() => {
+            if (conversationState.status === 'thinking') {
+                toast({
+                    title: 'Processing...',
+                    description: 'Processing your response...',
+                    status: 'info',
+                    duration: 2000,
+                });
+            } else if (conversationState.status === 'talking') {
+                toast({
+                    title: 'Response',
+                    description: conversationState.gptResponse,
+                    status: 'success',
+                    duration: 4000,
+                });
+            }
+        }, [conversationState.status, conversationState.gptResponse, toast]);
+
+        return <TrafficLightIndicator status={conversationState.status} />;
     };
 
     if (!root) {
@@ -99,9 +67,7 @@ export const start = async (animationManager, appSettings, containerRef) => {
     root.render(<ChatApp />);
 };
 
-// Stop the chat app
 export const stop = () => {
-    console.log("Stopping chat app...");
     if (audioToText) {
         audioToText.stopRecognition();
     }

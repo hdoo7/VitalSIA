@@ -20,7 +20,7 @@ export default class AudioToText {
     // Start recognition, but first stop any existing recognition
     startContinuousRecognition(onRecognizedCallback) {
         if (this.isRecognizing) {
-            // Stop recognition if it is already running and wait for it to stop
+            // Recognition is already running, so stop it first
             this.recognition.onend = () => {
                 this.isRecognizing = false;
                 this.startRecognitionProcess(onRecognizedCallback); // Start the recognition after stopping
@@ -35,6 +35,11 @@ export default class AudioToText {
 
     // Process for starting recognition
     startRecognitionProcess(onRecognizedCallback) {
+        if (this.isRecognizing) {
+            console.warn("Recognition is already running, skipping start.");
+            return; // Avoid starting if it's already running
+        }
+
         this.isRecognizing = true;
         const finalTranscript = [];
 
@@ -53,10 +58,20 @@ export default class AudioToText {
             if (event.error === 'not-allowed') {
                 console.error("Recognition error: Microphone access was not allowed.");
                 alert("Please allow microphone access to use the speech recognition feature.");
+                this.stopRecognition(); // Stop recognition on permission error
+            } else if (event.error === 'no-speech') {
+                console.warn("Recognition error: No speech detected.");
+                // Automatically restart recognition if it's a no-speech error and not manually stopped
+                if (!this.isManuallyStopped) {
+                    setTimeout(() => {
+                        console.log("Restarting speech recognition after no-speech error...");
+                        this.startRecognitionProcess(onRecognizedCallback); // Restart after no-speech error
+                    }, 1000); // Add a small delay before restarting
+                }
             } else {
                 console.error("Recognition error:", event.error);
+                this.stopRecognition(); // Stop recognition on other errors
             }
-            this.stopRecognition(); // Stop recognition on error
         };
 
         this.recognition.onend = () => {

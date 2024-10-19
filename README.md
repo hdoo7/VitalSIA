@@ -138,7 +138,7 @@ const animationManager = new AnimationManager();
 // Use animationManager to control animations
 ```
 
-## Setting up an App
+## Setting up a Module.
 
 In `app.js`, you can set up the initial environment and include the main components of the system, such as the Animation Manager and the newly added UI sensor components.
 

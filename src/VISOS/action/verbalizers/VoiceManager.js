@@ -86,7 +86,14 @@ export default class VoiceManager {
 
     // Updated enqueueText to break text into sentences and return a promise when finished
     enqueueText(text) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
+            // Check if text is empty or undefined
+            if (!text || typeof text !== 'string' || text.trim() === '') {
+                console.warn("Attempted to speak empty or undefined text.");
+                resolve();  // Immediately resolve the promise if text is invalid
+                return;
+            }
+
             const sentences = this.sentenceTokenizer.tokenize(text);  // Break text into sentences
             sentences.forEach((sentence) => {
                 this.queue.push({ text: sentence, resolve });
