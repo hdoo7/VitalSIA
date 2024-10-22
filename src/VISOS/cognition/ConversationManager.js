@@ -1,5 +1,5 @@
 export default class ConversationManager {
-    constructor(bufferTime = 1000, audioToText, voiceManager, wordThreshold = 5) {
+    constructor(bufferTime = 0, audioToText, voiceManager, wordThreshold = 5) {
         this.bufferTime = bufferTime;
         this.audioToText = audioToText;
         this.voiceManager = voiceManager;  // Now accepts voiceManager
@@ -23,6 +23,8 @@ export default class ConversationManager {
             this.audioToText.onerror = (error) => {
                 console.error("Error during speech recognition:", error);
                 reject(error);  // Reject the promise if there's an error
+
+
             };
         });
     }

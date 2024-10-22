@@ -11,7 +11,7 @@ const TrafficLightIndicator = ({ status }) => {
   return (
     <Box
       position="fixed"
-      zIndex="1000" // High z-index to ensure visibility
+      zIndex="1000"
       bottom="20px"
       left="20px"
       bg="gray.700"

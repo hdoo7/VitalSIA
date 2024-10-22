@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { createRoot } from 'react-dom/client';
-import useConvo from './../hooks/useConvo';  // Custom hook
+import useConvo from './../hooks/useConvo';
+import useMirroring from './../hooks/useMirroring';  // Continuous emotion mirroring hook
 import AudioToText from './../VISOS/perception/audio/AudioToText';
 import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
 import ConversationManager from './../VISOS/cognition/ConversationManager';
 import TrafficLightIndicator from '../components/TrafficLightIndicator';
+import EmotionDetection from '../components/EmotionDetection';  // Emotion detection component
 
 let root = null;
 
-const QuizApp = ({ animationManager }) => {
-    const [correctAnswers, setCorrectAnswers] = useState(0); // Track correct answers
-    const correctAnswersRef = useRef(correctAnswers); // Ref to store correctAnswers value
+const EmoFrenchQuiz = ({ animationManager }) => {
+    const [correctAnswers, setCorrectAnswers] = useState(0);
+    const [emotionState, setEmotionState] = useState(null);  // Store emotionState from EmotionDetection
     const toast = useToast();
+    
+    // Pass the emotionState to the useMirroring hook
+    useMirroring(animationManager, emotionState);  // Pass emotionState to the mirroring hook
 
     const questions = useMemo(() => [
         { french: "Bonjour", english: "Hello" },
@@ -22,29 +27,21 @@ const QuizApp = ({ animationManager }) => {
         { french: "Maison", english: "House" },
     ], []);
 
-    // Update correctAnswersRef whenever correctAnswers state changes
-    useEffect(() => {
-        correctAnswersRef.current = correctAnswers; // Keep the ref in sync with the state
-    }, [correctAnswers]);
-
-    // Memoize the textToSpeakGenerator for questions
     const textToSpeakGenerator = useMemo(() => {
         return function* () {
             for (let question of questions) {
                 yield `Que veut dire ${question.french} en anglais ?`;
             }
-            // Final message after all questions have been answered using ref to get the latest value
-            yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswersRef.current} bonnes réponses sur ${questions.length}. Merci d'avoir participé!`;
+            yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswers} bonnes réponses sur ${questions.length}.`;
         };
-    }, [questions]);
+    }, [correctAnswers, questions]);
 
-    // Memoize the transcribedTextGenerator for checking answers
     const transcribedTextGenerator = useMemo(() => {
         return function* () {
             for (let question of questions) {
-                const userAnswer = yield;  // Get user input
+                const userAnswer = yield;
                 if (userAnswer.toLowerCase().includes(question.english.toLowerCase())) {
-                    setCorrectAnswers((prev) => prev + 1); // Increment correct answers
+                    setCorrectAnswers((prev) => prev + 1);
                     yield "Correct!";
                 } else {
                     yield `Incorrect. La réponse correcte est: ${question.english}`;
@@ -54,9 +51,9 @@ const QuizApp = ({ animationManager }) => {
     }, [questions]);
 
     const [conversationState, setConversationState] = useState({
-        status: 'idle', // Possible statuses: 'idle', 'listening', 'thinking', 'talking'
-        transcribedText: null, // User's transcribed input
-        speakingText: null, // Text currently being spoken
+        status: 'idle',
+        transcribedText: null,
+        speakingText: null,
     });
 
     const audioToText = useRef(new AudioToText('webspeech')).current;
@@ -101,6 +98,7 @@ const QuizApp = ({ animationManager }) => {
 
     return (
         <div>
+            <EmotionDetection onEmotionStateChange={setEmotionState} />  {/* Pass emotion state to the detection */}
             <TrafficLightIndicator status={conversationState.status} />
             <div>
                 <h2>Correct Answers: {correctAnswers}</h2>
@@ -120,7 +118,7 @@ export const start = (animationManager, appSettings, containerRef) => {
         root = createRoot(containerRef.current);
     }
 
-    root.render(<QuizApp animationManager={animationManager} />);
+    root.render(<EmoFrenchQuiz animationManager={animationManager} />);
 };
 
 export const stop = () => {
