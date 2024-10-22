@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { createRoot } from 'react-dom/client';
-import useConvo from './../hooks/useConvo';
-// import useMirroring from './../hooks/useMirroring';  // Continuous emotion mirroring hook
-import DiscreteUseMirroringHook from './../hooks/DiscreteUseMirroringHook';  // Discrete emotion mirroring hook
+import useConvo from './../hooks/useConvo';  // Custom hook
+import useMirroring from './../hooks/useMirroring';  // Continuous emotion mirroring hook
 import AudioToText from './../VISOS/perception/audio/AudioToText';
 import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
 import ConversationManager from './../VISOS/cognition/ConversationManager';
@@ -12,13 +11,11 @@ import EmotionDetection from '../components/EmotionDetection';  // Emotion detec
 
 let root = null;
 
-const EmoFrenchQuiz = ({ animationManager }) => {
-    const [correctAnswers, setCorrectAnswers] = useState(0);
-    const [emotionState, setEmotionState] = useState(null);  // Store emotionState from EmotionDetection
+const QuizApp = ({ animationManager }) => {
+    const [correctAnswers, setCorrectAnswers] = useState(0); // Track correct answers
+    const [emotionState, setEmotionState] = useState(null);  // Track emotionState for mirroring
+    const correctAnswersRef = useRef(correctAnswers); // Ref to store correctAnswers value
     const toast = useToast();
-    
-    // Use the DiscreteUseMirroringHook for testing
-    DiscreteUseMirroringHook(animationManager, emotionState);  // Pass emotionState to the mirroring hook
 
     const questions = useMemo(() => [
         { french: "Bonjour", english: "Hello" },
@@ -28,21 +25,29 @@ const EmoFrenchQuiz = ({ animationManager }) => {
         { french: "Maison", english: "House" },
     ], []);
 
+    // Update correctAnswersRef whenever correctAnswers state changes
+    useEffect(() => {
+        correctAnswersRef.current = correctAnswers; // Keep the ref in sync with the state
+    }, [correctAnswers]);
+
+    // Memoize the textToSpeakGenerator for questions
     const textToSpeakGenerator = useMemo(() => {
         return function* () {
             for (let question of questions) {
                 yield `Que veut dire ${question.french} en anglais ?`;
             }
-            yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswers} bonnes réponses sur ${questions.length}.`;
+            // Final message after all questions have been answered using ref to get the latest value
+            yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswersRef.current} bonnes réponses sur ${questions.length}. Merci d'avoir participé!`;
         };
-    }, [correctAnswers, questions]);
+    }, [questions]);
 
+    // Memoize the transcribedTextGenerator for checking answers
     const transcribedTextGenerator = useMemo(() => {
         return function* () {
             for (let question of questions) {
-                const userAnswer = yield;
+                const userAnswer = yield;  // Get user input
                 if (userAnswer.toLowerCase().includes(question.english.toLowerCase())) {
-                    setCorrectAnswers((prev) => prev + 1);
+                    setCorrectAnswers((prev) => prev + 1); // Increment correct answers
                     yield "Correct!";
                 } else {
                     yield `Incorrect. La réponse correcte est: ${question.english}`;
@@ -52,14 +57,17 @@ const EmoFrenchQuiz = ({ animationManager }) => {
     }, [questions]);
 
     const [conversationState, setConversationState] = useState({
-        status: 'idle',
-        transcribedText: null,
-        speakingText: null,
+        status: 'idle', // Possible statuses: 'idle', 'listening', 'thinking', 'talking'
+        transcribedText: null, // User's transcribed input
+        speakingText: null, // Text currently being spoken
     });
 
     const audioToText = useRef(new AudioToText('webspeech')).current;
     const voiceManager = useRef(VoiceManager.getInstance(animationManager)).current;
     const conversationManager = useRef(new ConversationManager(1000, audioToText, voiceManager)).current;
+
+    // Integrate Emotion Mirroring Hook
+    useMirroring(animationManager, emotionState);  // Use continuous emotion mirroring
 
     const { startConversation, stopConversation } = useConvo(
         audioToText,
@@ -99,7 +107,7 @@ const EmoFrenchQuiz = ({ animationManager }) => {
 
     return (
         <div>
-            <EmotionDetection onEmotionStateChange={setEmotionState} />  {/* Pass emotion state to the detection */}
+            <EmotionDetection onEmotionStateChange={setEmotionState} />  {/* Emotion Detection */}
             <TrafficLightIndicator status={conversationState.status} />
             <div>
                 <h2>Correct Answers: {correctAnswers}</h2>
@@ -119,7 +127,7 @@ export const start = (animationManager, appSettings, containerRef) => {
         root = createRoot(containerRef.current);
     }
 
-    root.render(<EmoFrenchQuiz animationManager={animationManager} />);
+    root.render(<QuizApp animationManager={animationManager} />);
 };
 
 export const stop = () => {

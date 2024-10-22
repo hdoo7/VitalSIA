@@ -1,13 +1,16 @@
 import { useEffect } from 'react';
 import { showHappy, showSad, showAngry, showFear, showSurprise, showDisgust } from '../VISOS/action/visualizers/basicEmotions';
 
-const DiscreteUseMirroringHook = (animationManager, emotionState) => {
+const useDiscreteMirroring = (animationManager, emotionState) => {
     // Effect to mirror emotions based on the detected emotion state passed from EmotionDetection
     useEffect(() => {
         if (emotionState && emotionState.detectedEmotion) {
             const { detectedEmotion } = emotionState;
 
             console.log('Discrete Detected Emotion:', detectedEmotion);  // Debug log to track detected emotions
+
+            // Reset the face to neutral before applying new emotion
+            animationManager.setFaceToNeutral();
 
             // Map the detected emotion to the agent's facial expressions with predefined states
             mirrorDiscreteEmotionToAgent(detectedEmotion, animationManager);
@@ -60,4 +63,4 @@ const DiscreteUseMirroringHook = (animationManager, emotionState) => {
     return null;  // No need to return anything since this is a side-effect hook
 };
 
-export default DiscreteUseMirroringHook;
+export default useDiscreteMirroring;
