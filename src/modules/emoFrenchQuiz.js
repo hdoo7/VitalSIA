@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { createRoot } from 'react-dom/client';
 import useConvo from './../hooks/useConvo';
-import useMirroring from './../hooks/useMirroring';  // Continuous emotion mirroring hook
+// import useMirroring from './../hooks/useMirroring';  // Continuous emotion mirroring hook
+import DiscreteUseMirroringHook from './../hooks/DiscreteUseMirroringHook';  // Discrete emotion mirroring hook
 import AudioToText from './../VISOS/perception/audio/AudioToText';
 import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
 import ConversationManager from './../VISOS/cognition/ConversationManager';
@@ -16,8 +17,8 @@ const EmoFrenchQuiz = ({ animationManager }) => {
     const [emotionState, setEmotionState] = useState(null);  // Store emotionState from EmotionDetection
     const toast = useToast();
     
-    // Pass the emotionState to the useMirroring hook
-    useMirroring(animationManager, emotionState);  // Pass emotionState to the mirroring hook
+    // Use the DiscreteUseMirroringHook for testing
+    DiscreteUseMirroringHook(animationManager, emotionState);  // Pass emotionState to the mirroring hook
 
     const questions = useMemo(() => [
         { french: "Bonjour", english: "Hello" },
