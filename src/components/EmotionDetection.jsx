@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import useEmo from '../hooks/useEmo';
 import DraggableVideoBox from './DraggableVideoBox';
-import EmotionRadarChart from './EmotionRadarChart';  // Import radar chart component
+import EmotionRadarChart from './EmotionRadarChart';
 import GameText from './GameText';
-import { Box } from '@chakra-ui/react';
 
-const EmotionDetection = () => {
+const EmotionDetection = ({ onEmotionStateChange }) => {
     const { emotionState, startEmoDetection, stopEmoDetection, videoElementRef } = useEmo();
 
     // Start detection when component mounts and clean up when unmounting
@@ -16,6 +15,13 @@ const EmotionDetection = () => {
             stopEmoDetection();
         };
     }, [startEmoDetection, stopEmoDetection]);
+
+    // Pass emotionState to parent via callback
+    useEffect(() => {
+        if (onEmotionStateChange) {
+            onEmotionStateChange(emotionState);  // Provide the updated emotion state
+        }
+    }, [emotionState, onEmotionStateChange]);
 
     return (
         <div>

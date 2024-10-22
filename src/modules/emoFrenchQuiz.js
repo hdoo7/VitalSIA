@@ -2,15 +2,18 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { createRoot } from 'react-dom/client';
 import useConvo from './../hooks/useConvo';  // Custom hook
+import useMirroring from './../hooks/useMirroring';  // Continuous emotion mirroring hook
 import AudioToText from './../VISOS/perception/audio/AudioToText';
 import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
 import ConversationManager from './../VISOS/cognition/ConversationManager';
 import TrafficLightIndicator from '../components/TrafficLightIndicator';
+import EmotionDetection from '../components/EmotionDetection';  // Emotion detection component
 
 let root = null;
 
 const QuizApp = ({ animationManager }) => {
     const [correctAnswers, setCorrectAnswers] = useState(0); // Track correct answers
+    const [emotionState, setEmotionState] = useState(null);  // Track emotionState for mirroring
     const correctAnswersRef = useRef(correctAnswers); // Ref to store correctAnswers value
     const toast = useToast();
 
@@ -63,6 +66,9 @@ const QuizApp = ({ animationManager }) => {
     const voiceManager = useRef(VoiceManager.getInstance(animationManager)).current;
     const conversationManager = useRef(new ConversationManager(1000, audioToText, voiceManager)).current;
 
+    // Integrate Emotion Mirroring Hook
+    useMirroring(animationManager, emotionState);  // Use continuous emotion mirroring
+
     const { startConversation, stopConversation } = useConvo(
         audioToText,
         voiceManager,
@@ -101,6 +107,7 @@ const QuizApp = ({ animationManager }) => {
 
     return (
         <div>
+            <EmotionDetection onEmotionStateChange={setEmotionState} />  {/* Emotion Detection */}
             <TrafficLightIndicator status={conversationState.status} />
             <div>
                 <h2>Correct Answers: {correctAnswers}</h2>

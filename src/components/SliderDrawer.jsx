@@ -46,7 +46,7 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
         duration: 750, // Assuming a default duration, you may customize it as needed
         explanation: au.notes || "",
       }));
-      
+
     const data = JSON.stringify(nonZeroAUs, null, 2);
     const blob = new Blob([data], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -251,7 +251,16 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                                   notes={auState.notes}
                                   muscularBasis={ActionUnitsList[au.id]?.muscularBasis}
                                   links={ActionUnitsList[au.id]?.links}
-                                  onChange={(value, notes) => {/* Handle intensity change */}}
+                                  onChange={(value, notes) => {
+                                    setAuStates(prev => ({
+                                      ...Object.keys(prev).reduce((acc, key) => {
+                                        acc[key] = { ...prev[key], intensity: 0 }; // Reset all intensities to 0
+                                        return acc;
+                                      }, {}),
+                                      [au.id]: { ...prev[au.id], intensity: value, notes }
+                                    }));
+                                    animationManager.applyAUChange(au.id, value, notes);
+                                  }}
                                   animationManager={animationManager}
                                 />
                               </Box>
@@ -287,24 +296,31 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                 </h2>
                 <AccordionPanel pb={4}>
                   <VStack spacing={4}>
-                    {Object.entries(visemeStates).map(([id, visemeState]) => (
-                      <Box key={id} w="100%">
-                        <VisemeSlider
-                          viseme={id}
-                          name={VisemesList.find(v => v.id === id)?.name || id}
-                          intensity={visemeState.intensity}
-                          notes={visemeState.notes}
-                          onChange={(value, notes) => {
-                            setVisemeStates(prev => ({
-                              ...prev,
-                              [id]: { ...prev[id], intensity: value, notes }
-                            }));
-                            animationManager.applyVisemeChange(id, value, notes);
-                          }}
-                          animationManager={animationManager}
-                        />
-                      </Box>
-                    ))}
+                    {Object.entries(visemeStates).map(([id, visemeState]) => {
+                      const viseme = VisemesList.find(v => v.id === parseInt(id));  // Fetch viseme details
+                      const phoneme = viseme?.name || "Unknown Sound";  // Get the phoneme (name)
+
+                      return (
+                        <Box key={id} w="100%">
+                          <Text>{phoneme}</Text>  {/* Display the phoneme (sound) above the slider */}
+                          <VisemeSlider
+                            viseme={id}
+                            intensity={visemeState.intensity}
+                            notes={visemeState.notes}
+                            onChange={(value, notes) => {
+                              // Make sure setVisemeStates is passed to update the state
+                              setVisemeStates(prev => ({
+                                ...prev,
+                                [id]: { ...prev[id], intensity: value, notes }
+                              }));
+                              animationManager.applyVisemeChange(id, value, notes);  // Apply changes to the animation
+                            }}
+                            animationManager={animationManager}
+                            setVisemeStates={setVisemeStates}  
+                          />
+                        </Box>
+                      );
+                    })}
                   </VStack>
                 </AccordionPanel>
               </AccordionItem>
