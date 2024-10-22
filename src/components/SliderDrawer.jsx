@@ -308,16 +308,15 @@ const SliderDrawer = ({ auStates, setAuStates, visemeStates, setVisemeStates, an
                             intensity={visemeState.intensity}
                             notes={visemeState.notes}
                             onChange={(value, notes) => {
+                              // Make sure setVisemeStates is passed to update the state
                               setVisemeStates(prev => ({
-                                ...Object.keys(prev).reduce((acc, key) => {
-                                  acc[key] = { ...prev[key], intensity: 0 }; // Reset all intensities to 0
-                                  return acc;
-                                }, {}),
+                                ...prev,
                                 [id]: { ...prev[id], intensity: value, notes }
                               }));
-                              animationManager.applyVisemeChange(id, value, notes);
+                              animationManager.applyVisemeChange(id, value, notes);  // Apply changes to the animation
                             }}
                             animationManager={animationManager}
+                            setVisemeStates={setVisemeStates}  
                           />
                         </Box>
                       );
