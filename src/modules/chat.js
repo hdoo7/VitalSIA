@@ -1,81 +1,100 @@
-import ReactDOMClient from 'react-dom/client';
-import React, { useEffect } from 'react';
-import { useToast } from '@chakra-ui/react';
-import AudioToText from './../VISOS/perception/audio/AudioToText';
-import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
-import TrafficLightIndicator from '../components/TrafficLightIndicator';
-import useConvo from './../hooks/useConvo';
-import TextToGptReconciler from './../VISOS/cognition/TextToGptReconciler';
+    import ReactDOMClient from 'react-dom/client';
+    import React, { useEffect } from 'react';
+    import { useToast } from '@chakra-ui/react';
+    import AudioToText from './../VISOS/perception/audio/AudioToText';
+    import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
+    import useConvo from './../hooks/useConvo';
+    import TrafficLightIndicator from '../components/TrafficLightIndicator';
+    import { processTextWithGPT } from './../VISOS/cognition/TextToGptReconciler';  // Import GPT function
 
-let voiceManager;
-let audioToText;
-let gptReconciler;
-let root = null;
+    let voiceManager;
+    let audioToText;
+    let root = null; // Ensure this is initialized correctly
 
-const initializeModules = async (animationManager, appSettings) => {
-    const { apiKey, preferredVoice } = appSettings;
+    // Generator for GPT Flow
+    const gptFlowGenerator = (apiKey) => {
+        return function* () {
+            let um = yield "Hello! How can I assist you today?";
 
-    audioToText = new AudioToText('webspeech');
-    voiceManager = VoiceManager.getInstance(animationManager);
-    gptReconciler = new TextToGptReconciler(apiKey);
-
-    await voiceManager.findAndSetVoice(preferredVoice || 'Bubbles');
-};
-
-export const start = async (animationManager, appSettings, containerRef) => {
-    if (!containerRef || !containerRef.current) {
-        console.error('Invalid container reference');
-        return;
-    }
-
-    await initializeModules(animationManager, appSettings);
-
-    const ChatApp = () => {
-        const { conversationState, startConversation, stopConversation } = useConvo(audioToText, voiceManager, gptReconciler);
-        const toast = useToast();
-
-        useEffect(() => {
-            startConversation();
-            return () => stopConversation();
-        }, [startConversation, stopConversation]);
-
-        useEffect(() => {
-            if (conversationState.status === 'thinking') {
-                toast({
-                    title: 'Processing...',
-                    description: 'Processing your response...',
-                    status: 'info',
-                    duration: 2000,
-                });
-            } else if (conversationState.status === 'talking') {
-                toast({
-                    title: 'Response',
-                    description: conversationState.gptResponse,
-                    status: 'success',
-                    duration: 4000,
-                });
+            while (true) { 
+                
+                 // Wait for user's response and use it
+                // Yield a promise that resolves after `processTextWithGPT` completes
+                um = yield processTextWithGPT(apiKey, um);
             }
-        }, [conversationState.status, conversationState.gptResponse, toast]);
-
-        return <TrafficLightIndicator status={conversationState.status} />;
+        };
     };
 
-    if (!root) {
-        root = ReactDOMClient.createRoot(containerRef.current);
-    }
+    export const start = async (animationManager, appSettings, containerRef) => {
+        if (!containerRef || !containerRef.current) {
+            console.error('Invalid container reference');
+            return;
+        }
 
-    root.render(<ChatApp />);
-};
+        const { apiKey, preferredVoice } = appSettings;
 
-export const stop = () => {
-    if (audioToText) {
-        audioToText.stopRecognition();
-    }
-    if (voiceManager) {
-        voiceManager.stopSpeech();
-    }
-    if (root) {
-        root.unmount();
-        root = null;
-    }
-};
+        // Initialize the modules
+        audioToText = new AudioToText('webspeech');
+        voiceManager = VoiceManager.getInstance(animationManager);
+        await voiceManager.findAndSetVoice(preferredVoice || 'Google UK English Female');
+
+        // Create GPT flow generator, passing the `apiKey`
+        const gptFlow = gptFlowGenerator(apiKey);
+
+        const ChatApp = () => {
+            const toast = useToast();
+
+            const { conversationState, startConversation, stopConversation } = useConvo(
+                audioToText, 
+                voiceManager, 
+                gptFlow  // Pass the generator
+            );
+
+            useEffect(() => {
+                startConversation();
+                return () => stopConversation();
+            }, [startConversation, stopConversation]);
+
+            useEffect(() => {
+                if (conversationState.status === 'thinking') {
+                    toast({
+                        title: 'Processing...',
+                        description: 'Let me check on that for you...',
+                        status: 'info',
+                        duration: 2000,
+                    });
+                } else if (conversationState.status === 'talking') {
+                    toast({
+                        title: 'Response',
+                        description: conversationState.speakingText,
+                        status: 'success',
+                        duration: 4000,
+                    });
+                }
+            }, [conversationState.status, conversationState.speakingText, toast]);
+
+            return <TrafficLightIndicator status={conversationState.status} />;
+        };
+
+        // Create the root only once, using React 18 API
+        if (!root) {
+            root = ReactDOMClient.createRoot(containerRef.current);
+        }
+
+        // Use the root's render method to render the component
+        root.render(<ChatApp />);
+    };
+
+    // Stop the app and clean up when needed
+    export const stop = () => {
+        if (audioToText) {
+            audioToText.stopRecognition();
+        }
+        if (voiceManager) {
+            voiceManager.stopSpeech();
+        }
+        if (root) {
+            root.unmount();  // Correct way to unmount in React 18
+            root = null;  // Reset root
+        }
+    };

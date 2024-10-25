@@ -1,96 +1,118 @@
 import { useState, useCallback, useRef } from 'react';
-import ConversationManager from './../VISOS/cognition/ConversationManager'; 
 
-const useConvo = (audioToText, voiceManager, conversationManager, textToSpeakGen, transcribedTextGen) => {
+const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
     const [conversationState, setConversationState] = useState({
-        status: 'idle',
-        transcribedText: null,
-        speakingText: null,
+        status: 'idle', // Possible statuses: 'idle', 'listening', 'thinking', 'talking'
+        transcribedText: null, // The last transcribed text from the user
+        speakingText: null, // The last text the system is speaking
     });
 
-    // Invoke the generator functions to create iterators
-    const transcribedTextIterator = useRef(transcribedTextGen()).current;
-    const textToSpeakIterator = useRef(textToSpeakGen()).current;
+    const generatorRef = useRef(null); // Store the generator reference
+    const isListeningRef = useRef(false); // Ref to track whether the system is currently in the listening state
 
-    const handleSpeakingText = useCallback(async (text) => {
-        if (!text || text.trim() === '') {
-            setConversationState((prev) => ({
-                ...prev,
-                status: 'listening',
-                speakingText: null,
-            }));
+    // Function to handle user-transcribed text
+    const processTranscribedText = useCallback(async (transcribedText) => {
+        // Ignore any input if the system is not in the listening state
+        if (!isListeningRef.current) {
+            console.log("System is talking, ignoring user input");
             return;
         }
 
-        setConversationState((prev) => ({
-            ...prev,
-            status: 'talking',
-            speakingText: text,
-        }));
-
-        await voiceManager.enqueueText(text);
-
-        setConversationState((prev) => ({
-            ...prev,
-            status: 'listening',
-            speakingText: null,
-        }));
-        startListening();
-    }, [voiceManager]);
-
-    const processTranscribedText = useCallback((transcribedText) => {
-        setConversationState((prev) => ({
-            ...prev,
+        // Set system state to 'thinking' and stop listening
+        setConversationState((prevState) => ({
+            ...prevState,
             status: 'thinking',
             transcribedText,
         }));
 
-        // Get the next feedback from the transcribedTextGenerator
-        const { value: feedback } = transcribedTextIterator.next(transcribedText);
+        isListeningRef.current = false; // Disable listening during thinking
 
-        if (feedback) {
-            handleSpeakingText(feedback).then(() => {
-                const { value: nextQuestion } = textToSpeakIterator.next();  // Iterate the generator
-                if (nextQuestion) {
-                    handleSpeakingText(nextQuestion);
-                } else {
-                    setConversationState((prev) => ({
-                        ...prev,
-                        status: 'idle',
-                        speakingText: null,
-                    }));
-                }
+        try {
+            // Advance the generator with the user's response (transcribed text)
+            const { value: responsePromise } = generatorRef.current.next(transcribedText);
+
+            if (responsePromise instanceof Promise) {
+                const response = await responsePromise;
+
+                // Set system state to 'talking' and speak the response
+                setConversationState({
+                    status: 'talking',
+                    transcribedText,
+                    speakingText: response,
+                });
+
+                await voiceManager.enqueueText(response);  // Speak out the response
+
+                // After speaking, set system state back to 'listening' and resume listening
+                setConversationState((prevState) => ({
+                    ...prevState,
+                    status: 'listening',
+                    speakingText: null,
+                }));
+
+                isListeningRef.current = true;  // Enable listening again
+                audioToText.startContinuousRecognition(processTranscribedText); // Resume listening
+            } else if (typeof responsePromise === 'string') {
+                // Handle predefined messages like initial questions
+                setConversationState({
+                    status: 'talking',
+                    transcribedText,
+                    speakingText: responsePromise,
+                });
+
+                await voiceManager.enqueueText(responsePromise);  // Speak out the response
+
+                // Set system state back to 'listening' and resume listening
+                setConversationState((prevState) => ({
+                    ...prevState,
+                    status: 'listening',
+                    speakingText: null,
+                }));
+
+                isListeningRef.current = true;  // Enable listening again
+                audioToText.startContinuousRecognition(processTranscribedText); // Resume listening
+            } else {
+                console.error("Expected a Promise or string from the generator but got:", responsePromise);
+            }
+        } catch (error) {
+            console.error("Error processing conversation:", error);
+            setConversationState({
+                status: 'error',
+                transcribedText,
+                speakingText: "There was an issue processing your request.",
             });
         }
-    }, [handleSpeakingText, transcribedTextIterator, textToSpeakIterator]);
+    }, [audioToText, voiceManager]);
 
-    const startListening = useCallback(() => {
-        setConversationState((prev) => ({ ...prev, status: 'listening' }));
+    // Function to start the conversation
+    const startConversation = useCallback(() => {
+        setConversationState({ status: 'listening' });
 
-        audioToText.startContinuousRecognition((transcribedText) => {
-            processTranscribedText(transcribedText);
-        });
-    }, [audioToText, processTranscribedText]);
+        if (!generatorRef.current) {
+            generatorRef.current = gptFlowGenerator(); // Initialize the generator
+        }
 
-    const startConversation = useCallback(async () => {
-        const { value: firstQuestion } = textToSpeakIterator.next();
+        const { value: initialMessage } = generatorRef.current.next(); // Get the first question/message
 
-        setConversationState((prev) => ({
-            ...prev,
-            status: 'talking',
-            speakingText: firstQuestion,
-        }));
+        if (typeof initialMessage === 'string') {
+            voiceManager.enqueueText(initialMessage).then(() => {
+                isListeningRef.current = true; // Allow listening after initial message
+                audioToText.startContinuousRecognition(processTranscribedText); // Start listening
+            });
+        } else {
+            console.error("Expected a string for the initial message but got:", initialMessage);
+        }
+    }, [audioToText, voiceManager, processTranscribedText]);
 
-        await voiceManager.enqueueText(firstQuestion);
-
-        setConversationState((prev) => ({ ...prev, status: 'listening', speakingText: null }));
-        startListening();
-    }, [voiceManager, startListening, textToSpeakIterator]);
-
+    // Function to stop the conversation
     const stopConversation = useCallback(() => {
         audioToText.stopRecognition();
         voiceManager.stopSpeech();
-        setConversationState({ status: 'idle', transcribedText: null, speakingText: null });
+        setConversationState({
+            status: 'idle',
+            transcribedText: null,
+            speakingText: null,
+        });
     }, [audioToText, voiceManager]);
 
     return { conversationState, startConversation, stopConversation };

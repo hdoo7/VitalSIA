@@ -21,7 +21,7 @@ const QuizApp = ({ animationManager }) => {
         { french: "Bonjour", english: "Hello" },
         { french: "Merci", english: "Thank you" },
         { french: "Chat", english: "Cat" },
-        { french: "Tet", english: "Head" },
+        { french: "Tête", english: "Head" },
         { french: "Maison", english: "House" },
     ], []);
 
@@ -30,29 +30,24 @@ const QuizApp = ({ animationManager }) => {
         correctAnswersRef.current = correctAnswers; // Keep the ref in sync with the state
     }, [correctAnswers]);
 
-    // Memoize the textToSpeakGenerator for questions
-    const textToSpeakGenerator = useMemo(() => {
+    // Single generator to handle both responses and questions in sequence
+    const quizFlowGenerator = useMemo(() => {
         return function* () {
-            for (let question of questions) {
-                yield `Que veut dire ${question.french} en anglais ?`;
-            }
-            // Final message after all questions have been answered using ref to get the latest value
-            yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswersRef.current} bonnes réponses sur ${questions.length}. Merci d'avoir participé!`;
-        };
-    }, [questions]);
+            for (let i = 0; i < questions.length; i++) {
+                const question = questions[i];
+                let userAnswer = yield `Que veut dire ${question.french} en anglais ?`;  // Ask the question
 
-    // Memoize the transcribedTextGenerator for checking answers
-    const transcribedTextGenerator = useMemo(() => {
-        return function* () {
-            for (let question of questions) {
-                const userAnswer = yield;  // Get user input
+                // Provide feedback based on the answer
                 if (userAnswer.toLowerCase().includes(question.english.toLowerCase())) {
                     setCorrectAnswers((prev) => prev + 1); // Increment correct answers
-                    yield "Correct!";
+                    yield `Correct! Que veut dire ${questions[i + 1]?.french || 'vous avez terminé'} en anglais ?`;
                 } else {
-                    yield `Incorrect. La réponse correcte est: ${question.english}`;
+                    yield `Incorrect. La réponse correcte est: ${question.english}. Que veut dire ${questions[i + 1]?.french || 'vous avez terminé'} en anglais ?`;
                 }
             }
+
+            // Final message after all questions
+            yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswersRef.current} bonnes réponses sur ${questions.length}. Merci d'avoir participé!`;
         };
     }, [questions]);
 
@@ -73,8 +68,7 @@ const QuizApp = ({ animationManager }) => {
         audioToText,
         voiceManager,
         conversationManager,
-        textToSpeakGenerator,
-        transcribedTextGenerator
+        quizFlowGenerator
     );
 
     useEffect(() => {

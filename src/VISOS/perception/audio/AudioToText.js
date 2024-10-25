@@ -2,7 +2,7 @@ export default class AudioToText {
     constructor(recognitionType = 'webspeech') {
         this.recognition = null;
         this.isRecognizing = false;
-        this.isManuallyStopped = false; // New flag to track manual stopping
+        this.isManuallyStopped = false; // Track manual stopping
         this.initRecognition(recognitionType);
     }
 
@@ -41,16 +41,15 @@ export default class AudioToText {
         }
 
         this.isRecognizing = true;
-        const finalTranscript = [];
 
         this.recognition.onresult = (event) => {
             const results = event.results;
-            for (let i = event.resultIndex; i < results.length; i++) {
-                if (results[i].isFinal) {
-                    finalTranscript.push(results[i][0].transcript.trim());
-                }
+            // Get only the latest utterance
+            const latestTranscript = results[event.resultIndex][0].transcript.trim();
+
+            if (results[event.resultIndex].isFinal) {
+                onRecognizedCallback(latestTranscript); // Send only the latest utterance
             }
-            onRecognizedCallback(finalTranscript.join(' ')); // Send the transcription result
         };
 
         // Handle recognition errors
