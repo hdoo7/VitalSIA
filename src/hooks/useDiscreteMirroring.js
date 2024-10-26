@@ -45,13 +45,13 @@ const useDiscreteMirroring = (animationManager, emotionState) => {
             case 'fear':
                 console.log('Mirroring Fear on Agent with fixed intensity');
                 setTimeout(() => {
-                    showFear(animationManager, 100, 700);  // Fixed intensity for fear
+                    showFear(animationManager, 50, 700);  // Fixed intensity for fear
                 }, delay);
                 break;
             case 'disgust':
                 console.log('Mirroring Disgust on Agent with fixed intensity');
                 setTimeout(() => {
-                    showDisgust(animationManager, 100, 700);  // Fixed intensity for disgust
+                    showDisgust(animationManager, 50, 700);  // Fixed intensity for disgust
                 }, delay);
                 break;
             default:

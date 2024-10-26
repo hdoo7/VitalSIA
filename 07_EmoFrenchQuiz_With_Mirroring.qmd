@@ -1,0 +1,39 @@
+
+---
+title: "Deep Dive: EmoFrenchQuiz With Mirroring"
+author: "Your Name"
+format: revealjs
+---
+
+# Deep Dive: EmoFrenchQuiz (With Mirroring)
+
+### Emotion Mirroring in the Quiz
+When mirroring is added, the quiz not only tracks correct answers but also reacts to the user's emotions.
+
+### Key Features
+- **Emotion Mirroring**: Adjusts the quiz tone based on detected user emotions.
+- **Speech and Emotion Sync**: Synchronizes speech output with emotions.
+
+---
+
+# The Structure
+
+```jsx
+const QuizApp = () => {
+  useMirroring(...);  // This hook ensures emotion mirroring is active
+  const { conversationState, startConversation } = useConvo(...);
+
+  return <div>{conversationState.speakingText}</div>;
+};
+```
+
+- **Mirroring**: Changes how responses are spoken based on detected emotions.
+- **User Engagement**: Adds depth to the user’s experience.
+
+---
+
+# Enhancements
+
+### Future Improvements
+- More nuanced emotional responses (e.g., humor when users are frustrated).
+- Customizable emotional feedback based on user preferences.

@@ -1,0 +1,31 @@
+
+---
+title: "Splash Down: Reactive Programming Overview"
+author: "Your Name"
+format: revealjs
+---
+
+# Splash Down: Reactive Programming Overview
+
+### What is Reactive Programming?
+Reactive programming is a declarative programming paradigm concerned with data streams and the propagation of change. It allows you to model your program to react to changes, making it ideal for user interfaces, real-time data, and more.
+
+### Core Concepts
+1. **Observables**: The building blocks of reactive programming.
+2. **Streams**: A flow of data over time.
+3. **Subscriptions**: React to events in the stream.
+
+### Benefits
+- Efficient
+- Easy to scale
+- Good for real-time data handling
+
+---
+
+# Why You Need It
+
+- **Real-time applications**: If you want a dynamic UI.
+- **Event-driven systems**: Perfect for scenarios where user input or data changes frequently.
+- **Declarative**: Focus on what should happen, not how.
+
+---

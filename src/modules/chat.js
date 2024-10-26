@@ -14,14 +14,20 @@
     // Generator for GPT Flow
     const gptFlowGenerator = (apiKey) => {
         return function* () {
-            let um = yield "Hello! How can I assist you today?";
+            const response = yield `Hello!`;
+            if (response == `hello`){
+                let userMessage = yield "How can I assist you today?";
 
-            while (true) { 
-                
-                 // Wait for user's response and use it
-                // Yield a promise that resolves after `processTextWithGPT` completes
-                um = yield processTextWithGPT(apiKey, um);
+                while (true) { 
+                    
+                     // Wait for user's response and use it
+                    // Yield a promise that resolves after `processTextWithGPT` completes
+                    userMessage = yield processTextWithGPT(apiKey, userMessage);
+                }
+            } else {
+                yield `Sorry I don' think I can help with that.`
             }
+
         };
     };
 
@@ -32,6 +38,7 @@
         }
 
         const { apiKey, preferredVoice } = appSettings;
+
 
         // Initialize the modules
         audioToText = new AudioToText('webspeech');

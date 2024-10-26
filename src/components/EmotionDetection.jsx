@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import useEmo from '../hooks/useEmo';
 import DraggableVideoBox from './DraggableVideoBox';
 import EmotionRadarChart from './EmotionRadarChart';

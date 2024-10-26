@@ -2,10 +2,9 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { createRoot } from 'react-dom/client';
 import useConvo from './../hooks/useConvo';  // Custom hook
-import useMirroring from './../hooks/useMirroring';  // Continuous emotion mirroring hook
+import useDiscreteMirroring from './../hooks/useDiscreteMirroring';  // Continuous emotion mirroring hook
 import AudioToText from './../VISOS/perception/audio/AudioToText';
 import VoiceManager from './../VISOS/action/verbalizers/VoiceManager';
-import ConversationManager from './../VISOS/cognition/ConversationManager';
 import TrafficLightIndicator from '../components/TrafficLightIndicator';
 import EmotionDetection from '../components/EmotionDetection';  // Emotion detection component
 
@@ -15,63 +14,68 @@ const QuizApp = ({ animationManager }) => {
     const [correctAnswers, setCorrectAnswers] = useState(0); // Track correct answers
     const [emotionState, setEmotionState] = useState(null);  // Track emotionState for mirroring
     const correctAnswersRef = useRef(correctAnswers); // Ref to store correctAnswers value
+    const quizFlowRef = useRef(null);  // Ref to store the quiz flow generator
     const toast = useToast();
-
-    const questions = useMemo(() => [
-        { french: "Bonjour", english: "Hello" },
-        { french: "Merci", english: "Thank you" },
-        { french: "Chat", english: "Cat" },
-        { french: "Tête", english: "Head" },
-        { french: "Maison", english: "House" },
-    ], []);
 
     // Update correctAnswersRef whenever correctAnswers state changes
     useEffect(() => {
         correctAnswersRef.current = correctAnswers; // Keep the ref in sync with the state
     }, [correctAnswers]);
 
-    // Single generator to handle both responses and questions in sequence
+    // Generator logic to be managed via useRef
     const quizFlowGenerator = useMemo(() => {
         return function* () {
-            for (let i = 0; i < questions.length; i++) {
-                const question = questions[i];
-                let userAnswer = yield `Que veut dire ${question.french} en anglais ?`;  // Ask the question
+            const questions = [
+                { french: "Bonjour", english: "Hello" },
+                { french: "Merci", english: "Thank you" },
+                { french: "Chat", english: "Cat" },
+                { french: "Tête", english: "Head" },
+                { french: "Maison", english: "House" },
+            ];
 
-                // Provide feedback based on the answer
-                if (userAnswer.toLowerCase().includes(question.english.toLowerCase())) {
-                    setCorrectAnswers((prev) => prev + 1); // Increment correct answers
-                    yield `Correct! Que veut dire ${questions[i + 1]?.french || 'vous avez terminé'} en anglais ?`;
-                } else {
-                    yield `Incorrect. La réponse correcte est: ${question.english}. Que veut dire ${questions[i + 1]?.french || 'vous avez terminé'} en anglais ?`;
+            const response = yield `Bonjour!`;
+            if (response == `hello`){
+                let userAnswer = yield `Que veut dire ${questions[0].french} en anglais ?`;  // Ask the question
+
+                for (let i = 0; i < questions.length; i++) {
+                    const question = questions[i];
+                    
+                    // Provide feedback based on the answer
+                    if (userAnswer && userAnswer.toLowerCase().includes(question.english.toLowerCase())) {
+                        setCorrectAnswers((prev) => prev + 1); // Increment correct answers
+                        userAnswer = yield `Correct! Que veut dire ${questions[i + 1]?.french || 'vous avez terminé'} en anglais ?`;
+                    } else {
+                        userAnswer = yield `Incorrect. La réponse correcte est: ${question.english}. Que veut dire ${questions[i + 1]?.french || 'vous avez terminé'} en anglais ?`;
+                    }
                 }
+    
+                // Final message after all questions
+                yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswersRef.current} bonnes réponses sur ${questions.length}. Merci d'avoir participé!`;
+            } else {
+                yield `How very rude!`
             }
 
-            // Final message after all questions
-            yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswersRef.current} bonnes réponses sur ${questions.length}. Merci d'avoir participé!`;
         };
-    }, [questions]);
+    }, []);  // Empty dependency array ensures the generator is created only once
 
-    const [conversationState, setConversationState] = useState({
-        status: 'idle', // Possible statuses: 'idle', 'listening', 'thinking', 'talking'
-        transcribedText: null, // User's transcribed input
-        speakingText: null, // Text currently being spoken
-    });
-
-    const audioToText = useRef(new AudioToText('webspeech')).current;
-    const voiceManager = useRef(VoiceManager.getInstance(animationManager)).current;
-    const conversationManager = useRef(new ConversationManager(1000, audioToText, voiceManager)).current;
+    const audioToText = useRef(new AudioToText('webspeech')).current; // Use useRef to keep the same instance
+    const voiceManager = useRef(VoiceManager.getInstance(animationManager)).current; // Same for voiceManager
 
     // Integrate Emotion Mirroring Hook
-    useMirroring(animationManager, emotionState);  // Use continuous emotion mirroring
+    useDiscreteMirroring(animationManager, emotionState);  // Use continuous emotion mirroring
 
-    const { startConversation, stopConversation } = useConvo(
-        audioToText,
-        voiceManager,
-        conversationManager,
-        quizFlowGenerator
+    const { conversationState, startConversation, stopConversation } = useConvo(
+        audioToText, 
+        voiceManager, 
+        () => quizFlowRef.current  // Pass the generator stored in ref
     );
 
     useEffect(() => {
+        // Set the generator in the ref when initializing
+        if (!quizFlowRef.current) {
+            quizFlowRef.current = quizFlowGenerator();
+        }
+
         voiceManager.findAndSetVoice('Google français').then(() => {
             startConversation();
         });
@@ -79,17 +83,10 @@ const QuizApp = ({ animationManager }) => {
         return () => {
             stopConversation();
         };
-    }, [startConversation, stopConversation, voiceManager]);
+    }, [startConversation, stopConversation, voiceManager, quizFlowGenerator]);
 
     useEffect(() => {
-        if (conversationState.status === 'thinking') {
-            toast({
-                title: 'Processing...',
-                description: 'Processing your response...',
-                status: 'info',
-                duration: 2000,
-            });
-        } else if (conversationState.status === 'talking') {
+        if (conversationState.status === 'talking') {
             toast({
                 title: 'Response',
                 description: conversationState.speakingText,
@@ -97,14 +94,14 @@ const QuizApp = ({ animationManager }) => {
                 duration: 4000,
             });
         }
-    }, [conversationState.status, toast]);
+    }, [conversationState.status, conversationState.speakingText, toast]);
 
     return (
         <div>
-            <EmotionDetection onEmotionStateChange={setEmotionState} />  {/* Emotion Detection */}
+            <EmotionDetection onEmotionStateChange={setEmotionState} />  
             <TrafficLightIndicator status={conversationState.status} />
             <div>
-                <h2>Correct Answers: {correctAnswers}</h2>
+                <h1 style={{fontSize:`33px`}}>Correct Answers: {correctAnswers}</h1>
             </div>
         </div>
     );

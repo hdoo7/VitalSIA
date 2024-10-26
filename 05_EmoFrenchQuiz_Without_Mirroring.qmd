@@ -1,0 +1,39 @@
+
+---
+title: "Deep Dive: EmoFrenchQuiz Without Mirroring"
+author: "Your Name"
+format: revealjs
+---
+
+# Deep Dive: EmoFrenchQuiz (Without Mirroring)
+
+### What is the EmoFrenchQuiz?
+A simple quiz app where users answer questions about French vocabulary. It interacts with the user using voice and tracks scores.
+
+### Key Features
+- **Speech Recognition**: Listens for user answers.
+- **Voice Output**: Speaks out the quiz questions and answers.
+- **Score Tracking**: Keeps track of how many questions were answered correctly.
+
+---
+
+# The Structure
+
+```jsx
+const QuizApp = () => {
+  const { conversationState, startConversation } = useConvo(...);
+
+  return <div>{conversationState.speakingText}</div>;
+};
+```
+
+- **State-driven**: Manages state using `useConvo`.
+- **Score tracking**: Updates the correct answer count as the user answers.
+
+---
+
+# Improvements
+
+### Next Steps
+- Add support for varying question difficulty.
+- Integrate a time-based scoring system.

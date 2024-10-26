@@ -46,7 +46,7 @@ const useMirroring = (animationManager, emotionState) => {
                 break;
             case 'disgust':
                 setTimeout(() => {
-                    showDisgust(animationManager, intensity * 100, 700);
+                    showDisgust(animationManager, intensity * 50, 700);
                 }, delay);
                 break;
             default:
