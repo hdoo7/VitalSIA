@@ -1,0 +1,43 @@
+
+---
+title: "Deep Dive: Chat Component"
+author: "Your Name"
+format: revealjs
+---
+
+# Deep Dive: Chat Component
+
+### What is the Chat Component?
+The chat component is responsible for handling user interactions and communicating with the GPT backend to process text.
+
+### Key Features
+- **Speech Recognition**: The component listens to user input via microphone.
+- **Text Processing**: Sends transcriptions to the backend for processing.
+- **Real-time Responses**: Delivers a real-time conversation experience.
+
+---
+
+# The Core Structure
+
+```jsx
+const ChatApp = () => {
+  const { conversationState, startConversation } = useConvo(...);
+
+  useEffect(() => {
+    startConversation();
+  }, []);
+
+  return <div>{conversationState.speakingText}</div>;
+};
+```
+
+- **Hook-driven**: Uses `useConvo` to manage conversation state.
+- **Effect Management**: Starts the conversation on component mount.
+
+---
+
+# Advanced Topics
+
+### Error Handling
+- Handles speech recognition errors gracefully.
+- Ensures text transcriptions do not clash with spoken text.

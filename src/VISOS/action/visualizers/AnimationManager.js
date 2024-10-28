@@ -48,8 +48,22 @@ export default class AnimationManager {
     }
 
     applyVisemeChange(visemeId, intensity, duration) {
+        // First, reset all visemes to zero
+        this.setVisemeStates(prevVisemeStates => {
+            const updatedVisemeStates = { ...prevVisemeStates };
+            Object.keys(updatedVisemeStates).forEach(id => {
+                if (id !== visemeId) {
+                    updatedVisemeStates[id].intensity = 0;
+                    this.facsLib.setTargetViseme(id, 0, duration);  // Reset in the engine too
+                }
+            });
+            return updatedVisemeStates;
+        });
+    
+        // Then, apply the change to the selected viseme
         this.facsLib.setTargetViseme(visemeId, intensity, duration);
         this.facsLib.updateEngine();
+        
         this.setVisemeStates(prevVisemeStates => ({
             ...prevVisemeStates,
             [visemeId]: { ...prevVisemeStates[visemeId], intensity }

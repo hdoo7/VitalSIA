@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useToast } from '@chakra-ui/react';
 import { createRoot } from 'react-dom/client';
 import useConvo from './../hooks/useConvo';  // Custom hook
@@ -11,36 +11,47 @@ let root = null;
 
 const QuizApp = ({ animationManager }) => {
     const [correctAnswers, setCorrectAnswers] = useState(0); // Track correct answers
+    const correctAnswersRef = useRef(correctAnswers); // Ref to store correctAnswers value
     const toast = useToast();
 
-    const questions = [
+    const questions = useMemo(() => [
         { french: "Bonjour", english: "Hello" },
         { french: "Merci", english: "Thank you" },
         { french: "Chat", english: "Cat" },
         { french: "Tet", english: "Head" },
         { french: "Maison", english: "House" },
-    ];
+    ], []);
 
-    // Generator for speaking questions
-    const textToSpeakGenerator = function* () {
-        for (let question of questions) {
-            yield `Que veut dire ${question.french} en anglais ?`;
-        }
-        yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswers} bonnes réponses sur ${questions.length}.`;
-    };
+    // Update correctAnswersRef whenever correctAnswers state changes
+    useEffect(() => {
+        correctAnswersRef.current = correctAnswers; // Keep the ref in sync with the state
+    }, [correctAnswers]);
 
-    // Generator for checking user transcriptions and counting correct answers
-    const transcribedTextGenerator = function* () {
-        for (let question of questions) {
-            const userAnswer = yield;  // Get user input
-            if (userAnswer.toLowerCase().includes(question.english.toLowerCase())) {
-                setCorrectAnswers((prev) => prev + 1); // Increment correct answers
-                yield "Correct!";
-            } else {
-                yield `Incorrect. La réponse correcte est: ${question.english}`;
+    // Memoize the textToSpeakGenerator for questions
+    const textToSpeakGenerator = useMemo(() => {
+        return function* () {
+            for (let question of questions) {
+                yield `Que veut dire ${question.french} en anglais ?`;
             }
-        }
-    };
+            // Final message after all questions have been answered using ref to get the latest value
+            yield `Vous avez terminé le quiz! Vous avez obtenu ${correctAnswersRef.current} bonnes réponses sur ${questions.length}. Merci d'avoir participé!`;
+        };
+    }, [questions]);
+
+    // Memoize the transcribedTextGenerator for checking answers
+    const transcribedTextGenerator = useMemo(() => {
+        return function* () {
+            for (let question of questions) {
+                const userAnswer = yield;  // Get user input
+                if (userAnswer.toLowerCase().includes(question.english.toLowerCase())) {
+                    setCorrectAnswers((prev) => prev + 1); // Increment correct answers
+                    yield "Correct!";
+                } else {
+                    yield `Incorrect. La réponse correcte est: ${question.english}`;
+                }
+            }
+        };
+    }, [questions]);
 
     const [conversationState, setConversationState] = useState({
         status: 'idle', // Possible statuses: 'idle', 'listening', 'thinking', 'talking'
@@ -56,8 +67,8 @@ const QuizApp = ({ animationManager }) => {
         audioToText,
         voiceManager,
         conversationManager,
-        textToSpeakGenerator(),
-        transcribedTextGenerator()
+        textToSpeakGenerator,
+        transcribedTextGenerator
     );
 
     useEffect(() => {
@@ -68,7 +79,7 @@ const QuizApp = ({ animationManager }) => {
         return () => {
             stopConversation();
         };
-    }, []);
+    }, [startConversation, stopConversation, voiceManager]);
 
     useEffect(() => {
         if (conversationState.status === 'thinking') {
@@ -86,9 +97,16 @@ const QuizApp = ({ animationManager }) => {
                 duration: 4000,
             });
         }
-    }, [conversationState.status]);
+    }, [conversationState.status, toast]);
 
-    return <TrafficLightIndicator status={conversationState.status} />;
+    return (
+        <div>
+            <TrafficLightIndicator status={conversationState.status} />
+            <div>
+                <h2>Correct Answers: {correctAnswers}</h2>
+            </div>
+        </div>
+    );
 };
 
 // Start and Stop the quiz functions

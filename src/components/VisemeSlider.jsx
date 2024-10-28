@@ -1,14 +1,19 @@
 import React, { useState } from 'react';
 import { Box, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Tooltip, Text } from '@chakra-ui/react';
 import * as d3 from 'd3';
-import { on } from 'events';
 
-const VisemeSlider = ({ viseme, name, intensity, notes, onChange, animationManager }) => {
+const VisemeSlider = ({ viseme, name, intensity, notes, onChange, animationManager, setVisemeStates, visemePhoneme }) => {
   const [showTooltip, setShowTooltip] = useState(false);
 
   const handleChange = (value) => {
-    onChange(value);
-    animationManager.applyVisemeChange(parseInt(viseme), value, 0);
+    onChange(value);  // Update the state with the new value
+    animationManager.applyVisemeChange(parseInt(viseme), value, 0);  // Apply the change to the animation system
+    
+    // Update the viseme state
+    setVisemeStates(prev => ({
+      ...prev,
+      [viseme]: { ...prev[viseme], intensity: value }
+    }));
   };
 
   // Color transition from teal to magenta using d3 for dynamic color based on intensity
@@ -18,19 +23,21 @@ const VisemeSlider = ({ viseme, name, intensity, notes, onChange, animationManag
 
   return (
     <Box width="100%">
-      <Text mb={2}>{name}</Text>
+      <Text mb={2}>
+        {name}
+      </Text>
       
       <Slider
-        defaultValue={intensity}
+        value={intensity}  // Controlled value to make sure the slider reflects the state
         min={0}
         max={100}
         step={1}
-        onChange={handleChange}
+        onChange={handleChange}  // Handle slider changes
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
       >
         <SliderTrack>
-          <SliderFilledTrack bg={colorScale(intensity)} />
+          <SliderFilledTrack bg={colorScale(intensity)} />  {/* Dynamic color */}
         </SliderTrack>
         <Tooltip
           hasArrow
@@ -38,7 +45,7 @@ const VisemeSlider = ({ viseme, name, intensity, notes, onChange, animationManag
           color="white"
           placement="top"
           isOpen={showTooltip}
-          label={`${intensity}`}
+          label={`${intensity}`}  // Show the current intensity
         >
           <SliderThumb />
         </Tooltip>
@@ -46,5 +53,5 @@ const VisemeSlider = ({ viseme, name, intensity, notes, onChange, animationManag
     </Box>
   );
 };
-  
+
 export default VisemeSlider;

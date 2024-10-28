@@ -1,5 +1,5 @@
 export default class ConversationManager {
-    constructor(bufferTime = 1000, audioToText, voiceManager, wordThreshold = 5) {
+    constructor(bufferTime = 0, audioToText, voiceManager, wordThreshold = 5) {
         this.bufferTime = bufferTime;
         this.audioToText = audioToText;
         this.voiceManager = voiceManager;  // Now accepts voiceManager
@@ -9,6 +9,12 @@ export default class ConversationManager {
 
     // Start listening and handle incoming transcriptions as a promise
     startListening() {
+        // Prevent starting the recognition process if it's already active
+        if (this.isListening) {
+            console.warn('Recognition is already active. Skipping startListening.');
+            return Promise.resolve();  // Return an empty promise since it's already listening
+        }
+
         return new Promise((resolve, reject) => {
             console.log("Starting listening session...");
             this.isListening = true;
@@ -22,6 +28,7 @@ export default class ConversationManager {
             // Handle errors from audioToText if necessary
             this.audioToText.onerror = (error) => {
                 console.error("Error during speech recognition:", error);
+                this.isListening = false;  // Set listening state to false on error
                 reject(error);  // Reject the promise if there's an error
             };
         });
@@ -30,8 +37,10 @@ export default class ConversationManager {
     // Stop listening
     stopListening() {
         console.log("Stopping listening...");
-        this.isListening = false;
-        this.audioToText.stopRecognition();
+        if (this.isListening) {
+            this.isListening = false;
+            this.audioToText.stopRecognition();
+        }
     }
 
     // Enqueue text and handle speaking while controlling listening behavior
