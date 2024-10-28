@@ -15,7 +15,7 @@
     const gptFlowGenerator = (apiKey) => {
         return function* () {
             const response = yield `Hello!`;
-            if (response == `hello`){
+            if (response.toLowerCase("contains") == `hello`){
                 let userMessage = yield "How can I assist you today?";
 
                 while (true) { 

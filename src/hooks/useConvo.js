@@ -45,7 +45,10 @@ const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
 
             if (responsePromise instanceof Promise) {
                 const response = await responsePromise;
-
+                console.log(response);
+                if (!response){
+                    return;
+                }
                 // Set system state to 'talking' and speak the response
                 setConversationState({
                     status: 'talking',
