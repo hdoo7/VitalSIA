@@ -1,59 +1,55 @@
-class TextToGptReconciler {
-  constructor(apiKey) {
-    if (!apiKey || typeof apiKey !== 'string') {
-      throw new Error('A valid OpenAI API key must be provided.');
-    }
-    this.apiKey = apiKey;
-    this.apiUrl = 'https://api.openai.com/v1/chat/completions';
-  }
-
-  /**
-   * Processes the provided text by sending it to the OpenAI API.
-   * @param {string} text - The input text to process.
-   * @param {string} instruction - Instruction or system prompt for the AI.
-   * @returns {Promise<string>} - The GPT response.
-   */
-  async processText(text, instruction = 'Answer in a professional manner:') {
-    return processTextWithGPT(text, instruction, this.apiKey, this.apiUrl);
-  }
-}
+// Initialize the chat history
+let chatHistory = [];
 
 /**
- * Functional version of processing text with GPT without needing to instantiate the class.
- * @param {string} text - The input text to process.
- * @param {string} instruction - Instruction or system prompt for the AI.
- * @param {string} apiKey - The OpenAI API key.
- * @param {string} apiUrl - The OpenAI API URL.
- * @returns {Promise<string>} - The GPT response.
+ * Initializes the chat history.
+ * Resets the conversation history to start fresh.
  */
-// TextToGptReconciler.js
-export const processTextWithGPT = async (apiKey, text) => {
+export const initializeChat = () => {
+  // Reset the chat history
+  chatHistory = [];
+};
+
+/**
+ * Processes user input by sending it to your backend service.
+ * @param {string} apiKey - The OpenAI API key (not used in this implementation but kept to match the method signature).
+ * @param {string} userInput - The user's response.
+ * @returns {Promise<string>} - The assistant's response.
+ */
+export const processTextWithGPT = async (apiKey, userInput) => {
+  // Add user input to chat history
+  chatHistory.push({ role: 'user', content: userInput });
+
   try {
-    console.log(apiKey)
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-              'Authorization': `Bearer ${apiKey}`,
-              'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-              model: 'gpt-3.5-turbo',
-              messages: [
-                  { role: 'system', content: 'Answer the question in a helpful manner.' },
-                  { role: 'user', content: text },
-              ],
-              max_tokens: 100,
-          }),
-      });
+    // Prepare the payload for the backend service, including the full chat history
+    const payload = {
+      conversation: chatHistory,
+    };
 
-      const data = await response.json();
-      if (!response.ok || !data.choices) {
-          throw new Error(`GPT API error: ${response.status}`);
-      }
+    // Send the POST request to your backend service
+    const response = await fetch('https://server-vercel-function-eevapp.vercel.app/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
 
-      return data.choices[0].message.content;
+    const data = await response.json();
+
+    if (!response.ok || !data.reply) {
+      throw new Error(`Backend service error: ${response.status} - ${data.error || 'Unknown error'}`);
+    }
+
+    // Capture the assistant's response
+    const assistantMessage = data.reply.trim();
+
+    // Add the assistant's response to chat history
+    chatHistory.push({ role: 'assistant', content: assistantMessage });
+
+    return assistantMessage;
   } catch (error) {
-      console.error('Error processing GPT response:', error);
-      throw error;
+    console.error('Error processing response from backend service:', error);
+    throw error;
   }
 };

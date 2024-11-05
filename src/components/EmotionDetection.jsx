@@ -27,7 +27,7 @@ const EmotionDetection = ({ onEmotionStateChange }) => {
         <div>
             <DraggableVideoBox videoElementRef={videoElementRef} emotionState={emotionState} />
             <EmotionRadarChart emotionIntensities={emotionState.emotionIntensities} />
-            <GameText text={emotionState.detectedEmotion || ''} />
+            {/* <GameText text={emotionState.detectedEmotion || ''} /> */}
         </div>
     );
 };

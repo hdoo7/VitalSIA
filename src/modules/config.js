@@ -49,8 +49,26 @@ const modulesConfig = {
       description: "A quiz that asks questions in French and expects answers in English.",
       path: "emoFrenchQuiz",  // The path to the module
     },
-    // Add other apps as necessary
-  ],
+    {
+      name: "AUDIT Screening",
+      description: "This module adminsiters the AUDIT Screening for alcohol abuse disorders.",
+      path: "audit",
+      settings: {
+        apiKey: {
+          name: "apiKey",
+          type: "text",
+          default: "fdasf",
+          description: "API key for the chat application",
+        },
+        triggerPhrases: {
+          name: "triggerPhrases",
+          type: "text",
+          default: "Hey GPT",
+          description: "Trigger phrases to activate chat",
+        },
+      },
+    },  ],
+  
 };
 
 export default modulesConfig;

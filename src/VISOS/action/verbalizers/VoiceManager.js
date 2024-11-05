@@ -2,9 +2,10 @@ import PhonemeExtractor from './PhonemeExtractor';
 import VisemeMapper from './VisemeMapper';
 import PitchAnalyzer from './PitchAnalyzer';
 import natural from 'natural';
+import { toWords } from 'number-to-words';  // Import the number-to-words package
 
 export default class VoiceManager {
-    static instance = null;  // Static instance for singleton
+    static instance = null;
 
     constructor(animationManager, pitchEnhance = false) {
         this.animationManager = animationManager;
@@ -12,12 +13,13 @@ export default class VoiceManager {
         this.isSpeaking = false;
         this.pitchEnhance = pitchEnhance;
         this.synth = window.speechSynthesis;
-        this.voice = null; // Currently selected voice
+        this.voice = null;
         this.phonemeExtractor = new PhonemeExtractor();
         this.visemeMapper = new VisemeMapper();
         this.pitchAnalyzer = new PitchAnalyzer();
-        this.voicesLoadedPromise = this.initVoices(); // Store the voices loading promise
-        this.sentenceTokenizer = new natural.SentenceTokenizer(); // Initialize sentence tokenizer
+        this.voicesLoadedPromise = this.initVoices();
+        this.sentenceTokenizer = new natural.SentenceTokenizer();
+        this.resolveQueue = null;
     }
 
     static getInstance(animationManager, pitchEnhance = false) {
@@ -57,7 +59,6 @@ export default class VoiceManager {
         });
     }
 
-    // Updated method to find and set a voice by name, waiting for voices to load if necessary
     async findAndSetVoice(voiceName) {
         const voices = await this.waitForVoices();
         const foundVoice = voices.find(v => v.name.includes(voiceName));
@@ -84,47 +85,64 @@ export default class VoiceManager {
         this.pitchEnhance = pitchEnhance;
     }
 
-    // Updated enqueueText to break text into sentences and return a promise when finished
+    // Utility function to convert numbers to words, ignoring commas
+    convertNumbersToWords(text) {
+        return text.replace(/\b\d{1,3}(,\d{3})*\b/g, (match) => {
+            const number = parseInt(match.replace(/,/g, ''), 10); // Remove commas and parse the number
+            return toWords(number);
+        });
+    }
+
+    // Updated enqueueText to convert numbers to words, break text into sentences, and return a single promise
     enqueueText(text) {
-        return new Promise((resolve, reject) => {
-            // Check if text is empty or undefined
+        return new Promise((resolve) => {
             if (!text || typeof text !== 'string' || text.trim() === '') {
                 console.warn("Attempted to speak empty or undefined text.");
-                resolve();  // Immediately resolve the promise if text is invalid
+                resolve();  // Immediately resolve if text is invalid
                 return;
             }
 
-            const sentences = this.sentenceTokenizer.tokenize(text);  // Break text into sentences
+            // Convert numbers to words before tokenizing
+            const processedText = this.convertNumbersToWords(text);
+            const sentences = this.sentenceTokenizer.tokenize(processedText);
+
+            this.resolveQueue = resolve;  // Set the resolve function to be called after all sentences
+
             sentences.forEach((sentence) => {
-                this.queue.push({ text: sentence, resolve });
+                this.queue.push({ text: sentence });
             });
+
             if (!this.isSpeaking) {
                 this.processQueue();
             }
         });
     }
 
+    // Process the queue with handling for completing all chunks
     processQueue() {
         if (this.queue.length === 0) {
             this.isSpeaking = false;
+            if (this.resolveQueue) {
+                this.resolveQueue();  // Resolve the main promise once the entire queue finishes
+                this.resolveQueue = null;
+            }
             return;
         }
 
         this.isSpeaking = true;
-        const { text, resolve } = this.queue.shift();
+        const { text } = this.queue.shift();
         this.synthesizeSpeech(text).then(() => {
-            resolve();  // Resolve the promise when this text finishes
-            this.processQueue();  // Process the next text in the queue
+            this.processQueue();  // Process the next chunk in the queue
         });
     }
 
     synthesizeSpeech(text) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             const utterThis = new SpeechSynthesisUtterance(text);
             utterThis.voice = this.voice;
 
             utterThis.onend = () => {
-                console.log("Speech synthesis completed.");
+                console.log("Speech synthesis completed for chunk.");
                 this.animationManager.setVisemeToNeutral();
                 resolve();
             };
@@ -132,7 +150,7 @@ export default class VoiceManager {
             utterThis.onerror = (e) => {
                 console.error("Error during speech synthesis:", e);
                 this.animationManager.setVisemeToNeutral();
-                resolve();  // Resolve to continue processing the queue
+                resolve();
             };
 
             if (this.voice && this.voice.name.includes('Google')) {
@@ -163,7 +181,7 @@ export default class VoiceManager {
                 this.applyVisemes(visemes);
             }, delay);
 
-            delay += word.length * 66; // Adjust this timing based on the length of the word
+            delay += word.length * 66; // Adjust timing based on word length
         });
 
         setTimeout(() => {
@@ -205,15 +223,10 @@ export default class VoiceManager {
     }
 
     interruptSpeech(text) {
-        this.queue = [];
-        this.isSpeaking = false;
-        this.synth.cancel();
-        this.animationManager.setVisemeToNeutral();
-
+        this.stopSpeech();  // Stop current speech
         if (text) {
             this.enqueueText(text);
         }
-
         console.log("Speech synthesis interrupted.");
     }
 }
