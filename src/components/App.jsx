@@ -42,7 +42,9 @@ function App() {
         <div className="App">
             {isLoaded && setupComplete && animationManager && (
                 <>
-                    <p>Unity has loaded, and setup is complete. You can now interact with the Unity content.</p>
+                    <p style={{ fontFamily: 'Arial, sans-serif', fontSize: '14px', color: 'black' }}>
+  Unity has loaded, and setup is complete. You can now interact with the Unity content.
+</p>
                     <SliderDrawer
                         auStates={auStates}
                         setAuStates={setAuStates}

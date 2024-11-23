@@ -1,98 +1,102 @@
 const auditQuestions = `[
+        {
+      text: "How would you describe your emotional state over the past week?",
+      options: [
+        { response: "Very positive", score: 0 },
+        { response: "Mostly positive", score: 1 },
+        { response: "Neutral", score: 2 },
+        { response: "Mostly negative", score: 3 },
+        { response: "Very negative", score: 4 }
+      ]
+    },
     {
-      text: "How often do you have a drink containing alcohol?",
+      text: "How often do you engage in physical activity or exercise?",
+      options: [
+        { response: "Daily", score: 0 },
+        { response: "Several times a week", score: 1 },
+        { response: "Once a week", score: 2 },
+        { response: "Rarely", score: 3 },
+        { response: "Never", score: 4 }
+      ]
+    },
+    {
+      text: "How would you rate your eating habits?",
+      options: [
+        { response: "Very healthy and balanced", score: 0 },
+        { response: "Somewhat healthy and balanced", score: 1 },
+        { response: "Neutral", score: 2 },
+        { response: "Somewhat unhealthy", score: 3 },
+        { response: "Very unhealthy", score: 4 }
+      ]
+    },
+    {
+      text: "Do you make time for hobbies or activities you enjoy?",
+      options: [
+        { response: "Always", score: 0 },
+        { response: "Often", score: 1 },
+        { response: "Sometimes", score: 2 },
+        { response: "Rarely", score: 3 },
+        { response: "Never", score: 4 }
+      ]
+    },
+    {
+      text: "How much sleep do you typically get each night?",
+      options: [
+        { response: "7-9 hours", score: 0 },
+        { response: "6-7 hours", score: 1 },
+        { response: "5-6 hours", score: 2 },
+        { response: "4-5 hours", score: 3 },
+        { response: "Less than 4 hours", score: 4 }
+      ]
+    },
+    {
+      text: "How often do you feel stressed or overwhelmed?",
       options: [
         { response: "Never", score: 0 },
-        { response: "Monthly or less", score: 1 },
-        { response: "2-4 times a month", score: 2 },
-        { response: "2-3 times a week", score: 3 },
-        { response: "4 or more times a week", score: 4 }
+        { response: "Rarely", score: 1 },
+        { response: "Sometimes", score: 2 },
+        { response: "Often", score: 3 },
+        { response: "Always", score: 4 }
       ]
     },
     {
-      text: "How many drinks containing alcohol do you have on a typical day when you are drinking?",
+      text: "How frequently do you prepare and eat meals at home?",
       options: [
-        { response: "1 or 2", score: 0 },
-        { response: "3 or 4", score: 1 },
-        { response: "5 or 6", score: 2 },
-        { response: "7 to 9", score: 3 },
-        { response: "10 or more", score: 4 }
+        { response: "Always", score: 0 },
+        { response: "Often", score: 1 },
+        { response: "Sometimes", score: 2 },
+        { response: "Rarely", score: 3 },
+        { response: "Never", score: 4 }
       ]
     },
     {
-      text: "How often do you have six or more drinks on one occasion?",
+      text: "Do you feel socially connected and supported by others?",
       options: [
-        { response: "Never", score: 0 },
-        { response: "Less than monthly", score: 1 },
-        { response: "Monthly", score: 2 },
-        { response: "Weekly", score: 3 },
-        { response: "Daily or almost daily", score: 4 }
+        { response: "Always", score: 0 },
+        { response: "Often", score: 1 },
+        { response: "Sometimes", score: 2 },
+        { response: "Rarely", score: 3 },
+        { response: "Never", score: 4 }
       ]
     },
     {
-      text: "How often during the last year have you found that you were not able to stop drinking once you had started?",
+      text: "Do you find time to relax and unwind?",
       options: [
-        { response: "Never", score: 0 },
-        { response: "Less than monthly", score: 1 },
-        { response: "Monthly", score: 2 },
-        { response: "Weekly", score: 3 },
-        { response: "Daily or almost daily", score: 4 }
+        { response: "Always", score: 0 },
+        { response: "Often", score: 1 },
+        { response: "Sometimes", score: 2 },
+        { response: "Rarely", score: 3 },
+        { response: "Never", score: 4 }
       ]
     },
     {
-      text: "How often during the last year have you failed to do what was normally expected from you because of drinking?",
+      text: "Do you drink enough water daily?",
       options: [
-        { response: "Never", score: 0 },
-        { response: "Less than monthly", score: 1 },
-        { response: "Monthly", score: 2 },
-        { response: "Weekly", score: 3 },
-        { response: "Daily or almost daily", score: 4 }
-      ]
-    },
-    {
-      text: "How often during the last year have you needed a first drink in the morning to get yourself going after a heavy drinking session?",
-      options: [
-        { response: "Never", score: 0 },
-        { response: "Less than monthly", score: 1 },
-        { response: "Monthly", score: 2 },
-        { response: "Weekly", score: 3 },
-        { response: "Daily or almost daily", score: 4 }
-      ]
-    },
-    {
-      text: "How often during the last year have you had a feeling of guilt or remorse after drinking?",
-      options: [
-        { response: "Never", score: 0 },
-        { response: "Less than monthly", score: 1 },
-        { response: "Monthly", score: 2 },
-        { response: "Weekly", score: 3 },
-        { response: "Daily or almost daily", score: 4 }
-      ]
-    },
-    {
-      text: "How often during the last year have you been unable to remember what happened the night before because of your drinking?",
-      options: [
-        { response: "Never", score: 0 },
-        { response: "Less than monthly", score: 1 },
-        { response: "Monthly", score: 2 },
-        { response: "Weekly", score: 3 },
-        { response: "Daily or almost daily", score: 4 }
-      ]
-    },
-    {
-      text: "Have you or someone else been injured as a result of your drinking?",
-      options: [
-        { response: "No", score: 0 },
-        { response: "Yes, but not in the last year", score: 2 },
-        { response: "Yes, during the last year", score: 4 }
-      ]
-    },
-    {
-      text: "Has a relative, friend, doctor, or other health worker been concerned about your drinking or suggested you cut down?",
-      options: [
-        { response: "No", score: 0 },
-        { response: "Yes, but not in the last year", score: 2 },
-        { response: "Yes, during the last year", score: 4 }
+        { response: "Always", score: 0 },
+        { response: "Often", score: 1 },
+        { response: "Sometimes", score: 2 },
+        { response: "Rarely", score: 3 },
+        { response: "Never", score: 4 }
       ]
     }
   ]`;

@@ -76,6 +76,49 @@ const ModulesMenu = ({ animationManager }) => {
         }
     };
 
+    // File Upload Logic
+    const triggerFileUpload = (fileInput) => {
+        fileInput.click();
+    };
+
+    const FileUploadComponent = ({ fileInputRef }) => {
+        // Function to handle file selection and uploading logic
+        const handleFileChange = async () => {
+            const file = fileInputRef.current.files[0];
+            if (!file) return; // Exit if no file is selected
+
+            // Proceed with file handling (same as before)
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const uploadResponse = await fetch('/upload-endpoint', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (uploadResponse.ok) {
+                const fileData = await uploadResponse.json();
+                console.log('File uploaded successfully:', fileData);
+
+                // Optionally process the file on the server or pass the file URL/URI for further analysis
+                const fileUri = fileData.uri;
+                // Additional logic for processing the file after upload...
+            } else {
+                console.error('File upload failed');
+            }
+        };
+
+        return (
+            <input 
+                type="file" 
+                ref={fileInputRef} 
+                accept=".csv"  // Adjust as needed
+                style={{ display: 'none' }}  // Hide the file input
+                onChange={handleFileChange}  // Handle file selection
+            />
+        );
+    };
+
     const handleModalClose = () => {
         setIsModalOpen(false);
         setSelectedModule(null);
@@ -111,10 +154,13 @@ const ModulesMenu = ({ animationManager }) => {
         setIsMenuOpen(!isMenuOpen);
     };
 
+    // Create a ref for the file input
+    const fileInputRef = useRef(null);
+
     return (
         <Box position="fixed" right="1rem" top="1rem" bg="white" p={4} borderRadius="md" boxShadow="lg">
             <Flex justify="space-between" align="center">
-                <Text fontSize="xl" mb={4}>Modules</Text>
+                <Text fontSize="xl" fontFamily="Arial, sans-serif" mb={4} mr={4}>Start Menu</Text>
                 <IconButton
                     icon={isMenuOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
                     onClick={toggleMenu}
@@ -131,12 +177,15 @@ const ModulesMenu = ({ animationManager }) => {
                 </Alert>
             )}
 
+            {/* Render File Upload Component */}
+            <FileUploadComponent fileInputRef={fileInputRef} />
+
             {isMenuOpen && (
                 <Accordion allowMultiple>
                     {modulesConfig.modules.map((module, index) => (
                         <AccordionItem key={index}>
                             <AccordionButton>
-                                <Box flex="1" textAlign="left">{module.name}</Box>
+                                <Box flex="1" textAlign="left" fontFamily="Arial, sans-serif"> { module.name }</Box>
                                 <AccordionIcon />
                             </AccordionButton>
                             <AccordionPanel pb={4}>
@@ -145,7 +194,20 @@ const ModulesMenu = ({ animationManager }) => {
                                         <InfoIcon />
                                     </Tooltip>
                                     <Switch onChange={(e) => handleSwitchChange(module, e.target.checked)} />
-                                    <Button size="sm" onClick={() => handleConfigClick(module)}>Config</Button>
+                                    <Button size="sm" onClick={() => handleConfigClick(module)} fontFamily="Arial, sans-serif"> Config </Button>
+                                </Flex>
+
+                                <Flex align="center" justify="space-between" mb={2}>
+                                    <Tooltip label={"Click to upload exercise data for analysis."} placement="top">
+                                        <InfoIcon />
+                                    </Tooltip>
+                                    <Button 
+                                        size="sm" 
+                                        onClick={() => triggerFileUpload(fileInputRef.current)}  // Trigger file input click
+                                        fontFamily="Arial, sans-serif"
+                                    >
+                                        Upload Data
+                                    </Button>
                                 </Flex>
                             </AccordionPanel>
                         </AccordionItem>

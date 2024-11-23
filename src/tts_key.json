@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "central-beach-442114-f3",
+  "private_key_id": "30af534bd2e8bf282494f6325fe1a732c59724db",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDbx1lWftw7xdor\nWcoY70HuiwsXQ5sUaBlfYQ27CPxDfCj50y8pLWosFYk0tSokOG6WPYfm069j33CX\nnLBbO3Qn6n2aNMjBw2B26XCA8gm3aRAgAQ899qbqrk5I3eOiZudX4neNo3EH5hYI\nhtkRxcM4XM26/xCtEg/eEu/Nqgc398QmPMYQPUtoZHLFqr+eM50Hw6+P30Jc3h95\n46TNp3CmhW8aMKdf0qlU0p3SxFCxOptBx7t44APHwCjT+mukwluX3xD+Yd1eWMUc\n3g6X2TGPu6aqjYRMhTjDmfYIOiPDd/YouvdVXtvkFIX6INFSlWmIT+iKHSmneeDD\niqw44I4dAgMBAAECgf8kDpCZoDaBl/QzKIf/j0FB4Y3wQycuMeX3v/SAuvioGbaf\nRgZ2uvywPthDzXUcfCWogG/Lbu9Xc1EFjq9gSGDGK7JvmjlVkLhCygmrHgp6DMKY\nfZQClnTMC8zMJ5sxCbDqujzi/+2LXjQ/MeBrCgb9ODyIcVBLFKuFw5WUKFEG3VFE\no9JzmVJZajFv4C8dTY6V2qSkjT80oecYi9anRXLR/CJVdpvUBbSn7tfFXwxi/e0x\neNQ4sYSWOjGdFfI1CZWAXXNnTrtGs8l3DGU3Y+Rlmgd4a0MMfYt7Dui4kvWw1g6/\nfwGDPZpqcKnRnzzouIMbgUJNXuEn/LjJiyhyl9kCgYEA/5gMsV7vYsQdharY5U+W\nIsGTRYRAO19tv36NdoOmjbdLiL9WRaphXgXU2idujOKmdSW1wNaEwqHWFdWdplrr\nEs/B69SIa3l7OPnUCTmQ0gJ56pd861cBEwcpHApaNvY106VnxkcaINA6iwF4M7jH\n93ZeGQRFR8jOdrEvlbDKEj8CgYEA3CC7uLTVYty9hmOLBQiZYpLr+U17INmaYaNE\nS4xhyf7ev9c2KRMezUUA0aoHoLXzw3UR1+5pCJUudXyomNYhszYjiBkJYiVEyBHB\nupyKwl+UeJZtqGS9ez7cMKuxG/MS6BhUsQCTQ0RZf30Dsr6gNio4uFE+ZMEBfbtn\nnK4tEKMCgYEA3gvTIxiNsWkdGK3XJkgg72rqLZ96Sdpatt0Tup0eyckudst7AKTH\nV+6K/0b4dK7G28j6AGCdD5WXLnrZLdeYl0wkdWO7bFsqYNIxkh4PoVMDZXlbzfxU\n85np7fFUdKErHAZ7hDbrDQy5f1+0dIKYPnT3xJYANh/OtjCyXUIsGvMCgYEApFdL\nzvoy1Tw3wr1ObNOesBlAUz+lTUEoIPzjYAPOfh/p7Q+fP8smk9mQYvet+i3db29X\ngv5bLC00IkKPHIvBXSpuHI2Uk9F/KF8ZY1i7v6HcFqs38yBC1mB3w15rO5Kd6uk/\nUWY8i1vb9XI/8JKgyc97yR/elRoDIvtmv3LJ8kECgYEA+zbYdheFgm5nG8BYIHGK\nNKy9C4lKhjCcdVhxX73M/S/QjIHNMdDCeSZ2pQiqQwsT9WTukIWg7f32wVGlOBEJ\nrB7U264a1cQANa2TGc5/KP2uVmU2vzDZoZwryBeMKmLmKCFvPPsHXPLpcwXS70qg\nPnJJQJ709OCfx7ofQ2SMG5o=\n-----END PRIVATE KEY-----\n",
+  "client_email": "vitalsia@central-beach-442114-f3.iam.gserviceaccount.com",
+  "client_id": "114380429606257341728",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/vitalsia%40central-beach-442114-f3.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

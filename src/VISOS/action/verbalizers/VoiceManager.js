@@ -1,25 +1,30 @@
+import { SpeechConfig, SpeechSynthesizer, SpeechSynthesisOutputFormat } from 'microsoft-cognitiveservices-speech-sdk';
 import PhonemeExtractor from './PhonemeExtractor';
 import VisemeMapper from './VisemeMapper';
 import PitchAnalyzer from './PitchAnalyzer';
-import natural from 'natural';
-import { toWords } from 'number-to-words';  // Import the number-to-words package
 
 export default class VoiceManager {
     static instance = null;
 
     constructor(animationManager, pitchEnhance = false) {
         this.animationManager = animationManager;
+        this.synth = window.speechSynthesis;
         this.queue = [];
         this.isSpeaking = false;
         this.pitchEnhance = pitchEnhance;
-        this.synth = window.speechSynthesis;
-        this.voice = null;
+        this.azureConfig = null;
         this.phonemeExtractor = new PhonemeExtractor();
         this.visemeMapper = new VisemeMapper();
         this.pitchAnalyzer = new PitchAnalyzer();
-        this.voicesLoadedPromise = this.initVoices();
-        this.sentenceTokenizer = new natural.SentenceTokenizer();
         this.resolveQueue = null;
+    }
+
+    setPitchEnhance(pitchEnhance) {
+        this.pitchEnhance = pitchEnhance;
+    }
+
+    getVoices() {
+        return this.synth.getVoices();
     }
 
     static getInstance(animationManager, pitchEnhance = false) {
@@ -29,88 +34,35 @@ export default class VoiceManager {
         return VoiceManager.instance;
     }
 
-    initVoices() {
-        return new Promise((resolve) => {
-            this.synth.onvoiceschanged = () => {
-                const voices = this.getVoices();
-                if (!this.voice) {
-                    this.voice = voices.find(voice => voice.name === 'Google US English' || voice.name === 'en-US') || voices[0];
-                }
-                resolve(voices);
-            };
-        });
+    initAzureConfig(subscriptionKey, region) {
+        this.azureConfig = SpeechConfig.fromSubscription(subscriptionKey, region);
+        this.azureConfig.speechSynthesisOutputFormat = SpeechSynthesisOutputFormat.Riff24Khz16BitMonoPcm;
     }
 
-    getVoices() {
-        return this.synth.getVoices();
-    }
-
-    waitForVoices() {
-        return new Promise((resolve) => {
-            let voices = this.synth.getVoices();
-            if (voices.length !== 0) {
-                resolve(voices);
-            } else {
-                this.synth.onvoiceschanged = () => {
-                    voices = this.synth.getVoices();
-                    resolve(voices);
-                };
+    findAndSetVoice(voiceName) {
+        return new Promise((resolve, reject) => {
+            if (!this.azureConfig) {
+                console.error("Azure configuration is not initialized.");
+                reject(new Error("Azure configuration missing."));
+                return;
             }
+
+            this.azureConfig.speechSynthesisVoiceName = voiceName;
+            console.log(`Voice set to: ${voiceName}`);
+            resolve();
         });
     }
 
-    async findAndSetVoice(voiceName) {
-        const voices = await this.waitForVoices();
-        const foundVoice = voices.find(v => v.name.includes(voiceName));
-        if (foundVoice) {
-            this.setVoice(foundVoice.name);
-            console.log(`Voice set to: ${foundVoice.name}`);
-        } else {
-            console.warn(`Voice "${voiceName}" not found.`);
-        }
-    }
-
-    setVoice(voiceName) {
-        const voice = this.synth.getVoices().find(v => v.name === voiceName);
-        if (voice) {
-            this.voice = voice;
-        }
-    }
-
-    getSelectedVoice() {
-        return this.voice;
-    }
-
-    setPitchEnhance(pitchEnhance) {
-        this.pitchEnhance = pitchEnhance;
-    }
-
-    // Utility function to convert numbers to words, ignoring commas
-    convertNumbersToWords(text) {
-        return text.replace(/\b\d{1,3}(,\d{3})*\b/g, (match) => {
-            const number = parseInt(match.replace(/,/g, ''), 10); // Remove commas and parse the number
-            return toWords(number);
-        });
-    }
-
-    // Updated enqueueText to convert numbers to words, break text into sentences, and return a single promise
     enqueueText(text) {
         return new Promise((resolve) => {
             if (!text || typeof text !== 'string' || text.trim() === '') {
                 console.warn("Attempted to speak empty or undefined text.");
-                resolve();  // Immediately resolve if text is invalid
+                resolve();
                 return;
             }
 
-            // Convert numbers to words before tokenizing
-            const processedText = this.convertNumbersToWords(text);
-            const sentences = this.sentenceTokenizer.tokenize(processedText);
-
-            this.resolveQueue = resolve;  // Set the resolve function to be called after all sentences
-
-            sentences.forEach((sentence) => {
-                this.queue.push({ text: sentence });
-            });
+            this.resolveQueue = resolve;
+            this.queue.push(text);
 
             if (!this.isSpeaking) {
                 this.processQueue();
@@ -118,112 +70,146 @@ export default class VoiceManager {
         });
     }
 
-    // Process the queue with handling for completing all chunks
-    processQueue() {
+    async processQueue() {
         if (this.queue.length === 0) {
             this.isSpeaking = false;
             if (this.resolveQueue) {
-                this.resolveQueue();  // Resolve the main promise once the entire queue finishes
+                this.resolveQueue();
                 this.resolveQueue = null;
             }
             return;
         }
 
         this.isSpeaking = true;
-        const { text } = this.queue.shift();
-        this.synthesizeSpeech(text).then(() => {
-            this.processQueue();  // Process the next chunk in the queue
-        });
+        const text = this.queue.shift();
+        try {
+            await this.synthesizeSpeech(text);
+        } catch (error) {
+            console.error("Error during speech synthesis:", error);
+        }
+        this.processQueue();
     }
 
     synthesizeSpeech(text) {
-        return new Promise((resolve) => {
-            const utterThis = new SpeechSynthesisUtterance(text);
-            utterThis.voice = this.voice;
-
-            utterThis.onend = () => {
-                console.log("Speech synthesis completed for chunk.");
-                this.animationManager.setVisemeToNeutral();
-                resolve();
-            };
-
-            utterThis.onerror = (e) => {
-                console.error("Error during speech synthesis:", e);
-                this.animationManager.setVisemeToNeutral();
-                resolve();
-            };
-
-            if (this.voice && this.voice.name.includes('Google')) {
-                this.handleGoogleVoiceWorkaround(text, utterThis);
-            } else {
-                utterThis.onboundary = (event) => {
-                    if (event.name === 'word') {
-                        const word = text.substring(event.charIndex, event.charIndex + event.charLength);
-                        const phonemes = this.phonemeExtractor.extractPhonemes(word);
-                        const visemes = this.visemeMapper.mapPhonemesToVisemes(phonemes);
-                        this.applyVisemes(visemes);
-                    }
-                };
+        return new Promise((resolve, reject) => {
+            if (!this.azureConfig) {
+                console.error("Azure configuration is not initialized.");
+                reject(new Error("Azure configuration missing."));
+                return;
             }
-
-            this.synth.speak(utterThis);
+    
+            const speechSynthesizer = new SpeechSynthesizer(this.azureConfig);
+    
+            speechSynthesizer.speakTextAsync(
+                text,
+                async (result) => {
+                    const audioData = result.audioData;
+                    speechSynthesizer.close();
+    
+                    try {
+                        // Step 1: Extract phonemes from the text
+                        const phonemes = this.phonemeExtractor.extractPhonemes(text);
+    
+                        // Step 2: Map the phonemes to visemes (mouth shapes)
+                        const visemes = this.visemeMapper.mapPhonemesToVisemes(phonemes);
+    
+                        // Step 3: Apply the mapped visemes to the animation model (mouth movements)
+                        this.applyVisemes(visemes); 
+    
+                        // Step 4: Play the audio corresponding to the speech
+                        await this.playAudio(audioData);
+    
+                        // Step 5: Set the viseme to neutral after the speech ends (optional)
+                        this.animationManager.setVisemeToNeutral(); 
+    
+                        resolve();
+                    } catch (playError) {
+                        console.error("Error during speech processing or animation:", playError);
+                        reject(playError);
+                    }
+                },
+                (error) => {
+                    console.error("Azure TTS synthesis error:", error);
+                    speechSynthesizer.close();
+                    reject(error);
+                }
+            );
         });
     }
+    
 
-    handleGoogleVoiceWorkaround(text) {
-        const words = text.split(' ');
-        let delay = 20;
+    playAudio(audioData) {
+        return new Promise((resolve) => {
+            const audioBlob = new Blob([audioData], { type: "audio/wav" });
+            const audioUrl = URL.createObjectURL(audioBlob);
+            const audio = new Audio(audioUrl);
 
-        words.forEach((word, index) => {
-            setTimeout(() => {
-                const phonemes = this.phonemeExtractor.extractPhonemes(word);
-                const visemes = this.visemeMapper.mapPhonemesToVisemes(phonemes);
-                this.applyVisemes(visemes);
-            }, delay);
+            audio.onplay = () => {
+                console.log("Audio playback started.");
+            };
+            audio.onended = () => {
+                console.log("Audio playback ended.");
+                resolve();
+            };
+            audio.onerror = (e) => {
+                console.error("Audio playback error:", e);
+                resolve();
+            };
 
-            delay += word.length * 66; // Adjust timing based on word length
+            audio.play();
         });
-
-        setTimeout(() => {
-            this.animationManager.setVisemeToNeutral();
-        }, delay);
     }
 
     applyVisemes(visemes) {
         let delay = 0;
-
-        visemes.forEach(({ viseme, duration }, i) => {
-            if (viseme === 'PAUSE' && i !== visemes.length - 1) {
-                delay += duration;
+        const wordDurations = {}; 
+    
+        // Iterate over each viseme and track word durations
+        visemes.forEach(({ viseme, duration, word }, index) => {
+            if (!wordDurations[word]) {
+                wordDurations[word] = 0;
+            }
+            wordDurations[word] += duration; 
+        });
+    
+        // Iterate and apply visemes with better timing control
+        visemes.forEach(({ viseme, duration, word }, index) => {
+            const adjustedDuration = duration * 0.47;
+            const adjustedDelay = delay;
+    
+            if (viseme === 'PAUSE' && index !== visemes.length - 1) {
+                delay += adjustedDuration;
                 this.animationManager.applyVisemeChange(0, 1, 0);
             } else {
                 setTimeout(() => {
                     this.animationManager.applyVisemeChange(viseme, 80, 0);
-                }, delay);
-                delay += duration;
+                }, adjustedDelay);
+                delay += adjustedDuration;
             }
-            if (i === visemes.length - 1) {
+    
+            // End the word with neutral viseme after the last viseme in that word
+            if (index === visemes.length - 1 || visemes[index + 1].word !== word) {
                 setTimeout(() => {
                     this.animationManager.applyVisemeChange(viseme, 0, 0);
                 }, delay);
             }
         });
-
+    
         setTimeout(() => {
             this.animationManager.setVisemeToNeutral();
-        }, delay - 300);
+        }, delay);
     }
-
+    
+    
     stopSpeech() {
         this.queue = [];
         this.isSpeaking = false;
-        this.synth.cancel();
         this.animationManager.setVisemeToNeutral();
         console.log("Speech synthesis stopped.");
     }
 
     interruptSpeech(text) {
-        this.stopSpeech();  // Stop current speech
+        this.stopSpeech();
         if (text) {
             this.enqueueText(text);
         }

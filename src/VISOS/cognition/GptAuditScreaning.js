@@ -14,19 +14,19 @@ class GptAuditScreening {
     }
 
     /**
-     * Sets up the AUDIT screening environment with a controlled prompt.
+     * Sets up the session environment with a controlled prompt.
      */
-    initializeScreening() {
-        this.auditHistory = [
+    initializeHealthCompanion() {
+        this.dailyHealthLog = [
             {
                 role: 'system',
-                content: "You are a professional assistant conducting the Alcohol Use Disorders Identification Test (AUDIT) screening. Maintain a professional, helpful demeanor, and stop the screening if the user doesn't need it."
+                content: "You are a professional health management companion designed to assist users with their daily health routines. Maintain a friendly, supportive demeanor, and provide personalized guidance based on the user's health goals and current status. Offer reminders for medication, exercise, and healthy habits. Encourage progress and provide motivational support when needed."
             },
         ];
     }
 
     /**
-     * Processes the user's response to the current AUDIT question.
+     * Processes the user's response to the current health assessment question.
      * @param {string} userResponse - The user's response to the question.
      * @returns {Promise<object>} - Contains the next question or results if the screening is complete.
      */
@@ -38,7 +38,7 @@ class GptAuditScreening {
         // Check if the screening should stop based on early responses
         if (this.shouldStopScreening()) {
             this.screeningStopped = true;
-            return { type: 'results', results: { message: "Screening ended based on your responses. Thank you for your time." }};
+            return { type: 'results', results: { message: "Session ended based on your responses. Thank you for your time." }};
         }
 
         // Move to the next question
@@ -58,7 +58,7 @@ class GptAuditScreening {
     }
 
     /**
-     * Logic to determine if the screening should stop based on responses.
+     * Logic to determine if the session should stop based on responses.
      */
     shouldStopScreening() {
         const firstResponse = this.responses[0]?.response?.toLowerCase();
@@ -70,7 +70,7 @@ class GptAuditScreening {
     }
 
     /**
-     * Checks if all AUDIT questions have been asked.
+     * Checks if all assessment questions have been asked.
      * @returns {boolean} - True if the screening is complete, otherwise false.
      */
     isComplete() {

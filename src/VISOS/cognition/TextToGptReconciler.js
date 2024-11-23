@@ -1,3 +1,7 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import { start as startEmpathy, stop as stopEmpathy } from './empathy.js'; 
+
+
 // Initialize the chat history
 let chatHistory = [];
 
@@ -16,38 +20,47 @@ export const initializeChat = () => {
  * @param {string} userInput - The user's response.
  * @returns {Promise<string>} - The assistant's response.
  */
+
+
 export const processTextWithGPT = async (apiKey, userInput) => {
+  const negativeWords = [
+    "sad", "tired", "depressed", "unhappy", "down", "miserable", "hopeless", 
+    "angry", "stressed", "anxious", "lonely", "isolated", "empty", "heartbroken",
+    "frustrated", "lost", "helpless", "worthless", "burdened", "guilty", "grief",
+    "despair", "hopeless", "overwhelmed", "defeated", "bored", "disappointed", 
+    "painful", "shattered", "sick", "trapped", "rejected", "hurt", "crushed"
+  ];
+  const userInputLower = userInput.toLowerCase();
+  for (let word of negativeWords) {
+    if (userInputLower.includes(word)) {
+        startEmpathy(window.animationManager, {});
+        break; 
+    }
+  }
+
   // Add user input to chat history
   chatHistory.push({ role: 'user', content: userInput });
 
+  const api_Key = "AIzaSyCrxYLaaSUbuGGve2dL5MvZ00KlYIMBQsc";
+  const genAI = new GoogleGenerativeAI(api_Key);
+
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash-latest",
+    systemInstruction: "You are a helpful, caring, and friendly personal health management companion. Keep the response no more than 3 sentences. "
+});
+
+
+
   try {
-    // Prepare the payload for the backend service, including the full chat history
-    const payload = {
-      conversation: chatHistory,
-    };
-
     // Send the POST request to your backend service
-    const response = await fetch('https://server-vercel-function-eevapp.vercel.app/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.reply) {
-      throw new Error(`Backend service error: ${response.status} - ${data.error || 'Unknown error'}`);
-    }
-
-    // Capture the assistant's response
-    const assistantMessage = data.reply.trim();
+    const response = await model.generateContent(userInput);
+    console.log(response.response.text());
 
     // Add the assistant's response to chat history
-    chatHistory.push({ role: 'assistant', content: assistantMessage });
+    chatHistory.push({ role: 'assistant', content: response.response.text()});
+    stopEmpathy(window.animationManager, {});
 
-    return assistantMessage;
+    return response.response.text();
   } catch (error) {
     console.error('Error processing response from backend service:', error);
     throw error;

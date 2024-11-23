@@ -11,14 +11,12 @@ const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
     const isListeningRef = useRef(false); // Track if the system should listen
     const lastSpokenTextRef = useRef(null); // Track the last spoken text to avoid self-transcription
 
-    // Stop the listening function to prevent agent's speech from being transcribed
     const stopListening = useCallback(() => {
         console.log("Stopping listening...");
         audioToText.stopRecognition();
         isListeningRef.current = false; // Ensures that transcribed text will be ignored
     }, [audioToText]);
 
-    // Resume listening with a delay buffer after agent finishes speaking
     const resumeListening = useCallback(() => {
         console.log("Preparing to resume listening...");
         setTimeout(() => {
@@ -30,20 +28,17 @@ const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
         }, 1000); // Buffer to avoid self-transcription
     }, [audioToText]);
 
-    // Handle transcribed text, ignoring if not in listening state or if it's the agent's last spoken text
     const processTranscribedText = useCallback(async (transcribedText) => {
         if (!isListeningRef.current) {
             console.log("Ignoring transcription while talking.");
             return;
         }
 
-        // Check if the transcribed text matches the last spoken text to avoid self-transcription
         if (transcribedText && lastSpokenTextRef.current && transcribedText.trim() === lastSpokenTextRef.current.trim()) {
             console.log("Ignoring self-transcription of agent's spoken text.");
             return;
         }
 
-        // Stop listening and update state to 'thinking'
         stopListening();
         setConversationState((prevState) => ({
             ...prevState,
@@ -58,7 +53,6 @@ const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
                 const response = await responsePromise;
                 if (!response) return;
 
-                // Switch to talking state and speak the response
                 setConversationState({
                     status: 'talking',
                     transcribedText,
@@ -69,16 +63,14 @@ const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
 
                 await voiceManager.enqueueText(response);
 
-                // After speech ends, return to listening state
                 setConversationState((prevState) => ({
                     ...prevState,
                     status: 'listening',
                     speakingText: null,
                 }));
 
-                resumeListening();  // Resume listening with a delay
+                resumeListening();
             } else if (typeof responsePromise === 'string') {
-                // Handle immediate responses
                 setConversationState({
                     status: 'talking',
                     transcribedText,
@@ -95,7 +87,7 @@ const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
                     speakingText: null,
                 }));
 
-                resumeListening();  // Resume listening with a delay
+                resumeListening();
             } else {
                 console.error("Unexpected type from generator:", responsePromise);
             }
@@ -109,9 +101,7 @@ const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
         }
     }, [stopListening, resumeListening, voiceManager]);
 
-    // Start the conversation
     const startConversation = useCallback(() => {
-        // Stop listening before the agent speaks
         stopListening();
 
         setConversationState({ status: 'listening' });
@@ -144,7 +134,6 @@ const useConvo = (audioToText, voiceManager, gptFlowGenerator) => {
         }
     }, [voiceManager, resumeListening, stopListening]);
 
-    // Stop the conversation
     const stopConversation = useCallback(() => {
         stopListening();
         voiceManager.stopSpeech();
