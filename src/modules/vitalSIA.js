@@ -9,13 +9,13 @@ import TrafficLightIndicator from '../components/TrafficLightIndicator';
 import EmotionDetection from '../components/EmotionDetection';
 import { initializeChat, processTextWithGPT } from '../VISOS/cognition/TextToGptReconciler';
 import { resources } from './resources';
-import { start as startSmiling, stop as stopSmiling } from './smile.js'; 
+import { start as startExpress, stop as stopExpress } from './expressions.js'; 
 
 
 let root = null;
 
 const ChatApp = ({ apiKey, animationManager }) => {
-    startSmiling(window.animationManager, {}); 
+    startExpress(window.animationManager, {}); 
 
     const toast = useToast();
     const [isWelcomeOpen, setIsWelcomeOpen] = useState(true);
