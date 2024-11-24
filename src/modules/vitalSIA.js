@@ -12,6 +12,7 @@ import { resources } from './resources';
 import { start as startExpress, stop as stopExpress } from './expressions.js'; 
 
 
+
 let root = null;
 
 const ChatApp = ({ apiKey, animationManager }) => {

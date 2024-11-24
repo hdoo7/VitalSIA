@@ -161,7 +161,7 @@ export default class VoiceManager {
     }
 
     applyVisemes(visemes) {
-        let delay = 0;
+        let delay = 5;
         const wordDurations = {}; 
     
         // Iterate over each viseme and track word durations

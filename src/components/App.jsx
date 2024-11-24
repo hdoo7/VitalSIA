@@ -9,6 +9,8 @@ import { ActionUnitsList, VisemesList } from '../unity/facs/shapeDict';
 import { useToast, Box, Button, Textarea } from '@chakra-ui/react';
 import GameText from './GameText';
 import ModulesMenu from './ModulesMenu';
+import { start as startBlinking, stop as stopBlinking } from './blink.js'; 
+
 
 function App() {
     const { isLoaded, engine, facslib } = useUnityState();
@@ -33,6 +35,8 @@ function App() {
             window.animationManager = manager;
            
             setAnimationManager(manager);
+            startBlinking(window.animationManager, {}); 
+
             // faceMaker(manager, setIsSurveyActive, toast, setRequestIsLoading, speak);
             setSetupComplete(true);
         }
