@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.js": "/eEVA-Workbench/static/js/main.52881f52.js",
+    "main.js": "/eEVA-Workbench/static/js/main.54d94985.js",
     "static/js/619.010e7602.chunk.js": "/eEVA-Workbench/static/js/619.010e7602.chunk.js",
     "static/js/859.836e449e.chunk.js": "/eEVA-Workbench/static/js/859.836e449e.chunk.js",
     "static/js/676.0eae4467.chunk.js": "/eEVA-Workbench/static/js/676.0eae4467.chunk.js",
@@ -14,7 +14,7 @@
     "static/js/814.909a8cef.chunk.js": "/eEVA-Workbench/static/js/814.909a8cef.chunk.js",
     "static/js/132.f2a2ebbc.chunk.js": "/eEVA-Workbench/static/js/132.f2a2ebbc.chunk.js",
     "index.html": "/eEVA-Workbench/index.html",
-    "main.52881f52.js.map": "/eEVA-Workbench/static/js/main.52881f52.js.map",
+    "main.54d94985.js.map": "/eEVA-Workbench/static/js/main.54d94985.js.map",
     "619.010e7602.chunk.js.map": "/eEVA-Workbench/static/js/619.010e7602.chunk.js.map",
     "859.836e449e.chunk.js.map": "/eEVA-Workbench/static/js/859.836e449e.chunk.js.map",
     "676.0eae4467.chunk.js.map": "/eEVA-Workbench/static/js/676.0eae4467.chunk.js.map",
@@ -29,6 +29,6 @@
     "132.f2a2ebbc.chunk.js.map": "/eEVA-Workbench/static/js/132.f2a2ebbc.chunk.js.map"
   },
   "entrypoints": [
-    "static/js/main.52881f52.js"
+    "static/js/main.54d94985.js"
   ]
 }
