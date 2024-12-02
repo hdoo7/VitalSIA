@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkeEVA_Workbench=self.webpackChunkeEVA_Workbench||[]).push([[260],{15260:(t,e,r)=>{r.r(e),r.d(e,{AbstractSocialCue:()=>s});class s{constructor(t,e){if(new.target===s)throw new TypeError("Cannot instantiate an abstract class directly.");this.animationManager=t,this.settings=e}start(){throw new Error("Method 'start()' must be implemented.")}stop(){throw new Error("Method 'stop()' must be implemented.")}}}}]);
+//# sourceMappingURL=260.7ee47f96.chunk.js.map
